@@ -1,0 +1,2147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Property Owner Dashboard — DormFinder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background-color: #f8fafc;
+      color: #1e293b;
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── SIDEBAR (Slate Blue Theme) ────────────────────────── */
+    .sidebar {
+      width: 260px;
+      background-color: #1b2d47;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: fixed;
+      top: 0; bottom: 0; left: 0;
+      z-index: 100;
+    }
+
+    .sidebar-top {
+      padding: 1.5rem 1.25rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #ffffff;
+      text-decoration: none;
+      margin-bottom: 2rem;
+    }
+
+    .brand-mark {
+      width: 34px; height: 34px;
+      background: #314c75;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .sidebar-section-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 0.75rem;
+      font-weight: 700;
+    }
+
+    .sidebar-nav {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      width: 100%;
+      text-align: left;
+    }
+
+    .nav-item span {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-item:hover {
+      background-color: rgba(255,255,255,0.06);
+      color: #ffffff;
+    }
+
+    .nav-item.active {
+      background-color: #314c75;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(49, 76, 117, 0.3);
+    }
+
+    .badge {
+      background: #2563eb;
+      color: #ffffff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 10px;
+    }
+
+    .sidebar-bottom-nav {
+      padding: 1.25rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    /* ── MAIN CONTENT AREA ─────────────────────────────────── */
+    .main-content {
+      margin-left: 260px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      height: 70px;
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .icon-btn {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .icon-btn:hover { background: #f8fafc; color: #1e293b; }
+
+    .user-profile-display {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-meta .owner-name {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.2;
+    }
+
+    .user-meta .owner-role {
+      font-size: 0.72rem;
+      color: #64748b;
+    }
+
+    .dashboard-body {
+      padding: 2.25rem 2.5rem;
+      flex: 1;
+    }
+
+    .tab-view { display: none; }
+    .tab-view.active { display: block; }
+
+    .dash-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+    }
+
+    .dash-title-area p {
+      font-size: 0.82rem;
+      color: #64748b;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .dash-title-area h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+    }
+
+    .btn-add-property {
+      background: #1b2d47;
+      color: #ffffff;
+      border: none;
+      padding: 0.7rem 1.25rem;
+      border-radius: 10px;
+      font-size: 0.875rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(27, 45, 71, 0.2);
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn-add-property:hover { background: #132238; transform: translateY(-1px); }
+
+    /* ── PROFILE TAB STYLES ────────────────────────────────── */
+    .profile-card-box {
+      background: #132238;
+      border-radius: 16px;
+      padding: 2.5rem;
+      color: #ffffff;
+      max-width: 720px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+    }
+
+    .profile-avatar-row {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .profile-avatar-info h4 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+
+    .profile-avatar-info p {
+      font-size: 0.82rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .profile-form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .profile-form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+
+    .profile-form-group input,
+    .profile-form-group textarea {
+      width: 100%;
+      background: #1b2d47;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      color: #ffffff;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .profile-form-group input:focus,
+    .profile-form-group textarea:focus { border-color: #3b82f6; }
+    .profile-form-group textarea { resize: vertical; min-height: 90px; }
+
+    .btn-save-profile {
+      background: #2563eb;
+      color: #ffffff;
+      border: none;
+      width: 100%;
+      padding: 0.85rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: background 0.2s;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+    .btn-save-profile:hover { background: #1d4ed8; }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .stat-icon-box {
+      width: 44px; height: 44px;
+      background: #f1f5f9;
+      color: #1b2d47;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .stat-icon-box.yellow { background: #fef3c7; color: #d97706; }
+    .stat-icon-box.green { background: #d1fae5; color: #059669; }
+
+    .stat-info .stat-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.1;
+      margin-bottom: 2px;
+    }
+
+    .stat-info .stat-label {
+      font-size: 0.8rem;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    /* Section Header */
+    .section-header-flex {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+
+    .section-title-sm h2 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .section-title-sm p {
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+
+    .view-all-link {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: #1b2d47;
+      text-decoration: none;
+    }
+    .view-all-link:hover { text-decoration: underline; }
+
+    /* Property Cards Grid */
+    .properties-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .property-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .property-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+    }
+
+    .prop-img-wrap {
+      height: 180px;
+      position: relative;
+      background-size: cover;
+      background-position: center;
+      cursor: pointer;
+    }
+
+    .prop-status-badge {
+      position: absolute;
+      top: 12px; left: 12px;
+      background: rgba(16, 185, 129, 0.9);
+      color: #ffffff;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+    .prop-status-badge.full { background: rgba(59, 130, 246, 0.9); }
+
+    .prop-options-btn {
+      position: absolute;
+      top: 12px; right: 12px;
+      width: 32px; height: 32px;
+      background: #ffffff;
+      border-radius: 50%;
+      border: none;
+      display: flex; align-items: center; justify-content: center;
+      color: #64748b;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    .prop-content {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      justify-content: space-between;
+    }
+
+    .prop-name {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 2px;
+      cursor: pointer;
+    }
+    .prop-name:hover { color: #2563eb; }
+
+    .prop-address {
+      font-size: 0.82rem;
+      color: #64748b;
+      margin-bottom: 1.25rem;
+    }
+
+    .prop-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 0.85rem;
+      font-size: 0.82rem;
+      color: #64748b;
+    }
+
+    .prop-price {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .prop-price span { font-size: 0.75rem; font-weight: 500; color: #64748b; }
+
+    .btn-manage-prop {
+      color: #1b2d47;
+      font-weight: 700;
+      text-decoration: none;
+      font-size: 0.85rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+    .btn-manage-prop:hover { text-decoration: underline; }
+
+    /* ── PROPERTY DETAIL VIEW STYLES ───────────────────────── */
+    #tab-property-detail {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .back-btn-row {
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-back-dash {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      color: #0f172a;
+      padding: 0.55rem 1.2rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .btn-back-dash:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+    }
+
+    .detail-photo-gallery {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 12px;
+      margin-bottom: 2rem;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .detail-main-img {
+      height: 340px;
+      background-size: cover;
+      background-position: center;
+      border-radius: 14px;
+    }
+
+    .detail-side-imgs {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .detail-sub-img {
+      height: 164px;
+      background-size: cover;
+      background-position: center;
+      border-radius: 14px;
+      position: relative;
+    }
+
+    .detail-more-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.6);
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      border-radius: 14px;
+    }
+
+    .detail-layout-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+    }
+
+    .detail-left-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+
+    .detail-title-row h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+
+    .detail-badges-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.85rem;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .badge-type {
+      background: #eff6ff;
+      color: #2563eb;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 700;
+    }
+
+    .detail-desc-box {
+      font-size: 0.95rem;
+      color: #334155;
+      line-height: 1.5;
+    }
+
+    .detail-section-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .detail-amenities-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .detail-amenity-pill {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 0.7rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .detail-rules-box {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      color: #92400e;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .map-preview-wrapper {
+      position: relative;
+      width: 100%;
+      height: 290px;
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .map-preview-wrapper iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .map-open-btn {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: #ffffff;
+      color: #0f172a;
+      border: 1px solid #cbd5e1;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 12;
+      transition: background 0.2s;
+    }
+    .map-open-btn:hover { background: #f8fafc; color: #2563eb; }
+
+    .owner-contact-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .owner-info-flex {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .owner-info-flex h4 { font-size: 0.95rem; font-weight: 800; color: #0f172a; }
+    .owner-info-flex p { font-size: 0.78rem; color: #64748b; }
+
+    .btn-msg-owner {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      color: #64748b;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .detail-right-col {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 1.5rem;
+      height: fit-content;
+      position: sticky;
+      top: 90px;
+    }
+
+    .detail-price-display {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+    .detail-price-display span { font-size: 0.85rem; font-weight: 500; color: #64748b; }
+
+    .detail-slots-badge {
+      display: inline-block;
+      background: #fef3c7;
+      color: #d97706;
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin-bottom: 1.25rem;
+    }
+
+    .owner-notice-box {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+      font-size: 0.82rem;
+      color: #92400e;
+      font-weight: 600;
+    }
+
+    /* ── ADD / EDIT PROPERTY MODAL STYLES ──────────────────── */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1.5rem;
+    }
+    .modal-backdrop.open { display: flex; }
+
+    .modal-card {
+      background: #ffffff;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 560px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 2rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalPop {
+      0% { transform: scale(0.95); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-header-row h3 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .modal-close-btn {
+      width: 30px; height: 30px;
+      background: #f1f5f9;
+      border: none;
+      border-radius: 50%;
+      color: #64748b;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .modal-close-btn:hover { background: #e2e8f0; color: #0f172a; }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .modal-form-group {
+      margin-bottom: 1.15rem;
+    }
+
+    .modal-form-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+
+    .modal-form-group input,
+    .modal-form-group select,
+    .modal-form-group textarea {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 0.7rem 0.9rem;
+      font-size: 0.9rem;
+      color: #0f172a;
+      outline: none;
+      background: #ffffff;
+      transition: border-color 0.2s;
+    }
+    .modal-form-group input:focus,
+    .modal-form-group select:focus,
+    .modal-form-group textarea:focus { border-color: #2563eb; }
+
+    .modal-form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .fixed-address-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 0.7rem 0.9rem;
+      font-size: 0.9rem;
+      color: #0f172a;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .amenities-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 1.25rem;
+    }
+
+    .amenity-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+    }
+    .amenity-checkbox input {
+      width: 16px; height: 16px; accent-color: #2563eb; cursor: pointer; border-radius: 4px;
+    }
+
+    .photo-upload-box {
+      border: 2px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: 1.25rem;
+      text-align: center;
+      background: #f8fafc;
+      cursor: pointer;
+      margin-bottom: 1rem;
+      transition: border-color 0.2s;
+    }
+    .photo-upload-box:hover { border-color: #2563eb; }
+    .photo-upload-box i { font-size: 1.4rem; color: #64748b; margin-bottom: 4px; }
+    .photo-upload-box p { font-size: 0.85rem; font-weight: 700; color: #0f172a; margin-bottom: 2px; }
+    .photo-upload-box span { font-size: 0.75rem; color: #64748b; }
+
+    .photo-thumbs-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    .photo-thumb-item {
+      width: 70px;
+      height: 70px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .photo-thumb-item .thumb-cover-badge {
+      position: absolute;
+      bottom: 4px; left: 4px; right: 4px;
+      background: #2563eb;
+      color: #ffffff;
+      font-size: 0.6rem;
+      font-weight: 800;
+      text-align: center;
+      border-radius: 4px;
+      padding: 1px 0;
+    }
+
+    .photo-thumb-item .thumb-remove-btn {
+      position: absolute;
+      top: -6px; right: -6px;
+      width: 20px; height: 20px;
+      background: #0f172a;
+      color: #ffffff;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      font-size: 0.65rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+
+    .modal-footer-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 1.25rem;
+    }
+
+    .modal-footer-right {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-modal-cancel {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      color: #475569;
+      padding: 0.7rem 1.4rem;
+      border-radius: 10px;
+      font-size: 0.875rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-modal-cancel:hover { background: #f8fafc; }
+
+    .btn-modal-submit {
+      background: #2563eb;
+      border: none;
+      color: #ffffff;
+      padding: 0.7rem 1.75rem;
+      border-radius: 10px;
+      font-size: 0.875rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+    .btn-modal-submit:hover { background: #1d4ed8; }
+
+    .btn-modal-delete {
+      background: #fee2e2;
+      border: none;
+      color: #dc2626;
+      padding: 0.7rem 1.2rem;
+      border-radius: 10px;
+      font-size: 0.875rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: none;
+    }
+    .btn-modal-delete:hover { background: #fecaca; }
+
+    .empty-state-card {
+      background: #ffffff;
+      border: 1px dashed #cbd5e1;
+      border-radius: 20px;
+      padding: 5rem 2rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .empty-icon-circle {
+      width: 56px; height: 56px;
+      background: #f1f5f9;
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      color: #1b2d47; font-size: 1.25rem; margin-bottom: 1rem;
+    }
+
+    @media (max-width: 1200px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .properties-grid { grid-template-columns: 1fr; }
+      .detail-layout-grid { grid-template-columns: 1fr; }
+      .detail-photo-gallery { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <a href="homepage.html" class="brand">
+        <div class="brand-mark">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M12 2L3 9v13h6v-7h6v7h6V9z"/></svg>
+        </div>
+        DormFinder
+      </a>
+
+      <div class="sidebar-section-title">Property Owner</div>
+      <ul class="sidebar-nav">
+        <li>
+          <button class="nav-item active" onclick="switchTab('overview', this)">
+            <span><i class="fa-solid fa-grid-2"></i> Overview</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-item" onclick="switchTab('properties', this)">
+            <span><i class="fa-solid fa-house-chimney"></i> My Properties</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-item" onclick="switchTab('requests', this)">
+            <span><i class="fa-regular fa-calendar-days"></i> Booking Requests</span>
+            <span class="badge" id="badge-requests">0</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-item" onclick="switchTab('messages', this)">
+            <span><i class="fa-regular fa-message"></i> Messages</span>
+            <span class="badge" id="badge-messages">0</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-item" onclick="switchTab('reviews', this)">
+            <span><i class="fa-regular fa-star"></i> Reviews</span>
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <div class="sidebar-bottom-nav">
+      <button class="nav-item" onclick="switchTab('profile', this)">
+        <span><i class="fa-regular fa-user"></i> Profile</span>
+      </button>
+      <a class="nav-item" href="#" onclick="handleLogout(event)" style="color: #f87171; text-decoration: none;">
+        <span><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-right">
+        <div class="icon-btn">
+          <i class="fa-regular fa-bell"></i>
+        </div>
+
+        <div class="user-profile-display">
+          <div class="user-meta">
+            <div class="owner-name" id="nav-username">Rachel Owens</div>
+            <div class="owner-role">Property owner</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- DASHBOARD BODY -->
+    <div class="dashboard-body">
+
+      <!-- 1. OVERVIEW TAB -->
+      <div id="tab-overview" class="tab-view active">
+        <div class="dash-header-row">
+          <div class="dash-title-area">
+            <p>Property management</p>
+            <h1>Good morning, <span id="greet-name">Rachel</span></h1>
+          </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon-box">
+              <i class="fa-solid fa-house-chimney"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-active-listings">0</div>
+              <div class="stat-label">Active Listings</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon-box yellow">
+              <i class="fa-regular fa-clock"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-pending-requests">0</div>
+              <div class="stat-label">Pending Requests</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon-box green">
+              <i class="fa-solid fa-check"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-approved">0</div>
+              <div class="stat-label">Approved</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon-box">
+              <i class="fa-regular fa-building"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-total-props">0</div>
+              <div class="stat-label">Total Property List</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Your Properties Section -->
+        <div class="section-header-flex">
+          <div class="section-title-sm">
+            <h2>Your properties</h2>
+            <p>Manage your student housing listings</p>
+          </div>
+          <a class="view-all-link" href="#" onclick="switchTab('properties', document.querySelector('.sidebar-nav li:nth-child(2) .nav-item'))">View all</a>
+        </div>
+
+        <div class="properties-grid" id="propertiesGrid">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- 2. MY PROPERTIES TAB -->
+      <div id="tab-properties" class="tab-view">
+        <div class="dash-header-row">
+          <div class="dash-title-area">
+            <p>Property management</p>
+            <h1>My Properties</h1>
+          </div>
+          <button class="btn-add-property" onclick="openAddPropertyModal()">
+            <i class="fa-solid fa-plus"></i> Add property
+          </button>
+        </div>
+        <p style="color: #64748b; margin-bottom: 1.5rem;">Manage listings, availability, and pricing.</p>
+
+        <div class="properties-grid" id="propertiesGridTab">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- 3. BOOKING REQUESTS TAB -->
+      <div id="tab-requests" class="tab-view">
+        <div class="dash-header-row" style="margin-bottom: 1rem;">
+          <div class="dash-title-area">
+            <p>Property management</p>
+            <h1>Booking Requests</h1>
+          </div>
+        </div>
+        <p style="color: #64748b; margin-bottom: 1.75rem;">Review and respond to student viewing requests.</p>
+
+        <div id="ownerBookingsContainer">
+          <div class="empty-state-card">
+            <div class="empty-icon-circle"><i class="fa-regular fa-comment"></i></div>
+            <h3 style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin-bottom: 6px;">No booking requests</h3>
+            <p style="font-size: 0.875rem; color: #64748b;">Student booking and viewing requests will appear here.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. MESSAGES TAB (SPLIT-SCREEN CONVERSATION INBOX) -->
+      <div id="tab-messages" class="tab-view">
+        <div class="dash-header-row" style="margin-bottom: 1rem;">
+          <div class="dash-title-area">
+            <p>Inbox</p>
+            <h1>Conversations</h1>
+          </div>
+        </div>
+        <p style="color: #64748b; margin-bottom: 1.75rem;">Keep up with prospective and current tenants.</p>
+
+        <div style="display: grid; grid-template-columns: 320px 1fr; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; height: 600px; overflow: hidden;">
+          <div style="border-right: 1px solid #e2e8f0; overflow-y: auto;" id="conversationsListContainer">
+            <div style="padding: 1.25rem; color: #64748b; font-size: 0.85rem;">Loading conversations...</div>
+          </div>
+          <div style="display: flex; flex-direction: column; background: #f8fafc;" id="activeChatWindow">
+            <div style="padding: 1.25rem; border-bottom: 1px solid #e2e8f0; background: #ffffff; font-weight: 700; color: #0f172a;" id="activeChatHeader">Select a conversation</div>
+            <div style="flex: 1; padding: 1.5rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem;" id="chatMessagesBox">
+              <div style="text-align: center; color: #94a3b8; margin: auto;">Select a conversation to view messages</div>
+            </div>
+            <div style="padding: 1rem; background: #ffffff; border-top: 1px solid #e2e8f0; display: flex; gap: 10px;">
+              <input type="text" id="chatReplyInput" placeholder="Type a message..." style="flex: 1; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.65rem 1rem; outline: none; font-size: 0.9rem;" onkeydown="if(event.key==='Enter') sendChatReply()"/>
+              <button onclick="sendChatReply()" style="background: #2563eb; color: #ffffff; border: none; padding: 0.65rem 1.25rem; border-radius: 8px; font-weight: 700; cursor: pointer;">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. REVIEWS TAB -->
+      <div id="tab-reviews" class="tab-view">
+        <div class="dash-header-row" style="margin-bottom: 1rem;">
+          <div class="dash-title-area">
+            <p>Property management</p>
+            <h1>Reviews & Ratings</h1>
+          </div>
+        </div>
+        <p style="color: #64748b; margin-bottom: 1.75rem;">See what students are saying about your properties.</p>
+
+        <div class="empty-state-card">
+          <div class="empty-icon-circle"><i class="fa-regular fa-star"></i></div>
+          <h3 style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin-bottom: 6px;">0.0 Average Rating</h3>
+          <p style="font-size: 0.875rem; color: #64748b;">Total of 0 reviews across your active listings.</p>
+        </div>
+      </div>
+
+      <!-- 6. PROFILE TAB -->
+      <div id="tab-profile" class="tab-view">
+        <div class="dash-header-row" style="margin-bottom: 1.5rem;">
+          <div class="dash-title-area">
+            <h1>Manage Account Profile</h1>
+          </div>
+        </div>
+
+        <div class="profile-card-box">
+          <div class="profile-avatar-row">
+            <div class="profile-avatar-info">
+              <h4 id="profile-display-name">Rachel Owens</h4>
+              <p>Property Owner</p>
+            </div>
+          </div>
+
+          <div class="profile-form-group">
+            <label>Full Name</label>
+            <input type="text" id="profile-input-name" />
+          </div>
+
+          <div class="profile-form-group">
+            <label>Email Address</label>
+            <input type="email" id="profile-input-email" readonly />
+          </div>
+
+          <div class="profile-form-group">
+            <label>Contact Number</label>
+            <input type="text" id="profile-input-phone" placeholder="e.g. +63 912 345 6789"/>
+          </div>
+
+          <div class="profile-form-group">
+            <label>Address / Hometown</label>
+            <input type="text" id="profile-input-address" placeholder="e.g. Cebu City, Philippines"/>
+          </div>
+
+          <div class="profile-form-group">
+            <label>Bio / About Me</label>
+            <textarea id="profile-input-bio" placeholder="Write a short bio about yourself as a property owner..."></textarea>
+          </div>
+
+          <button class="btn-save-profile" onclick="saveProfileChanges()">Save Profile Changes</button>
+        </div>
+      </div>
+
+      <!-- 7. PROPERTY DETAIL VIEW -->
+      <div id="tab-property-detail" class="tab-view">
+        <div class="back-btn-row">
+          <button class="btn-back-dash" onclick="switchTab('properties', document.querySelector('.sidebar-nav li:nth-child(2) .nav-item'))">
+            <i class="fa-solid fa-arrow-left"></i> Back to My Properties
+          </button>
+        </div>
+
+        <!-- Photo Gallery Grid -->
+        <div class="detail-photo-gallery" id="detailGalleryContainer">
+          <!-- Dynamically populated -->
+        </div>
+
+        <div class="detail-layout-grid">
+          <div class="detail-left-col">
+            <div>
+              <div class="detail-title-row">
+                <h1 id="detailPropName">Yalung Apartment</h1>
+              </div>
+              <div class="detail-badges-row">
+                <span class="badge-type" id="detailPropType">Apartment</span>
+                <span><i class="fa-solid fa-location-dot"></i> <span id="detailPropLocation">Brgy. Cadulawan, Minglanilla, Cebu</span></span>
+                <span><i class="fa-regular fa-user"></i> <span id="detailPropSlots">1 slot left</span></span>
+                <span style="color: #d97706; font-weight: 700;"><i class="fa-solid fa-star"></i> 4.0</span>
+              </div>
+            </div>
+
+            <div class="detail-desc-box" id="detailPropDesc">
+              Description details...
+            </div>
+
+            <div>
+              <div class="detail-section-title"><i class="fa-regular fa-circle-check"></i> Amenities</div>
+              <div class="detail-amenities-grid" id="detailAmenitiesContainer">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+
+            <div>
+              <div class="detail-section-title"><i class="fa-regular fa-file-lines"></i> House Rules</div>
+              <div class="detail-rules-box" id="detailPropRules">
+                No specific rules.
+              </div>
+            </div>
+
+            <div>
+              <div class="detail-section-title"><i class="fa-solid fa-map-location-dot"></i> Location</div>
+              <div class="map-preview-wrapper">
+                <iframe id="mapEmbedIframe" src="https://www.openstreetmap.org/export/embed.html?bbox=123.755,10.258,123.788,10.288&layer=mapnik"></iframe>
+                <a id="mapExternalLink" href="https://www.openstreetmap.org" target="_blank" class="map-open-btn">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Open in Maps
+                </a>
+              </div>
+            </div>
+
+            <div>
+              <div class="detail-section-title">Property Owner</div>
+              <div class="owner-contact-card">
+                <div class="owner-info-flex">
+                  <div>
+                    <h4 id="detailOwnerName">Rachel Owens</h4>
+                    <p>Property Owner</p>
+                  </div>
+                </div>
+                <button class="btn-msg-owner"><i class="fa-regular fa-message"></i> Message</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-right-col">
+            <div class="detail-price-display" id="detailPropPrice">₱1,500<span>/month</span></div>
+            <div class="detail-slots-badge" id="detailPropSlotsBadge">1 slot left</div>
+
+            <div class="owner-notice-box">
+              <i class="fa-solid fa-triangle-exclamation"></i> You're signed in as a Property Owner.<br/>
+              <span style="font-size: 0.78rem; font-weight: 500; color: #b45309;">Only students can submit booking requests or contact owners.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── ADD / EDIT PROPERTY MODAL ────────────────────────── -->
+  <div class="modal-backdrop" id="addPropertyModal">
+    <div class="modal-card">
+      <div class="modal-header-row">
+        <h3 id="modalTitleText">Add New Listing</h3>
+        <button class="modal-close-btn" onclick="closeAddPropertyModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <input type="hidden" id="editPropertyIndex" value="-1"/>
+
+      <div class="modal-form-group">
+        <label>Property Name</label>
+        <input type="text" id="newPropName" placeholder="e.g. Sunrise Dormitory"/>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="modal-form-group">
+          <label>Type</label>
+          <select id="newPropType">
+            <option value="Dormitory">Dormitory</option>
+            <option value="Boarding House">Boarding House</option>
+            <option value="Apartment">Apartment</option>
+          </select>
+        </div>
+        <div class="modal-form-group">
+          <label>Monthly Rent (₱)</label>
+          <input type="number" id="newPropRent" placeholder="3500"/>
+        </div>
+      </div>
+
+      <div class="modal-form-group">
+        <label>Address / Location</label>
+        <div class="fixed-address-box">Minglanilla, Cebu</div>
+        <label style="font-size: 0.75rem; color: #64748b; margin-top: 6px; margin-bottom: 6px;">Select Barangay:</label>
+        <select id="newPropBarangay" style="width: 100%; border: 1px solid #cbd5e1; border-radius: 10px; padding: 0.7rem 0.9rem; font-size: 0.9rem; color: #0f172a; outline: none; background: #ffffff;">
+          <option value="Cadulawan">Cadulawan</option>
+          <option value="Calajo-an">Calajo-an</option>
+          <option value="Camp 7">Camp 7</option>
+          <option value="Camp 8">Camp 8</option>
+          <option value="Cuanos">Cuanos</option>
+          <option value="Guindaruhan">Guindaruhan</option>
+          <option value="Linao">Linao</option>
+          <option value="Manduang">Manduang</option>
+          <option value="Pakigne">Pakigne</option>
+          <option value="Poblacion Ward I">Poblacion Ward I</option>
+          <option value="Poblacion Ward II">Poblacion Ward II</option>
+          <option value="Poblacion Ward III">Poblacion Ward III</option>
+          <option value="Poblacion Ward IV">Poblacion Ward IV</option>
+          <option value="Tubod">Tubod</option>
+          <option value="Tulay">Tulay</option>
+          <option value="Tunghaan">Tunghaan</option>
+          <option value="Tungkil">Tungkil</option>
+          <option value="Tungkop">Tungkop</option>
+          <option value="Vito">Vito</option>
+        </select>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="modal-form-group">
+          <label>Total Rooms</label>
+          <input type="number" id="newPropTotalRooms" placeholder="10"/>
+        </div>
+        <div class="modal-form-group">
+          <label>Available Rooms</label>
+          <input type="number" id="newPropAvailRooms" placeholder="5"/>
+        </div>
+      </div>
+
+      <div class="modal-form-group">
+        <label>Description</label>
+        <textarea id="newPropDesc" placeholder="Describe your property..."></textarea>
+      </div>
+
+      <div class="modal-form-group">
+        <label>Amenities</label>
+        <div class="amenities-grid">
+          <label class="amenity-checkbox"><input type="checkbox" value="WiFi"/> WiFi</label>
+          <label class="amenity-checkbox"><input type="checkbox" value="AC"/> AC</label>
+          <label class="amenity-checkbox"><input type="checkbox" value="CCTV"/> CCTV</label>
+          <label class="amenity-checkbox"><input type="checkbox" value="Laundry"/> Laundry</label>
+          <label class="amenity-checkbox"><input type="checkbox" value="Kitchen"/> Kitchen</label>
+          <label class="amenity-checkbox"><input type="checkbox" value="Parking"/> Parking</label>
+          <label class="amenity-checkbox"><input type="checkbox" value="Study Area"/> Study Area</label>
+          <label class="amenity-checkbox"><input type="checkbox" value="Gym"/> Gym</label>
+        </div>
+      </div>
+
+      <div class="modal-form-group">
+        <label>House Rules</label>
+        <textarea id="newPropRules" placeholder="e.g. No smoking."></textarea>
+      </div>
+
+      <div class="modal-form-group">
+        <label>Property Photos (optional, up to 5)</label>
+        <div class="photo-upload-box" onclick="triggerPhotoUpload()">
+          <i class="fa-regular fa-image"></i>
+          <p id="uploadCounterText">0/5 photos — click to add more</p>
+          <span>JPG, PNG or WEBP — max 5 MB each</span>
+          <input type="file" id="multiPropImageFiles" accept="image/*" multiple style="display: none;" onchange="handleMultipleImages(event)"/>
+        </div>
+        <div class="photo-thumbs-row" id="photoThumbsContainer"></div>
+      </div>
+
+      <div class="modal-footer-actions">
+        <button class="btn-modal-delete" id="deletePropBtn" onclick="deleteCurrentProperty()">Delete Listing</button>
+        <div class="modal-footer-right">
+          <button class="btn-modal-cancel" onclick="closeAddPropertyModal()">Cancel</button>
+          <button class="btn-modal-submit" id="submitPropBtn" onclick="submitNewProperty()">Add Listing</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const barangayCoordinates = {
+      "Cadulawan": { lat: 10.2727, lon: 123.7718, bbox: "123.755,10.258,123.788,10.288" },
+      "Calajo-an": { lat: 10.2378, lon: 123.7942, bbox: "123.780,10.225,123.810,10.250" },
+      "Camp 7": { lat: 10.2950, lon: 123.7480, bbox: "123.730,10.280,123.765,10.310" },
+      "Camp 8": { lat: 10.2820, lon: 123.7580, bbox: "123.740,10.268,123.775,10.295" },
+      "Cuanos": { lat: 10.2310, lon: 123.7780, bbox: "123.760,10.218,123.795,10.245" },
+      "Guindaruhan": { lat: 10.2825, lon: 123.7652, bbox: "123.750,10.268,123.782,10.298" },
+      "Linao": { lat: 10.2580, lon: 123.7990, bbox: "123.785,10.245,123.815,10.272" },
+      "Manduang": { lat: 10.2640, lon: 123.7520, bbox: "123.735,10.250,123.768,10.278" },
+      "Pakigne": { lat: 10.2530, lon: 123.7920, bbox: "123.778,10.240,123.808,10.268" },
+      "Poblacion Ward I": { lat: 10.2450, lon: 123.7960, bbox: "123.782,10.232,123.810,10.258" },
+      "Poblacion Ward II": { lat: 10.2440, lon: 123.7930, bbox: "123.780,10.230,123.808,10.256" },
+      "Poblacion Ward III": { lat: 10.2480, lon: 123.7890, bbox: "123.775,10.234,123.802,10.260" },
+      "Poblacion Ward IV": { lat: 10.2510, lon: 123.7850, bbox: "123.770,10.238,123.798,10.264" },
+      "Tubod": { lat: 10.2620, lon: 123.7810, bbox: "123.768,10.248,123.795,10.275" },
+      "Tulay": { lat: 10.2360, lon: 123.7880, bbox: "123.772,10.222,123.802,10.250" },
+      "Tunghaan": { lat: 10.2438, lon: 123.7832, bbox: "123.768,10.230,123.798,10.258" },
+      "Tungkil": { lat: 10.2480, lon: 123.8050, bbox: "123.790,10.235,123.820,10.262" },
+      "Tungkop": { lat: 10.2280, lon: 123.7850, bbox: "123.770,10.215,123.800,10.242" },
+      "Vito": { lat: 10.2560, lon: 123.7680, bbox: "123.752,10.242,123.782,10.270" }
+    };
+
+    let customProperties = [];
+    let uploadedImagesList = [];
+    let allUserMessages = [];
+    let activeChatPartnerEmail = null;
+    let activeChatPropertyId = null;
+
+    (function loadOwnerProfile() {
+      const u = JSON.parse(localStorage.getItem('df_user') || 'null');
+      if (u) {
+        if (u.name) {
+          document.getElementById('nav-username').textContent = u.name;
+          document.getElementById('greet-name').textContent = u.name.split(' ')[0];
+          document.getElementById('profile-display-name').textContent = u.name;
+          document.getElementById('profile-input-name').value = u.name;
+        }
+        if (u.email) document.getElementById('profile-input-email').value = u.email;
+        if (u.phone) document.getElementById('profile-input-phone').value = u.phone;
+        if (u.address) document.getElementById('profile-input-address').value = u.address;
+        if (u.bio) document.getElementById('profile-input-bio').value = u.bio;
+      }
+    })();
+
+    function handleLogout(e) {
+      e.preventDefault();
+      localStorage.removeItem('df_user');
+      window.location.href = 'homepage.html';
+    }
+
+    async function fetchOwnerProperties() {
+      const u = JSON.parse(localStorage.getItem('df_user') || '{}');
+      if (!u.email) return;
+
+      try {
+        const response = await fetch(`/api/properties?email=${encodeURIComponent(u.email)}`);
+        const data = await response.json();
+        if (data.success) {
+          customProperties = data.properties;
+          renderProperties();
+        }
+      } catch (err) {
+        console.error('Failed to fetch properties:', err);
+      }
+    }
+
+    function renderProperties() {
+      const grids = [document.getElementById('propertiesGrid'), document.getElementById('propertiesGridTab')];
+      
+      grids.forEach(grid => {
+        if (!grid) return;
+        
+        if (customProperties.length === 0) {
+          grid.innerHTML = `
+            <div class="empty-state-card" style="grid-column: 1 / -1;">
+              <div class="empty-icon-circle"><i class="fa-solid fa-house-chimney"></i></div>
+              <h3>No properties listed yet</h3>
+              <p>Click "+ Add property" in the My Properties tab to publish your first student housing listing.</p>
+            </div>
+          `;
+          return;
+        }
+
+        let html = '';
+        customProperties.forEach((p, index) => {
+          const isFull = p.occupied.split('/')[0] === p.occupied.split('/')[1];
+          html += `
+            <div class="property-card">
+              <div class="prop-img-wrap" style="background-image: url('${p.image}')" onclick="openPropertyDetail(${index})">
+                <span class="prop-status-badge ${isFull ? 'full' : ''}">${isFull ? 'Full' : 'Active'}</span>
+                <button class="prop-options-btn" onclick="event.stopPropagation(); openEditPropertyModal(${index})"><i class="fa-solid fa-ellipsis"></i></button>
+              </div>
+              <div class="prop-content">
+                <div>
+                  <div class="prop-name" onclick="openPropertyDetail(${index})">${p.name}</div>
+                  <div class="prop-address">${p.address}</div>
+                </div>
+                <div class="prop-footer">
+                  <span>${p.occupied} occupied</span>
+                  <div class="prop-price">${p.rent}<span>/mo</span></div>
+                  <button class="btn-manage-prop" onclick="openEditPropertyModal(${index})">Manage</button>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        grid.innerHTML = html;
+      });
+
+      const count = customProperties.length;
+      document.getElementById('stat-active-listings').textContent = count;
+      document.getElementById('stat-total-props').textContent = count;
+    }
+
+    async function fetchOwnerBookings() {
+      const sessionUser = JSON.parse(localStorage.getItem('df_user') || '{}');
+      if (!sessionUser.email) return;
+
+      try {
+        const response = await fetch(`/api/bookings?owner_email=${encodeURIComponent(sessionUser.email)}`);
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          renderOwnerBookings(data.bookings);
+        }
+      } catch (err) {
+        console.error('Failed to fetch owner bookings:', err);
+      }
+    }
+
+    function renderOwnerBookings(bookings) {
+      const container = document.getElementById('ownerBookingsContainer');
+      const pendingCount = bookings.filter(b => b.status === 'pending').length;
+      const approvedCount = bookings.filter(b => b.status === 'approved').length;
+
+      document.getElementById('stat-pending-requests').textContent = pendingCount;
+      document.getElementById('stat-approved').textContent = approvedCount;
+      document.getElementById('badge-requests').textContent = pendingCount;
+
+      if (bookings.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state-card">
+            <div class="empty-icon-circle"><i class="fa-regular fa-comment"></i></div>
+            <h3 style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin-bottom: 6px;">No booking requests</h3>
+            <p style="font-size: 0.875rem; color: #64748b;">Student booking and viewing requests will appear here.</p>
+          </div>
+        `;
+        return;
+      }
+
+      let html = `<div style="display: flex; flex-direction: column; gap: 1rem;">`;
+
+      bookings.forEach(b => {
+        let actionButtons = '';
+        if (b.status === 'pending') {
+          actionButtons = `
+            <button onclick="respondBooking(${b.id}, 'approved')" style="background: #059669; color: #ffffff; border: none; padding: 0.55rem 1.1rem; border-radius: 8px; font-weight: 700; cursor: pointer; margin-right: 6px;">Approve</button>
+            <button onclick="respondBooking(${b.id}, 'rejected')" style="background: #dc2626; color: #ffffff; border: none; padding: 0.55rem 1.1rem; border-radius: 8px; font-weight: 700; cursor: pointer;">Reject</button>
+          `;
+        } else {
+          let statusColor = b.status === 'approved' ? '#059669' : '#dc2626';
+          let statusBg = b.status === 'approved' ? '#d1fae5' : '#fee2e2';
+          actionButtons = `
+            <span style="background: ${statusBg}; color: ${statusColor}; font-weight: 800; font-size: 0.8rem; padding: 6px 14px; border-radius: 20px; text-transform: capitalize;">
+              ${b.status}
+            </span>
+          `;
+        }
+
+        html += `
+          <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.25rem; display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <div style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 4px;">${b.student_name} (${b.student_email})</div>
+              <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 6px;">Property: <strong>${b.property_name}</strong> | Room: <strong>${b.room_name}</strong> | Move-in: ${b.move_in_date}</div>
+              ${b.message ? `<div style="font-size: 0.82rem; color: #475569; font-style: italic;">"${b.message}"</div>` : ''}
+            </div>
+            <div>${actionButtons}</div>
+          </div>
+        `;
+      });
+
+      html += `</div>`;
+      container.innerHTML = html;
+    }
+
+    async function respondBooking(bookingId, status) {
+      try {
+        const response = await fetch(`/api/bookings/${bookingId}/status`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status })
+        });
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          alert(`Booking request has been ${status}.`);
+          fetchOwnerBookings();
+        } else {
+          alert(data.message || 'Failed to update booking status.');
+        }
+      } catch (err) {
+        alert('Could not connect to the server.');
+      }
+    }
+
+    /* ── MESSAGING FUNCTIONS ───────────────────────────── */
+    async function fetchUserMessages() {
+      const sessionUser = JSON.parse(localStorage.getItem('df_user') || '{}');
+      if (!sessionUser.email) return;
+
+      try {
+        const response = await fetch(`/api/messages?email=${encodeURIComponent(sessionUser.email)}`);
+        const data = await response.json();
+        if (response.ok && data.success) {
+          allUserMessages = data.messages;
+          renderConversationsSidebar();
+        }
+      } catch (err) {
+        console.error('Failed to load messages:', err);
+      }
+    }
+
+    function renderConversationsSidebar() {
+      const sessionUser = JSON.parse(localStorage.getItem('df_user') || '{}');
+      const container = document.getElementById('conversationsListContainer');
+      const threadsMap = {};
+
+      allUserMessages.forEach(m => {
+        const partnerEmail = m.sender_email === sessionUser.email ? m.receiver_email : m.sender_email;
+        const partnerName = m.sender_email === sessionUser.email ? 'Student Renter' : m.sender_name;
+        const key = `${partnerEmail}_${m.property_id || 0}`;
+        
+        if (!threadsMap[key]) {
+          threadsMap[key] = { partnerEmail, partnerName, propertyName: m.property_name || 'General Inquiry', propertyId: m.property_id, lastMessage: m.message };
+        } else {
+          threadsMap[key].lastMessage = m.message;
+        }
+      });
+
+      const threads = Object.values(threadsMap);
+      document.getElementById('badge-messages').textContent = threads.length;
+
+      if (threads.length === 0) {
+        container.innerHTML = `<div style="padding: 1.5rem; color: #64748b; text-align: center; font-size: 0.85rem;">No conversations yet.</div>`;
+        return;
+      }
+
+      let html = '';
+      threads.forEach(t => {
+        const isSelected = activeChatPartnerEmail === t.partnerEmail && activeChatPropertyId === t.propertyId;
+        html += `
+          <div onclick="selectConversation('${t.partnerEmail}', '${t.partnerName}', ${t.propertyId}, '${t.propertyName}')" style="padding: 1rem 1.25rem; border-bottom: 1px solid #f1f5f9; cursor: pointer; background: ${isSelected ? '#f1f5f9' : '#ffffff'};">
+            <div style="font-weight: 700; font-size: 0.9rem; color: #0f172a; margin-bottom: 2px;">${t.partnerName}</div>
+            <div style="font-size: 0.75rem; color: #2563eb; font-weight: 600; margin-bottom: 4px;"><i class="fa-solid fa-house"></i> ${t.propertyName}</div>
+            <div style="font-size: 0.82rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${t.lastMessage}</div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    function selectConversation(partnerEmail, partnerName, propertyId, propertyName) {
+      activeChatPartnerEmail = partnerEmail;
+      activeChatPropertyId = propertyId;
+      document.getElementById('activeChatHeader').innerHTML = `${partnerName} <span style="font-size: 0.78rem; font-weight: 500; color: #64748b; margin-left: 8px;">(${propertyName})</span>`;
+      renderActiveChatMessages();
+      renderConversationsSidebar();
+    }
+
+    function renderActiveChatMessages() {
+      const sessionUser = JSON.parse(localStorage.getItem('df_user') || '{}');
+      const chatBox = document.getElementById('chatMessagesBox');
+      const threadMsgs = allUserMessages.filter(m => {
+        return (m.sender_email === activeChatPartnerEmail || m.receiver_email === activeChatPartnerEmail) && String(m.property_id) === String(activeChatPropertyId);
+      });
+
+      if (threadMsgs.length === 0) {
+        chatBox.innerHTML = `<div style="text-align: center; color: #94a3b8; margin: auto;">No messages in this thread yet.</div>`;
+        return;
+      }
+
+      let html = '';
+      threadMsgs.forEach(m => {
+        const isMe = m.sender_email === sessionUser.email;
+        html += `
+          <div style="display: flex; flex-direction: column; align-items: ${isMe ? 'flex-end' : 'flex-start'};">
+            <div style="max-width: 75%; background: ${isMe ? '#2563eb' : '#ffffff'}; color: ${isMe ? '#ffffff' : '#0f172a'}; border: ${isMe ? 'none' : '1px solid #e2e8f0'}; padding: 0.75rem 1rem; border-radius: 12px; font-size: 0.9rem;">${m.message}</div>
+            <span style="font-size: 0.7rem; color: #94a3b8; margin-top: 4px;">${m.created_at}</span>
+          </div>
+        `;
+      });
+      chatBox.innerHTML = html;
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    async function sendChatReply() {
+      const input = document.getElementById('chatReplyInput');
+      const text = input.value.trim();
+      const sessionUser = JSON.parse(localStorage.getItem('df_user') || '{}');
+      if (!text || !activeChatPartnerEmail) return;
+
+      const payload = {
+        property_id: activeChatPropertyId,
+        property_name: 'Dorm Inquiry',
+        sender_email: sessionUser.email,
+        sender_name: sessionUser.name,
+        receiver_email: activeChatPartnerEmail,
+        message: text
+      };
+
+      try {
+        const response = await fetch('/api/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if (response.ok && data.success) {
+          input.value = '';
+          await fetchUserMessages();
+          renderActiveChatMessages();
+        }
+      } catch (err) {
+        alert('Failed to send reply.');
+      }
+    }
+
+    function openPropertyDetail(index) {
+      const p = customProperties[index];
+
+      document.getElementById('detailPropName').textContent = p.name;
+      document.getElementById('detailPropType').textContent = p.type || 'Apartment';
+      document.getElementById('detailPropLocation').textContent = p.barangay ? `Brgy. ${p.barangay}, Minglanilla, Cebu` : p.address;
+      document.getElementById('detailPropSlots').textContent = `${p.availRooms || 1} slot left`;
+      document.getElementById('detailPropSlotsBadge').textContent = `${p.availRooms || 1} slot left`;
+      document.getElementById('detailPropDesc').textContent = p.desc || 'No description provided.';
+      document.getElementById('detailPropRules').textContent = p.rules || 'No specific rules.';
+      document.getElementById('detailPropPrice').innerHTML = `${p.rent}<span>/month</span>`;
+
+      const barangay = p.barangay || 'Cadulawan';
+      const locInfo = barangayCoordinates[barangay] || barangayCoordinates['Cadulawan'];
+
+      document.getElementById('mapEmbedIframe').src = `https://www.openstreetmap.org/export/embed.html?bbox=${locInfo.bbox}&layer=mapnik`;
+      document.getElementById('mapExternalLink').href = `https://www.openstreetmap.org/?mlat=${locInfo.lat}&mlon=${locInfo.lon}#map=15/${locInfo.lat}/${locInfo.lon}`;
+
+      const imgs = p.images && p.images.length > 0 ? p.images : [p.image];
+      let galleryHtml = `<div class="detail-main-img" style="background-image: url('${imgs[0]}')"></div>`;
+      
+      galleryHtml += `<div class="detail-side-imgs">`;
+      if (imgs[1]) {
+        galleryHtml += `<div class="detail-sub-img" style="background-image: url('${imgs[1]}')"></div>`;
+      } else {
+        galleryHtml += `<div class="detail-sub-img" style="background-image: url('${imgs[0]}')"></div>`;
+      }
+
+      if (imgs[2]) {
+        galleryHtml += `
+          <div class="detail-sub-img" style="background-image: url('${imgs[2]}')">
+            <div class="detail-more-overlay">
+              <i class="fa-regular fa-image" style="font-size: 1.1rem; margin-bottom: 2px;"></i>
+              View all ${imgs.length} photos
+            </div>
+          </div>
+        `;
+      } else {
+        galleryHtml += `
+          <div class="detail-sub-img" style="background-image: url('${imgs[0]}')">
+            <div class="detail-more-overlay">
+              <i class="fa-regular fa-image" style="font-size: 1.1rem; margin-bottom: 2px;"></i>
+              View all ${imgs.length} photos
+            </div>
+          </div>
+        `;
+      }
+      galleryHtml += `</div>`;
+      document.getElementById('detailGalleryContainer').innerHTML = galleryHtml;
+
+      const amContainer = document.getElementById('detailAmenitiesContainer');
+      let amHtml = '';
+      const listAm = p.amenities && p.amenities.length > 0 ? p.amenities : ['WiFi', 'AC', 'Kitchen'];
+      listAm.forEach(am => {
+        amHtml += `<div class="detail-amenity-pill"><i class="fa-solid fa-check" style="color: #2563eb;"></i> ${am}</div>`;
+      });
+      amContainer.innerHTML = amHtml;
+
+      const ownerName = document.getElementById('nav-username').textContent;
+      document.getElementById('detailOwnerName').textContent = ownerName;
+
+      switchTab('property-detail');
+    }
+
+    function triggerPhotoUpload() {
+      if (uploadedImagesList.length >= 5) {
+        alert('Maximum of 5 photos reached.');
+        return;
+      }
+      document.getElementById('multiPropImageFiles').click();
+    }
+
+    function handleMultipleImages(event) {
+      const files = event.target.files;
+      if (!files) return;
+
+      for (let i = 0; i < files.length; i++) {
+        if (uploadedImagesList.length >= 5) break;
+        const file = files[i];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          uploadedImagesList.push(e.target.result);
+          renderThumbnails();
+        };
+        reader.readAsDataURL(file);
+      }
+      event.target.value = '';
+    }
+
+    function removeImage(index) {
+      uploadedImagesList.splice(index, 1);
+      renderThumbnails();
+    }
+
+    function renderThumbnails() {
+      const container = document.getElementById('photoThumbsContainer');
+      const counterText = document.getElementById('uploadCounterText');
+      
+      counterText.textContent = `${uploadedImagesList.length}/5 photos — click to add more`;
+
+      let html = '';
+      uploadedImagesList.forEach((imgSrc, idx) => {
+        html += `
+          <div class="photo-thumb-item" style="background-image: url('${imgSrc}')">
+            ${idx === 0 ? '<div class="thumb-cover-badge">COVER</div>' : ''}
+            <div class="thumb-remove-btn" onclick="removeImage(${idx})"><i class="fa-solid fa-xmark"></i></div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    function openAddPropertyModal() {
+      document.getElementById('editPropertyIndex').value = '-1';
+      document.getElementById('modalTitleText').textContent = 'Add New Listing';
+      document.getElementById('submitPropBtn').textContent = 'Add Listing';
+      document.getElementById('deletePropBtn').style.display = 'none';
+
+      document.getElementById('newPropName').value = '';
+      document.getElementById('newPropType').value = 'Apartment';
+      document.getElementById('newPropRent').value = '';
+      document.getElementById('newPropBarangay').value = 'Cadulawan';
+      document.getElementById('newPropTotalRooms').value = '';
+      document.getElementById('newPropAvailRooms').value = '';
+      document.getElementById('newPropDesc').value = '';
+      document.getElementById('newPropRules').value = '';
+      document.querySelectorAll('.amenities-grid input[type="checkbox"]').forEach(cb => cb.checked = false);
+
+      uploadedImagesList = [];
+      renderThumbnails();
+      document.getElementById('addPropertyModal').classList.add('open');
+    }
+
+    function openEditPropertyModal(index) {
+      const p = customProperties[index];
+      document.getElementById('editPropertyIndex').value = index;
+      document.getElementById('modalTitleText').textContent = 'Edit Property Listing';
+      document.getElementById('submitPropBtn').textContent = 'Save Changes';
+      document.getElementById('deletePropBtn').style.display = 'block';
+
+      document.getElementById('newPropName').value = p.name || '';
+      document.getElementById('newPropType').value = p.type || 'Apartment';
+      document.getElementById('newPropRent').value = p.rawRent || '';
+      document.getElementById('newPropBarangay').value = p.barangay || 'Cadulawan';
+      document.getElementById('newPropTotalRooms').value = p.totalRooms || '10';
+      document.getElementById('newPropAvailRooms').value = p.availRooms || '5';
+      document.getElementById('newPropDesc').value = p.desc || '';
+      document.getElementById('newPropRules').value = p.rules || '';
+
+      document.querySelectorAll('.amenities-grid input[type="checkbox"]').forEach(cb => {
+        cb.checked = p.amenities && p.amenities.includes(cb.value);
+      });
+
+      uploadedImagesList = p.images ? [...p.images] : [p.image];
+      renderThumbnails();
+      document.getElementById('addPropertyModal').classList.add('open');
+    }
+
+    function closeAddPropertyModal() {
+      document.getElementById('addPropertyModal').classList.remove('open');
+    }
+
+    async function submitNewProperty() {
+      const editIndex = document.getElementById('editPropertyIndex').value;
+      const propId = editIndex !== '-1' && customProperties[editIndex] ? customProperties[editIndex].id : null;
+      
+      const sessionUser = JSON.parse(localStorage.getItem('df_user') || '{}');
+      const ownerEmail = sessionUser.email;
+
+      if (!ownerEmail) {
+        alert('Owner session not found. Please log in again.');
+        return;
+      }
+
+      const name = document.getElementById('newPropName').value.trim();
+      const type = document.getElementById('newPropType').value;
+      const rentVal = document.getElementById('newPropRent').value.trim();
+      const selectedBarangay = document.getElementById('newPropBarangay').value;
+      const totalRooms = document.getElementById('newPropTotalRooms').value.trim() || '10';
+      const availRooms = document.getElementById('newPropAvailRooms').value.trim() || '5';
+      const desc = document.getElementById('newPropDesc').value.trim();
+      const rules = document.getElementById('newPropRules').value.trim();
+
+      const selectedAmenities = [];
+      document.querySelectorAll('.amenities-grid input[type="checkbox"]:checked').forEach(cb => {
+        selectedAmenities.push(cb.value);
+      });
+
+      if (!name || !rentVal) {
+        alert('Please fill out the required property name and monthly rent fields.');
+        return;
+      }
+
+      const fullAddress = `Brgy. ${selectedBarangay}, Minglanilla, Cebu`;
+      const occupiedCount = parseInt(totalRooms) - parseInt(availRooms);
+      const occupiedStr = `${Math.max(0, occupiedCount)}/${totalRooms}`;
+      const formattedRent = `₱${parseInt(rentVal).toLocaleString()}`;
+      
+      const propertyImages = uploadedImagesList.length > 0 ? uploadedImagesList : ['https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=600&q=80'];
+      const primaryImage = propertyImages[0];
+
+      const propertyPayload = {
+        id: propId,
+        owner_email: ownerEmail,
+        name,
+        type,
+        address: fullAddress,
+        barangay: selectedBarangay,
+        rawRent: rentVal,
+        rent: formattedRent,
+        totalRooms,
+        availRooms,
+        occupied: occupiedStr,
+        desc,
+        rules,
+        amenities: selectedAmenities,
+        image: primaryImage
+      };
+
+      try {
+        const response = await fetch('/api/properties', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(propertyPayload)
+        });
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          alert('Property saved successfully to database!');
+          closeAddPropertyModal();
+          fetchOwnerProperties();
+        } else {
+          alert(data.message || 'Failed to save property.');
+        }
+      } catch (err) {
+        alert('Could not connect to server.');
+      }
+    }
+
+    async function deleteCurrentProperty() {
+      const editIndex = parseInt(document.getElementById('editPropertyIndex').value);
+      if (editIndex >= 0 && customProperties[editIndex]) {
+        const propId = customProperties[editIndex].id;
+        
+        if (confirm('Are you sure you want to delete this property listing from the database?')) {
+          try {
+            const response = await fetch(`/api/properties/${propId}`, { method: 'DELETE' });
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+              alert('Property deleted successfully.');
+              closeAddPropertyModal();
+              fetchOwnerProperties();
+            } else {
+              alert(data.message || 'Failed to delete property.');
+            }
+          } catch (err) {
+            alert('Could not connect to server.');
+          }
+        }
+      }
+    }
+
+    function switchTab(tabId, el) {
+      document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.sidebar-nav .nav-item, .sidebar-bottom-nav .nav-item').forEach(n => n.classList.remove('active'));
+
+      const target = document.getElementById('tab-' + tabId);
+      if (target) target.classList.add('active');
+
+      if (el) {
+        el.classList.add('active');
+      } else {
+        const matchingNav = document.querySelector(`[onclick*="'${tabId}'"]`);
+        if (matchingNav) matchingNav.classList.add('active');
+      }
+      window.scrollTo(0, 0);
+
+      if (tabId === 'requests') {
+        fetchOwnerBookings();
+      } else if (tabId === 'messages') {
+        fetchUserMessages();
+      }
+    }
+
+    async function saveProfileChanges() {
+      const newName = document.getElementById('profile-input-name').value.trim();
+      const newPhone = document.getElementById('profile-input-phone').value.trim();
+      const newAddress = document.getElementById('profile-input-address').value.trim();
+      const newBio = document.getElementById('profile-input-bio').value.trim();
+      
+      const sessionUser = JSON.parse(localStorage.getItem('df_user') || '{}');
+      const userEmail = sessionUser.email;
+
+      if (!newName) {
+        alert('Please enter a valid full name.');
+        return;
+      }
+
+      if (!userEmail) {
+        alert('User email session not found. Please sign in again.');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/update-profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            fullname: newName, 
+            email: userEmail,
+            phone: newPhone,
+            address: newAddress,
+            bio: newBio
+          })
+        });
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          document.getElementById('nav-username').textContent = data.user.name;
+          document.getElementById('greet-name').textContent = data.user.name.split(' ')[0];
+          document.getElementById('profile-display-name').textContent = data.user.name;
+
+          localStorage.setItem('df_user', JSON.stringify(data.user));
+          alert('Profile successfully updated in the database!');
+        } else {
+          alert(data.message || 'Failed to update profile.');
+        }
+      } catch (err) {
+        alert('Could not connect to the server.');
+      }
+    }
+
+    fetchOwnerProperties();
+    fetchOwnerBookings();
+    fetchUserMessages();
+  </script>
+</body>
+</html>

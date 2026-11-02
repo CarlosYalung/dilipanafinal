@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DormFinder — Find Your Perfect Dorm Near Campus</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    /* ═══════════════════════════════════════════════════════════
+        LANDING — GLOBAL (Slate Blue Theme)
+    ═══════════════════════════════════════════════════════════ */
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: #060d1f;
+      color: #ffffff;
+      overflow-x: hidden;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    section { position: relative; }
+
+    .container {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+
+    /* ── NAVBAR ─────────────────────────────────────────────── */
+    .land-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 900;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      transition: background 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease;
+    }
+
+    .land-nav.scrolled {
+      background: rgba(6,13,31,0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.07);
+    }
+
+    .land-nav .container {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: white;
+      letter-spacing: -0.04em;
+      text-decoration: none;
+    }
+
+    .nav-brand-mark {
+      width: 36px; height: 36px;
+      background: #314c75;
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .nav-brand-mark svg { display: block; }
+    .nav-brand .gold { color: #fbbf24; }
+
+    .nav-center {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .land-nav-link {
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.65);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      text-decoration: none;
+    }
+    .land-nav-link:hover { background: rgba(255,255,255,0.08); color: white; }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-nav-outline {
+      padding: 7px 16px;
+      border-radius: 8px;
+      border: 1.5px solid rgba(255,255,255,0.25);
+      background: transparent;
+      color: white;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      text-decoration: none;
+    }
+    .btn-nav-outline:hover { border-color: white; background: rgba(255,255,255,0.08); }
+
+    .btn-nav-solid {
+      padding: 7px 18px;
+      border-radius: 8px;
+      border: none;
+      background: #2866c4;
+      color: white;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.15s;
+      box-shadow: 0 2px 8px rgba(49,76,117,0.40);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+    .btn-nav-solid:hover { background: #263c5d; transform: translateY(-1px); }
+
+    /* ── HERO ───────────────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding-top: 64px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=1600&q=80');
+      background-size: cover;
+      background-position: center;
+      z-index: 0;
+    }
+
+    .hero-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        110deg,
+        rgba(6,13,31,0.96) 0%,
+        rgba(13,27,62,0.90) 45%,
+        rgba(13,27,62,0.55) 100%
+      );
+    }
+
+    .hero-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 1;
+    }
+    .hero-orb-1 {
+      width: 500px; height: 500px;
+      background: rgba(49,76,117,0.22);
+      top: -100px; left: -150px;
+    }
+    .hero-orb-2 {
+      width: 350px; height: 350px;
+      background: rgba(96,165,250,0.12);
+      bottom: 50px; right: 100px;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      padding: 80px 0 100px;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 13px;
+      background: rgba(49,76,117,0.25);
+      border: 1px solid rgba(96,165,250,0.30);
+      border-radius: 100px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #93c5fd;
+      letter-spacing: 0.04em;
+      margin-bottom: 20px;
+    }
+
+    .hero-eyebrow .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #60a5fa;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    .hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      font-weight: 800;
+      color: white;
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+      margin-bottom: 20px;
+      max-width: 680px;
+    }
+
+    .hero h1 .accent {
+      color: #fbbf24;
+      position: relative;
+    }
+
+    .hero-sub {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,0.62);
+      line-height: 1.7;
+      max-width: 500px;
+      margin-bottom: 36px;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-hero-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      background: #1461d4;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 16px rgba(49,76,117,0.45);
+    }
+    .btn-hero-primary:hover {
+      background: #263c5d;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(49,76,117,0.50);
+    }
+
+    .btn-hero-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 24px;
+      background: rgba(255,255,255,0.08);
+      color: white;
+      border: 1.5px solid rgba(255,255,255,0.20);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      text-decoration: none;
+    }
+    .btn-hero-ghost:hover { background: rgba(255,255,255,0.13); border-color: rgba(255,255,255,0.40); }
+
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+      margin-top: 56px;
+      padding-top: 40px;
+      border-top: 1px solid rgba(255,255,255,0.10);
+      flex-wrap: wrap;
+    }
+
+    .hero-stat h3 {
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: white;
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+    .hero-stat p {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.45);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    .scroll-cue {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: rgba(255,255,255,0.35);
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+      text-transform: uppercase;
+      animation: bounce 2.2s infinite;
+    }
+    .scroll-cue svg { opacity: 0.5; }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50%       { transform: translateX(-50%) translateY(6px); }
+    }
+
+    /* ── SECTION SHARED ──────────────────────────────────────── */
+    .section-label {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #93c5fd;
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 800;
+      color: white;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+
+    .section-sub {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.50);
+      line-height: 1.7;
+      max-width: 520px;
+    }
+
+    /* ── HOW IT WORKS ────────────────────────────────────────── */
+    .how-section {
+      background: #0a1428;
+      padding: 96px 0;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .how-header { text-align: center; margin-bottom: 60px; }
+    .how-header .section-sub { margin: 0 auto; }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      position: relative;
+    }
+
+    .steps-grid::before {
+      content: '';
+      position: absolute;
+      top: 28px;
+      left: calc(16.6% + 8px);
+      right: calc(16.6% + 8px);
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(96,165,250,0.4), rgba(96,165,250,0.4), transparent);
+    }
+
+    .step-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 28px 24px;
+      text-align: center;
+      transition: background 0.2s, border-color 0.2s, transform 0.2s;
+    }
+    .step-card:hover {
+      background: rgba(49,76,117,0.12);
+      border-color: rgba(96,165,250,0.30);
+      transform: translateY(-3px);
+    }
+
+    .step-num {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: #0d1b3e;
+      border: 2px solid rgba(96,165,250,0.40);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #93c5fd;
+      margin: 0 auto 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .step-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: rgba(49,76,117,0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 14px;
+      color: #93c5fd;
+    }
+
+    .step-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .step-card p {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.48);
+      line-height: 1.65;
+    }
+
+    /* ── FEATURES ────────────────────────────────────────────── */
+    .features-section {
+      background: #0a1428;
+      padding: 96px 0;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-top: 52px;
+    }
+
+    .feature-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 28px;
+      transition: background 0.2s, border-color 0.2s, transform 0.2s;
+    }
+    .feature-card:hover {
+      background: rgba(49,76,117,0.10);
+      border-color: rgba(96,165,250,0.25);
+      transform: translateY(-2px);
+    }
+
+    .feature-card-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      background: rgba(49,76,117,0.22);
+      border: 1px solid rgba(96,165,250,0.30);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #93c5fd;
+      margin-bottom: 16px;
+    }
+
+    .feature-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: white;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.48);
+      line-height: 1.7;
+    }
+
+    /* ── MAP SECTION ─────────────────────────────────────────── */
+    .map-section {
+      background: #060d1f;
+      padding: 96px 0;
+    }
+
+    .map-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    .map-frame-wrap {
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.50);
+      position: relative;
+    }
+
+    .map-frame-wrap::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07);
+      pointer-events: none;
+    }
+
+    .map-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .map-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.60);
+    }
+
+    .legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── CONTACT ─────────────────────────────────────────────── */
+    .contact-section {
+      background: #0a1428;
+      padding: 96px 0;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 64px;
+      align-items: start;
+    }
+
+    .contact-info-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 18px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .contact-info-item:last-child { border-bottom: none; }
+
+    .contact-info-icon {
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      background: rgba(49,76,117,0.22);
+      border: 1px solid rgba(96,165,250,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #93c5fd;
+      flex-shrink: 0;
+    }
+
+    .contact-info-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 3px;
+    }
+
+    .contact-info-val {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.80);
+    }
+
+    .contact-form-wrap {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 32px;
+    }
+
+    .contact-form-wrap h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: white;
+      letter-spacing: -0.02em;
+      margin-bottom: 22px;
+    }
+
+    .dark-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 5px;
+      letter-spacing: 0.01em;
+    }
+
+    .dark-input {
+      width: 100%;
+      padding: 10px 13px;
+      background: rgba(255,255,255,0.06);
+      border: 1.5px solid rgba(255,255,255,0.10);
+      border-radius: 8px;
+      color: white;
+      font-size: 0.875rem;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      outline: none;
+      transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+      -webkit-appearance: none;
+      box-sizing: border-box;
+    }
+    .dark-input::placeholder { color: rgba(255,255,255,0.28); }
+    .dark-input:focus {
+      border-color: rgba(96,165,250,0.55);
+      background: rgba(255,255,255,0.08);
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+    }
+
+    .dark-textarea {
+      resize: vertical;
+      min-height: 110px;
+    }
+
+    .contact-form-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      width: 100%;
+    }
+
+    .contact-fg { 
+      margin-bottom: 14px; 
+      min-width: 0;
+    }
+
+    .btn-send {
+      width: 100%;
+      padding: 12px;
+      background: #314c75;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.15s;
+      margin-top: 4px;
+    }
+    .btn-send:hover { background: #263c5d; transform: translateY(-1px); }
+
+    /* ── CTA BANNER ──────────────────────────────────────────── */
+    .cta-section {
+      background: linear-gradient(135deg, #0d1b3e 0%, #314c75 50%, #0d1b3e 100%);
+      padding: 80px 0;
+      text-align: center;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: rgba(49,76,117,0.18);
+      filter: blur(80px);
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      pointer-events: none;
+    }
+
+    .cta-section h2 {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 800;
+      color: white;
+      letter-spacing: -0.04em;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .cta-section p {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.52);
+      max-width: 420px;
+      margin: 0 auto 32px;
+      line-height: 1.65;
+      position: relative;
+    }
+
+    .cta-btns {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    /* ── FOOTER ──────────────────────────────────────────────── */
+    .footer {
+      background: #060d1f;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 56px 0 32px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 48px;
+    }
+
+    .footer-brand-mark {
+      width: 38px; height: 38px;
+      background: #314c75;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    .footer-brand-name {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: white;
+      letter-spacing: -0.04em;
+      margin-bottom: 10px;
+    }
+    .footer-brand-name .gold { color: #fbbf24; }
+
+    .footer-desc {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.38);
+      line-height: 1.7;
+      max-width: 240px;
+    }
+
+    .footer-col-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 14px;
+    }
+
+    .footer-link {
+      display: block;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.50);
+      margin-bottom: 9px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .footer-link:hover { color: white; }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 28px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .footer-copy {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.28);
+    }
+
+    .footer-scope {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.22);
+    }
+
+    @media (max-width: 960px) {
+      .features-grid    { grid-template-columns: 1fr; }
+      .contact-grid     { grid-template-columns: 1fr; gap: 40px; }
+      .map-layout       { grid-template-columns: 1fr; }
+      .footer-grid      { grid-template-columns: 1fr 1fr; }
+      .steps-grid::before { display: none; }
+    }
+
+    @media (max-width: 640px) {
+      .steps-grid       { grid-template-columns: 1fr; }
+      .footer-grid      { grid-template-columns: 1fr; }
+      .hero h1          { font-size: 2rem; }
+      .contact-form-row { grid-template-columns: 1fr; }
+      .hero-stats       { gap: 24px; }
+      .nav-center       { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="land-nav" id="land-nav">
+  <div class="container">
+    <a class="nav-brand" href="#hero">
+      <div class="nav-brand-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M12 2L3 9v13h6v-7h6v7h6V9z"/></svg>
+      </div>
+      Dorm<span class="gold">Finder</span>
+    </a>
+
+    <div class="nav-center">
+      <a class="land-nav-link" href="#dorms" onclick="browseOrScroll(event)">Browse Dorms</a>
+      <a class="land-nav-link" href="#how">How It Works</a>
+      <a class="land-nav-link" href="#features">Features</a>
+      <a class="land-nav-link" href="#contact">Contact</a>
+    </div>
+
+    <div class="nav-right" id="nav-right">
+      <a class="btn-nav-outline" href="signin.html">Sign In</a>
+      <a class="btn-nav-solid" href="signup.html">Sign Up Free</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+
+  <div class="container hero-inner">
+    <div class="hero-eyebrow">
+      <span class="dot"></span>
+      Web-Based Dormitory Search & Management System
+    </div>
+
+    <h1>
+      Find Your <span class="accent">Ideal Dorm</span><br/>
+      Near Campus — Fast.
+    </h1>
+
+    <p class="hero-sub">
+      Browse verified boarding houses and dormitories near your school. Filter by price, location, and amenities — then book in minutes.
+    </p>
+
+    <div class="hero-actions">
+      <button class="btn-hero-primary" id="hero-browse-btn" onclick="browseOrScroll(event)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Browse Dorms
+      </button>
+      <a class="btn-hero-ghost" href="#how">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        How It Works
+      </a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <h3>50+</h3>
+        <p>Listed Dormitories</p>
+      </div>
+      <div class="hero-stat">
+        <h3>1</h3>
+        <p>Main Location (Minglanilla)</p>
+      </div>
+      <div class="hero-stat">
+        <h3>₱1,800</h3>
+        <p>Starting Price / Month</p>
+      </div>
+      <div class="hero-stat">
+        <h3>24/7</h3>
+        <p>Available to Browse</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-cue">
+    <span>Scroll</span>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <div class="container">
+    <div class="how-header">
+      <span class="section-label">Simple Process</span>
+      <h2 class="section-title">How DormFinder Works</h2>
+      <p class="section-sub">Finding your perfect dorm is as easy as three steps.</p>
+    </div>
+
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <h3>Browse & Filter</h3>
+        <p>Search dormitories by location, price range, and amenities. No account needed to browse.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h3>Inquire or Book</h3>
+        <p>Found one you like? Create a free account to message the owner or send a booking request.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <h3>Move In</h3>
+        <p>Get approved by the owner, confirm your move-in date, and secure your new home near campus.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features-section" id="features">
+  <div class="container">
+    <span class="section-label">Why DormFinder</span>
+    <h2 class="section-title">Everything you need to find the right dorm</h2>
+    <p class="section-sub">Built specifically for students and property owners near their campus.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <h3>Smart Search & Filters</h3>
+        <p>Filter dormitories by rental price, location, room type, and specific amenities like WiFi, AC, CCTV, and parking.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+        </div>
+        <h3>Interactive Location Map</h3>
+        <p>See exactly where each dormitory is located relative to your campus. Know the distance before you visit.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg>
+        </div>
+        <h3>Real-Time Room Availability</h3>
+        <p>See how many rooms are still available before contacting an owner — no wasted trips or calls.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h3>Direct Messaging</h3>
+        <p>Message property owners directly through the platform — ask questions, negotiate, and confirm details.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+        </div>
+        <h3>Booking Requests</h3>
+        <p>Submit a booking request directly through the app. Owners review and approve — all in one place.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="2" width="18" height="20" rx="2"/><path d="M9 22V12h6v10"/><path d="M8 6h.01M16 6h.01M8 10h.01M16 10h.01"/></svg>
+        </div>
+        <h3>Owner Listing Management</h3>
+        <p>Property owners can add, update, and manage their listings — rooms, pricing, and availability — all in one dashboard.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MAP SECTION -->
+<section class="map-section" id="map">
+  <div class="container">
+    <div class="map-layout">
+      <div>
+        <span class="section-label">Campus Proximity</span>
+        <h2 class="section-title">Find dorms<br/>near your school</h2>
+        <p class="section-sub" style="margin-bottom:28px">
+          All listed dormitories are located in Minglanilla near campus areas. See exact locations on the map below.
+        </p>
+
+        <div class="map-legend">
+          <div class="map-legend-item">
+            <div class="legend-dot" style="background:#60a5fa"></div>
+            Minglanilla, Cebu — Active Listings
+          </div>
+          <div class="map-legend-item">
+            <div class="legend-dot" style="background:#93c5fd"></div>
+            Available rooms right now
+          </div>
+        </div>
+
+        <div style="margin-top:28px">
+          <a class="btn-hero-primary" href="browser.html">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            See All Locations
+          </a>
+        </div>
+      </div>
+
+      <div class="map-frame-wrap">
+        <iframe
+          width="100%"
+          height="380"
+          style="border:none;display:block;"
+          loading="lazy"
+          src="https://www.openstreetmap.org/export/embed.html?bbox=123.755,10.225,123.870,10.275&layer=mapnik"
+          title="DormFinder Campus Area Map">
+        </iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section class="cta-section">
+  <div class="container">
+    <h2>Ready to find your dorm?</h2>
+    <p>Join students who found their perfect place near campus through DormFinder.</p>
+    <div class="cta-btns">
+      <a class="btn-hero-primary" href="browser.html">
+        Browse Dorms Now
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <a class="btn-hero-ghost" href="signin.html">Sign In</a>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact-section" id="contact">
+  <div class="container">
+    <div class="contact-grid">
+      <div>
+        <span class="section-label">Get In Touch</span>
+        <h2 class="section-title">Contact Us</h2>
+        <p class="section-sub" style="margin-bottom:36px">
+          Have questions about DormFinder? Want to list your property in Minglanilla? We'd love to hear from you.
+        </p>
+
+        <div class="contact-info-item">
+          <div class="contact-info-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div>
+            <div class="contact-info-label">Location</div>
+            <div class="contact-info-val">Minglanilla, Cebu, Philippines</div>
+          </div>
+        </div>
+
+        <div class="contact-info-item">
+          <div class="contact-info-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div>
+            <div class="contact-info-label">Email</div>
+            <div class="contact-info-val">support@dormfinder.com</div>
+          </div>
+        </div>
+
+        <div class="contact-info-item">
+          <div class="contact-info-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.07 6.07l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.02z"/></svg>
+          </div>
+          <div>
+            <div class="contact-info-label">Phone</div>
+            <div class="contact-info-val">+63 900 000 0000</div>
+          </div>
+        </div>
+
+        <div class="contact-info-item">
+          <div class="contact-info-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div>
+            <div class="contact-info-label">Response Time</div>
+            <div class="contact-info-val">Within 24 hours</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="contact-form-wrap">
+        <h3>Send us a message</h3>
+        <div class="contact-form-row">
+          <div class="contact-fg">
+            <label class="dark-label">Full Name</label>
+            <input type="text" class="dark-input" id="c-name" placeholder="Juan Dela Cruz"/>
+          </div>
+          <div class="contact-fg">
+            <label class="dark-label">Email</label>
+            <input type="email" class="dark-input" id="c-email" placeholder="you@email.com"/>
+          </div>
+        </div>
+        <div class="contact-fg">
+          <label class="dark-label">Subject</label>
+          <input type="text" class="dark-input" id="c-subject" placeholder="e.g. Question about listing a property"/>
+        </div>
+        <div class="contact-fg">
+          <label class="dark-label">Message</label>
+          <textarea class="dark-input dark-textarea" id="c-message" placeholder="Tell us how we can help…"></textarea>
+        </div>
+        <button class="btn-send" onclick="sendContact()">
+          Send Message
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:6px;vertical-align:middle"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand-mark">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M12 2L3 9v13h6v-7h6v7h6V9z"/></svg>
+        </div>
+        <div class="footer-brand-name">Dorm<span class="gold">Finder</span></div>
+        <p class="footer-desc">A web-based dormitory search and management system helping students find verified accommodations near their campus in Minglanilla.</p>
+      </div>
+      <div>
+        <div class="footer-col-label">Quick Links</div>
+        <a class="footer-link" href="browser.html">Browse Dorms</a>
+        <a class="footer-link" href="#how">How It Works</a>
+        <a class="footer-link" href="#features">Features</a>
+        <a class="footer-link" href="#contact">Contact</a>
+      </div>
+      <div>
+        <div class="footer-col-label">For Users</div>
+        <a class="footer-link" href="signup.html">Create Account</a>
+        <a class="footer-link" href="signin.html">Sign In</a>
+        <a class="footer-link" href="signup.html">List a Property</a>
+      </div>
+      <div>
+        <div class="footer-col-label">Scope</div>
+        <span class="footer-link">Dormitory Search</span>
+        <span class="footer-link">Boarding Houses</span>
+        <span class="footer-link">Booking Requests</span>
+        <span class="footer-link">Owner Dashboard</span>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 DormFinder. All rights reserved.</div>
+      <div class="footer-scope">Capstone Project — Web-Based Dormitory Search & Management System</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    document.getElementById('land-nav').classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  function browseOrScroll(e) {
+    if (e) e.preventDefault();
+    window.location.href = 'browser.html';
+  }
+
+  function sendContact() {
+    const name = document.getElementById('c-name').value.trim();
+    const email = document.getElementById('c-email').value.trim();
+    const msg = document.getElementById('c-message').value.trim();
+    if (!name || !email || !msg) {
+      alert('Please fill in required fields.');
+      return;
+    }
+    alert('Message sent! We\'ll get back to you within 24 hours.');
+    ['c-name', 'c-email', 'c-subject', 'c-message'].forEach(id => document.getElementById(id).value = '');
+  }
+
+  (function applySessionNav() {
+    const u = JSON.parse(localStorage.getItem('df_user') || 'null');
+    if (!u || !u.name) return;
+
+    const dashRoutes = {
+      student: 'student-dashboard.html',
+      owner: 'owner-dashboard.html',
+      admin: 'admin-dashboard.html',
+    };
+    const dest = dashRoutes[u.role] || 'student-dashboard.html';
+    const initials = u.initials || u.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    const firstName = u.name.split(' ')[0];
+
+    const navRight = document.getElementById('nav-right');
+    if (navRight) {
+      navRight.innerHTML = `
+        <div style="width:32px;height:32px;border-radius:50%;background:#314c75;
+                    color:white;font-weight:700;font-size:0.75rem;display:flex;
+                    align-items:center;justify-content:center;flex-shrink:0">${initials}</div>
+        <span style="color:rgba(255,255,255,0.85);font-weight:600;font-size:0.875rem">${firstName}</span>
+        <button class="btn-nav-solid" onclick="window.location.href='${dest}'">
+          Dashboard
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+            style="margin-left:5px;vertical-align:middle">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </button>`;
+    }
+  })();
+</script>
+</body>
+</html>

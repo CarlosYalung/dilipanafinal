@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Browse Dorms & Apartments — DormFinder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background-color: #f8fafc;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navbar */
+    .navbar {
+      height: 70px;
+      background: #1b2d47;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 3rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #ffffff;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      width: 34px; height: 34px;
+      background: #314c75;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .nav-auth-links {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-nav-login {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #ffffff;
+      padding: 0.5rem 1.1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .btn-nav-login:hover { background: rgba(255,255,255,0.1); }
+
+    .btn-nav-signup {
+      background: #2563eb;
+      border: none;
+      color: #ffffff;
+      padding: 0.5rem 1.1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .btn-nav-signup:hover { background: #1d4ed8; }
+
+    /* Hero Banner */
+    .hero-banner {
+      background: #18283f;
+      padding: 3rem 2rem 2.5rem 2rem;
+      text-align: center;
+      color: #ffffff;
+    }
+
+    .hero-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+    .hero-title span { color: #f59e0b; }
+
+    .hero-subtitle {
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 2rem;
+    }
+
+    .search-bar-pill {
+      background: #ffffff;
+      border-radius: 50px;
+      padding: 6px 8px 6px 20px;
+      display: flex;
+      align-items: center;
+      max-width: 900px;
+      margin: 0 auto 1.5rem auto;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    }
+
+    .sb-input-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      padding-right: 15px;
+    }
+    .sb-input-group i { color: #64748b; font-size: 1rem; }
+    .sb-input-group input {
+      border: none;
+      background: transparent;
+      outline: none;
+      width: 100%;
+      font-size: 0.95rem;
+      color: #0f172a;
+      font-weight: 500;
+    }
+
+    .sb-divider { width: 1px; height: 28px; background: #cbd5e1; }
+    .sb-select-group { padding: 0 15px; }
+    .sb-select-group select {
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 0.9rem;
+      color: #475569;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .sb-btn-search {
+      background: #2563eb;
+      color: #ffffff;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 40px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .sb-btn-search:hover { background: #1d4ed8; }
+
+    .search-tags-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tag-pill {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: rgba(255, 255, 255, 0.85);
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .tag-pill:hover, .tag-pill.active {
+      background: rgba(255, 255, 255, 0.22);
+      border-color: #ffffff;
+      color: #ffffff;
+    }
+
+    /* Main Content Layout (Sidebar + Grid) */
+    .main-container {
+      max-width: 1350px;
+      margin: 2.5rem auto;
+      padding: 0 2rem;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 2rem;
+    }
+
+    .filters-sidebar {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 1.5rem;
+      height: fit-content;
+      position: sticky;
+      top: 95px;
+    }
+
+    .filters-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .filters-header-row h3 { font-size: 1rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+    .reset-filters-btn { font-size: 0.78rem; font-weight: 700; color: #2563eb; background: none; border: none; cursor: pointer; }
+    .reset-filters-btn:hover { text-decoration: underline; }
+
+    .filter-group { margin-bottom: 1.5rem; }
+    .filter-group-title { font-size: 0.82rem; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+
+    .price-inputs-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .price-input-box {
+      flex: 1;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.85rem;
+      outline: none;
+      width: 100%;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+    .checkbox-label input { width: 16px; height: 16px; accent-color: #2563eb; cursor: pointer; border-radius: 4px; }
+
+    .map-sidebar-preview {
+      margin-top: 1.5rem;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+      height: 200px;
+      position: relative;
+    }
+    .map-sidebar-preview iframe { width: 100%; height: 100%; border: 0; }
+    .map-sidebar-btn {
+      position: absolute;
+      bottom: 8px; right: 8px;
+      background: #ffffff;
+      color: #0f172a;
+      border: 1px solid #cbd5e1;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    /* Results Area */
+    .results-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+    .results-count-text { font-size: 1.05rem; font-weight: 800; color: #0f172a; }
+    .sort-select-box {
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #0f172a;
+      background: #ffffff;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .listings-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .dorm-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+    }
+    .dorm-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+    }
+
+    .dorm-img-wrap {
+      height: 180px;
+      position: relative;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .dorm-status-badge {
+      position: absolute;
+      top: 12px; left: 12px;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(4px);
+      color: #ffffff;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .dorm-fav-btn {
+      position: absolute;
+      top: 12px; right: 12px;
+      width: 32px; height: 32px;
+      background: #ffffff;
+      border-radius: 50%;
+      border: none;
+      display: flex; align-items: center; justify-content: center;
+      color: #64748b;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .dorm-fav-btn:hover { color: #ef4444; }
+
+    .dorm-content {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      justify-content: space-between;
+    }
+
+    .dorm-top-info {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .dorm-name { font-size: 1rem; font-weight: 800; color: #0f172a; }
+    .dorm-rating { font-size: 0.82rem; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 3px; }
+    .dorm-rating i { color: #f59e0b; font-size: 0.75rem; }
+    .dorm-location { font-size: 0.82rem; color: #64748b; margin-bottom: 1rem; }
+
+    .dorm-footer-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 0.85rem;
+      font-size: 0.82rem;
+      color: #64748b;
+    }
+    .dorm-price { font-size: 1rem; font-weight: 800; color: #0f172a; }
+    .dorm-price span { font-size: 0.75rem; font-weight: 500; color: #64748b; }
+
+    /* DETAIL VIEW TAB */
+    #tab-dorm-detail {
+      max-width: 1200px;
+      margin: 2.5rem auto;
+      padding: 0 2rem;
+      width: 100%;
+      display: none;
+    }
+    #tab-dorm-detail.active { display: block; }
+
+    .btn-back-browse {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      color: #0f172a;
+      padding: 0.55rem 1.2rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 1.5rem;
+    }
+
+    .detail-gallery {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 12px;
+      margin-bottom: 2rem;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .detail-main-img { height: 340px; background-size: cover; background-position: center; border-radius: 14px; }
+    .detail-side-imgs { display: flex; flex-direction: column; gap: 12px; }
+    .detail-sub-img { height: 164px; background-size: cover; background-position: center; border-radius: 14px; }
+
+    .detail-layout-grid {
+      display: grid;
+      grid-template-columns: 2fr 1.2fr;
+      gap: 2rem;
+    }
+
+    .detail-left-col { display: flex; flex-direction: column; gap: 1.75rem; }
+    .detail-title-row h1 { font-size: 2rem; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
+
+    .detail-badges-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.85rem;
+      color: #64748b;
+      font-weight: 600;
+    }
+    .badge-type { background: #eff6ff; color: #2563eb; padding: 4px 10px; border-radius: 6px; font-weight: 700; }
+    .detail-desc-box { font-size: 0.95rem; color: #334155; line-height: 1.5; }
+    .detail-section-title { font-size: 1.1rem; font-weight: 800; color: #0f172a; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 8px; }
+
+    .detail-amenities-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .detail-amenity-pill {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 0.7rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .detail-rules-box {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      color: #92400e;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .owner-contact-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .btn-msg-owner {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      color: #0f172a;
+      padding: 0.65rem 1.25rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-msg-owner:hover { background: #f1f5f9; }
+
+    /* BOOKING CARD */
+    .detail-booking-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 1.75rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+      height: fit-content;
+      position: sticky;
+      top: 95px;
+    }
+    .booking-price-header { margin-bottom: 1.25rem; }
+    .booking-price-val { font-size: 1.8rem; font-weight: 800; color: #0f172a; }
+    .booking-price-val span { font-size: 0.85rem; font-weight: 500; color: #64748b; }
+
+    .rooms-selector-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 1.25rem;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+    .room-card-option {
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 0.85rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .room-card-option.selected { border-color: #2563eb; background: #eff6ff; }
+    .room-title { font-size: 0.85rem; font-weight: 800; color: #0f172a; }
+    .room-price { font-size: 0.8rem; color: #2563eb; font-weight: 700; margin-top: 2px; }
+    .room-status.avail { color: #16a34a; font-size: 0.7rem; font-weight: 700; margin-top: 4px; }
+
+    .booking-input-group { margin-bottom: 1rem; }
+    .booking-input-group label { display: block; font-size: 0.82rem; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
+    .booking-input-group input,
+    .booking-input-group textarea {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 0.75rem;
+      font-size: 0.88rem;
+      outline: none;
+    }
+
+    .btn-submit-booking {
+      width: 100%;
+      background: #2563eb;
+      color: #ffffff;
+      border: none;
+      padding: 0.9rem;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+      margin-bottom: 8px;
+      transition: background 0.2s;
+    }
+    .btn-submit-booking:hover { background: #1d4ed8; }
+
+    .btn-contact-owner {
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #0f172a;
+      padding: 0.75rem;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Auth Prompt Modal */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1.5rem;
+    }
+    .modal-backdrop.open { display: flex; }
+
+    .modal-card {
+      background: #ffffff;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 420px;
+      padding: 2.25rem;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    .modal-icon-circle {
+      width: 60px; height: 60px; background: #eff6ff; color: #2563eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 1rem auto;
+    }
+    .modal-card h3 { font-size: 1.25rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; }
+    .modal-card p { font-size: 0.9rem; color: #64748b; margin-bottom: 1.5rem; line-height: 1.5; }
+    .modal-actions { display: flex; gap: 10px; }
+    .modal-actions a { flex: 1; padding: 0.75rem; border-radius: 10px; font-weight: 700; font-size: 0.9rem; text-decoration: none; text-align: center; }
+    .btn-modal-login { background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; }
+    .btn-modal-signup { background: #2563eb; color: #ffffff; }
+
+    @media (max-width: 1024px) {
+      .main-container { grid-template-columns: 1fr; }
+      .listings-grid { grid-template-columns: 1fr; }
+      .detail-layout-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP NAVBAR -->
+  <header class="navbar">
+    <a href="homepage.html" class="brand">
+      <div class="brand-mark">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M12 2L3 9v13h6v-7h6v7h6V9z"/></svg>
+      </div>
+      DormFinder
+    </a>
+    <div class="nav-auth-links" id="navAuthLinks">
+      <a href="signin.html" class="btn-nav-login">Sign In</a>
+      <a href="signup.html" class="btn-nav-signup">Sign Up</a>
+    </div>
+  </header>
+
+  <!-- BROWSE VIEW CONTAINER -->
+  <div id="browseViewContainer">
+    <!-- HERO SEARCH BANNER -->
+    <div class="hero-banner">
+      <h1 class="hero-title">Find your <span>perfect dorm</span></h1>
+      <p class="hero-subtitle">Search and book the best dormitories near your campus in Minglanilla.</p>
+      
+      <div class="search-bar-pill">
+        <div class="sb-input-group">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="searchInput" placeholder="Search by name or location (e.g. Poblacion)..." oninput="applyFilters()"/>
+        </div>
+        
+        <div class="sb-divider"></div>
+        
+        <div class="sb-select-group">
+          <select id="typeSelect" onchange="applyFilters()">
+            <option value="">Any type</option>
+            <option value="dormitory">Dormitory</option>
+            <option value="boarding house">Boarding House</option>
+            <option value="apartment">Apartment</option>
+          </select>
+        </div>
+        
+        <div class="sb-divider"></div>
+        
+        <div class="sb-select-group">
+          <select id="priceSelect" onchange="applyFilters()">
+            <option value="">Any price</option>
+            <option value="3000">Under ₱3,000</option>
+            <option value="4000">₱3,000 - ₱4,000</option>
+            <option value="4000+">Above ₱4,000</option>
+          </select>
+        </div>
+        
+        <button class="sb-btn-search" onclick="applyFilters()">Search</button>
+      </div>
+
+      <div class="search-tags-row">
+        <a class="tag-pill active" onclick="setTagFilter('Minglanilla', this)"><i class="fa-solid fa-location-dot"></i> Minglanilla</a>
+        <a class="tag-pill" onclick="setTagFilter('Poblacion', this)"><i class="fa-solid fa-location-dot"></i> Poblacion</a>
+        <a class="tag-pill" onclick="setTagFilter('Calajo-an', this)"><i class="fa-solid fa-location-dot"></i> Calajo-an</a>
+        <a class="tag-pill" onclick="setTagFilter('Tungkop', this)"><i class="fa-solid fa-location-dot"></i> Tungkop</a>
+      </div>
+    </div>
+
+    <!-- MAIN GRID CONTAINER (SIDEBAR + LISTINGS) -->
+    <div class="main-container">
+      <!-- SIDEBAR FILTERS -->
+      <aside class="filters-sidebar">
+        <div class="filters-header-row">
+          <h3><i class="fa-solid fa-filter"></i> Filters</h3>
+          <button class="reset-filters-btn" onclick="resetAllFilters()">Reset all</button>
+        </div>
+
+        <div class="filter-group">
+          <div class="filter-group-title">Price Range (₱/Month)</div>
+          <div class="price-inputs-row">
+            <input type="number" id="minPriceInput" class="price-input-box" placeholder="Min" oninput="applyFilters()"/>
+            <span style="color: #64748b;">—</span>
+            <input type="number" id="maxPriceInput" class="price-input-box" placeholder="Max" oninput="applyFilters()"/>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <div class="filter-group-title">Property Type</div>
+          <label class="checkbox-label"><input type="checkbox" value="dormitory" class="type-chk" onchange="applyFilters()"> Dormitory</label>
+          <label class="checkbox-label"><input type="checkbox" value="boarding house" class="type-chk" onchange="applyFilters()"> Boarding House</label>
+          <label class="checkbox-label"><input type="checkbox" value="apartment" class="type-chk" onchange="applyFilters()"> Apartment</label>
+        </div>
+
+        <div class="filter-group">
+          <div class="filter-group-title">Amenities</div>
+          <label class="checkbox-label"><input type="checkbox" value="WiFi" class="amenity-chk" onchange="applyFilters()"> WiFi</label>
+          <label class="checkbox-label"><input type="checkbox" value="AC" class="amenity-chk" onchange="applyFilters()"> Air Conditioning</label>
+          <label class="checkbox-label"><input type="checkbox" value="CCTV" class="amenity-chk" onchange="applyFilters()"> CCTV Security</label>
+          <label class="checkbox-label"><input type="checkbox" value="Laundry" class="amenity-chk" onchange="applyFilters()"> Laundry</label>
+          <label class="checkbox-label"><input type="checkbox" value="Kitchen" class="amenity-chk" onchange="applyFilters()"> Kitchen Access</label>
+          <label class="checkbox-label"><input type="checkbox" value="Parking" class="amenity-chk" onchange="applyFilters()"> Parking</label>
+          <label class="checkbox-label"><input type="checkbox" value="Study Area" class="amenity-chk" onchange="applyFilters()"> Study Area</label>
+        </div>
+
+        <div class="filter-group-title" style="margin-top: 1rem;">Campus Area Map</div>
+        <div class="map-sidebar-preview">
+          <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=123.755,10.258,123.788,10.288&layer=mapnik"></iframe>
+          <a href="https://www.openstreetmap.org" target="_blank" class="map-sidebar-btn"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open map</a>
+        </div>
+      </aside>
+
+      <!-- RESULTS CONTENT AREA -->
+      <main>
+        <div class="results-topbar">
+          <div class="results-count-text" id="resultsCountText">Showing 0 results</div>
+          <select class="sort-select-box" id="sortSelect" onchange="applyFilters()">
+            <option value="recommended">Recommended</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+          </select>
+        </div>
+
+        <div class="listings-grid" id="listingsGrid">
+          <!-- Populated dynamically -->
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- PROPERTY DETAIL VIEW -->
+  <div id="tab-dorm-detail">
+    <button class="btn-back-browse" onclick="closeDetailView()">
+      <i class="fa-solid fa-arrow-left"></i> Back to search results
+    </button>
+
+    <div class="detail-gallery" id="detailGalleryContainer"></div>
+
+    <div class="detail-layout-grid">
+      <div class="detail-left-col">
+        <div>
+          <div class="detail-title-row">
+            <h1 id="detPropName">Sunrise Dormitory</h1>
+          </div>
+          <div class="detail-badges-row">
+            <span class="badge-type" id="detPropType">Dormitory</span>
+            <span><i class="fa-solid fa-location-dot"></i> <span id="detPropLocation">Minglanilla, Cebu</span></span>
+            <span><i class="fa-solid fa-star" style="color:#f59e0b"></i> <span id="detPropRating">4.5</span></span>
+          </div>
+        </div>
+
+        <div class="detail-desc-box" id="detPropDesc">Description goes here...</div>
+
+        <div>
+          <div class="detail-section-title"><i class="fa-regular fa-circle-check"></i> Amenities</div>
+          <div class="detail-amenities-grid" id="detAmenitiesContainer"></div>
+        </div>
+
+        <div>
+          <div class="detail-section-title"><i class="fa-regular fa-file-lines"></i> House Rules</div>
+          <div class="detail-rules-box" id="detPropRules">No visitors after 10PM.</div>
+        </div>
+
+        <div>
+          <div class="detail-section-title">Property Owner</div>
+          <div class="owner-contact-card">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div id="detOwnerInitials" style="width: 44px; height: 44px; background: #1b2d47; color: #ffffff; font-weight: 800; border-radius: 50%; display: flex; align-items: center; justify-content: center;">PO</div>
+              <div>
+                <h4 id="detOwnerName" style="font-size: 0.95rem; font-weight: 800; color: #0f172a;">Property Owner</h4>
+                <p style="font-size: 0.78rem; color: #64748b;" id="detOwnerEmail">owner@dormfinder.com</p>
+              </div>
+            </div>
+            <button class="btn-msg-owner" onclick="handleProtectedAction('message')"><i class="fa-regular fa-message"></i> Message</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: ROOM PICKER AND BOOKING FORM -->
+      <div class="detail-booking-card">
+        <div class="booking-price-header">
+          <div class="booking-price-val" id="detPropPrice">₱3,500<span>/month</span></div>
+          <span style="font-size: 0.8rem; font-weight:700; color:#16a34a;">Available now</span>
+        </div>
+
+        <label style="font-size:0.82rem; font-weight:800; color:#0f172a; display:block; margin-bottom:8px;">SELECT A ROOM</label>
+        <div class="rooms-selector-grid" id="detRoomsGrid"></div>
+
+        <div class="booking-input-group">
+          <label>Move-In Date</label>
+          <input type="date" id="detMoveInDate"/>
+        </div>
+
+        <div class="booking-input-group">
+          <label>Message (Optional)</label>
+          <textarea id="detBookingMsg" placeholder="Tell the owner about yourself..."></textarea>
+        </div>
+
+        <button class="btn-submit-booking" onclick="handleProtectedAction('booking')">Submit Booking Request</button>
+        <button class="btn-contact-owner" onclick="handleProtectedAction('message')">Message Owner</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTH REQUIRED MODAL -->
+  <div class="modal-backdrop" id="authModal">
+    <div class="modal-card">
+      <div class="modal-icon-circle"><i class="fa-solid fa-lock"></i></div>
+      <h3>Sign In Required</h3>
+      <p>You need to be signed in as a student to submit booking requests or message property owners.</p>
+      <div class="modal-actions">
+        <a href="signin.html" class="btn-modal-login">Sign In</a>
+        <a href="signup.html" class="btn-modal-signup">Sign Up</a>
+      </div>
+      <button onclick="closeAuthModal()" style="background: none; border: none; color: #94a3b8; font-size: 0.82rem; font-weight: 700; margin-top: 1rem; cursor: pointer;">Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    let allProperties = [];
+    let activeProperty = null;
+    let selectedRoom = 'Room 101';
+
+    (async function initBrowse() {
+      // Check if user is logged in
+      const sessionUser = JSON.parse(localStorage.getItem('df_user') || 'null');
+      if (sessionUser && sessionUser.name) {
+        document.getElementById('navAuthLinks').innerHTML = `
+          <a href="${sessionUser.role === 'owner' ? 'owner-dashboard.html' : 'student-dashboard.html'}" class="btn-nav-signup" style="background: #314c75;">Dashboard (${sessionUser.name.split(' ')[0]})</a>
+        `;
+      }
+
+      try {
+        const res = await fetch('/api/properties');
+        const data = await res.json();
+        if (res.ok && data.success) {
+          allProperties = data.properties;
+          applyFilters();
+        }
+      } catch (err) {
+        console.error('Failed to load database properties:', err);
+      }
+    })();
+
+    function applyFilters() {
+      const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
+      const typeVal = document.getElementById('typeSelect').value.toLowerCase();
+      const priceVal = document.getElementById('priceSelect').value;
+      const minPrice = parseInt(document.getElementById('minPriceInput').value) || 0;
+      const maxPrice = parseInt(document.getElementById('maxPriceInput').value) || Infinity;
+
+      const checkedTypes = Array.from(document.querySelectorAll('.type-chk:checked')).map(c => c.value);
+      const checkedAmenities = Array.from(document.querySelectorAll('.amenity-chk:checked')).map(c => c.value);
+      const sortOption = document.getElementById('sortSelect').value;
+
+      let filtered = allProperties.filter(p => {
+        const name = p.name.toLowerCase();
+        const address = p.address.toLowerCase();
+        const type = (p.type || '').toLowerCase();
+        const price = parseInt(p.rawRent || '0');
+
+        const matchesSearch = !searchVal || name.includes(searchVal) || address.includes(searchVal);
+        const matchesSelectType = !typeVal || type.includes(typeVal);
+        const matchesTypeCheck = checkedTypes.length === 0 || checkedTypes.some(t => type.includes(t));
+        
+        let matchesPriceRange = price >= minPrice && price <= maxPrice;
+        if (priceVal === '3000') matchesPriceRange = price <= 3000;
+        else if (priceVal === '4000') matchesPriceRange = price > 3000 && price <= 4000;
+        else if (priceVal === '4000+') matchesPriceRange = price > 4000;
+
+        const matchesAmenities = checkedAmenities.every(a => (p.amenities || []).includes(a));
+
+        return matchesSearch && matchesSelectType && matchesTypeCheck && matchesPriceRange && matchesAmenities;
+      });
+
+      if (sortOption === 'price-low') {
+        filtered.sort((a, b) => parseInt(a.rawRent || 0) - parseInt(b.rawRent || 0));
+      } else if (sortOption === 'price-high') {
+        filtered.sort((a, b) => parseInt(b.rawRent || 0) - parseInt(a.rawRent || 0));
+      }
+
+      renderListings(filtered);
+    }
+
+    function renderListings(properties) {
+      const grid = document.getElementById('listingsGrid');
+      document.getElementById('resultsCountText').textContent = `Showing ${properties.length} result${properties.length === 1 ? '' : 's'}`;
+
+      if (properties.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 16px; padding: 4rem 2rem; text-align: center;">
+            <i class="fa-solid fa-house-chimney-crack" style="font-size: 2.5rem; color: #94a3b8; margin-bottom: 1rem;"></i>
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin-bottom: 6px;">No dorms match your filters</h3>
+            <p style="font-size: 0.875rem; color: #64748b;">Try adjusting your price range or clearing selected filters.</p>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      properties.forEach((p, idx) => {
+        html += `
+          <div class="dorm-card" onclick="openDetailView(${idx})">
+            <div class="dorm-img-wrap" style="background-image: url('${p.image || 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=600&q=80'}')">
+              <span class="dorm-status-badge">${p.type || 'Dormitory'}</span>
+              <button class="dorm-fav-btn" onclick="event.stopPropagation(); handleProtectedAction('save')"><i class="fa-regular fa-heart"></i></button>
+            </div>
+            <div class="dorm-content">
+              <div>
+                <div class="dorm-top-info">
+                  <div class="dorm-name">${p.name}</div>
+                  <div class="dorm-rating"><i class="fa-solid fa-star"></i> 4.8</div>
+                </div>
+                <div class="dorm-location">${p.address}</div>
+              </div>
+              <div class="dorm-footer-info">
+                <span><i class="fa-solid fa-location-dot"></i> Minglanilla</span>
+                <div class="dorm-price">${p.rent}<span>/mo</span></div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      grid.innerHTML = html;
+    }
+
+    function setTagFilter(keyword, btnElem) {
+      document.querySelectorAll('.search-tags-row .tag-pill').forEach(p => p.classList.remove('active'));
+      btnElem.classList.add('active');
+      document.getElementById('searchInput').value = keyword === 'Minglanilla' ? '' : keyword;
+      applyFilters();
+    }
+
+    function resetAllFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('typeSelect').value = '';
+      document.getElementById('priceSelect').value = '';
+      document.getElementById('minPriceInput').value = '';
+      document.getElementById('maxPriceInput').value = '';
+      document.querySelectorAll('.type-chk, .amenity-chk').forEach(c => c.checked = false);
+      applyFilters();
+    }
+
+    function openDetailView(index) {
+      const p = allProperties[index];
+      if (!p) return;
+      activeProperty = p;
+
+      document.getElementById('detPropName').textContent = p.name;
+      document.getElementById('detPropType').textContent = p.type || 'Dormitory';
+      document.getElementById('detPropLocation').textContent = p.address;
+      document.getElementById('detPropDesc').textContent = p.desc || 'No description provided.';
+      document.getElementById('detPropRules').textContent = p.rules || 'No specific rules.';
+      document.getElementById('detPropPrice').innerHTML = `${p.rent}<span>/month</span>`;
+
+      const ownerName = p.owner_name || 'Property Owner';
+      const ownerEmail = p.owner_email || 'owner@dormfinder.com';
+      document.getElementById('detOwnerName').textContent = ownerName;
+      document.getElementById('detOwnerEmail').textContent = ownerEmail;
+      document.getElementById('detOwnerInitials').textContent = ownerName.slice(0, 2).toUpperCase();
+
+      const img = p.image || 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=600&q=80';
+      document.getElementById('detailGalleryContainer').innerHTML = `
+        <div class="detail-main-img" style="background-image: url('${img}')"></div>
+        <div class="detail-side-imgs">
+          <div class="detail-sub-img" style="background-image: url('${img}')"></div>
+          <div class="detail-sub-img" style="background-image: url('${img}')"></div>
+        </div>
+      `;
+
+      let amHtml = '';
+      (p.amenities || ['WiFi', 'CCTV', 'Kitchen']).forEach(am => {
+        amHtml += `<div class="detail-amenity-pill"><i class="fa-solid fa-check" style="color:#2563eb"></i> ${am}</div>`;
+      });
+      document.getElementById('detAmenitiesContainer').innerHTML = amHtml;
+
+      // Rooms grid
+      let roomsHtml = '';
+      for (let i = 1; i <= 4; i++) {
+        const roomName = `Room 10${i}`;
+        const isSelected = i === 1 ? 'selected' : '';
+        if (i === 1) selectedRoom = roomName;
+        roomsHtml += `
+          <div class="room-card-option ${isSelected}" onclick="selectRoomCard(this, '${roomName}')">
+            <div class="room-title">${roomName}</div>
+            <div class="room-price">${p.rent}/mo</div>
+            <div class="room-status avail">• Available</div>
+          </div>
+        `;
+      }
+      document.getElementById('detRoomsGrid').innerHTML = roomsHtml;
+
+      document.getElementById('browseViewContainer').style.display = 'none';
+      document.getElementById('tab-dorm-detail').classList.add('active');
+      window.scrollTo(0, 0);
+    }
+
+    function selectRoomCard(el, roomName) {
+      document.querySelectorAll('.room-card-option').forEach(r => r.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedRoom = roomName;
+    }
+
+    function closeDetailView() {
+      document.getElementById('tab-dorm-detail').classList.remove('active');
+      document.getElementById('browseViewContainer').style.display = 'block';
+      window.scrollTo(0, 0);
+    }
+
+    function handleProtectedAction(actionType) {
+      const sessionUser = JSON.parse(localStorage.getItem('df_user') || 'null');
+      if (!sessionUser || !sessionUser.email) {
+        document.getElementById('authModal').classList.add('open');
+        return;
+      }
+
+      // If signed in, perform action or route to student dashboard
+      if (actionType === 'booking') {
+        const moveIn = document.getElementById('detMoveInDate').value;
+        if (!moveIn) {
+          alert('Please select a move-in date.');
+          return;
+        }
+        alert('Please complete your booking request inside your student dashboard.');
+        window.location.href = 'student-dashboard.html';
+      } else if (actionType === 'message') {
+        window.location.href = 'student-dashboard.html';
+      } else if (actionType === 'save') {
+        alert('Dorm added to your saved list!');
+      }
+    }
+
+    function closeAuthModal() {
+      document.getElementById('authModal').classList.remove('open');
+    }
+  </script>
+</body>
+</html>
