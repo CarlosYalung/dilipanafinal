@@ -10,6 +10,29 @@ CORS(app)
 
 DB_NAME = 'dormfinder.db'
 
+def seed_demo_accounts():
+    """Automatically seeds demo student and owner accounts if they don't exist."""
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    
+    demo_accounts = [
+        ('Demo Student', 'student@demo.com', '123123', 'student', '+63 912 345 6789', 'Minglanilla, Cebu', 'Eager student looking for a comfortable dorm near campus.'),
+        ('Demo Owner', 'owner@demo.com', '123123', 'owner', '+63 998 765 4321', 'Poblacion, Minglanilla', 'Property manager and owner of student-friendly apartments and dorms.')
+    ]
+    
+    for fullname, email, raw_password, role, phone, address, bio in demo_accounts:
+        cursor.execute('SELECT id FROM users WHERE email = ?', (email,))
+        if not cursor.fetchone():
+            hashed_pw = generate_password_hash(raw_password)
+            cursor.execute(
+                'INSERT INTO users (fullname, email, password, role, phone, address, bio) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                (fullname, email, hashed_pw, role, phone, address, bio)
+            )
+            print(f'Successfully seeded demo account: {email} ({role})')
+            
+    conn.commit()
+    conn.close()
+
 def init_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
@@ -87,6 +110,9 @@ def init_db():
     
     conn.commit()
     conn.close()
+    
+    # Seed demo users after table creation
+    seed_demo_accounts()
 
 @app.route('/')
 def serve_homepage():
@@ -451,6 +477,14 @@ def get_messages():
 
 if __name__ == '__main__':
     init_db()
-    webbrowser.open_new('http://127.0.0.1:5000/')
-    print('Starting Dorm Finder database server...')
-    app.run(host='127.0.0.1', port=5000, debug=True)
+    
+    # Cloud deployment safety: only open browser automatically when running locally
+    port = int(os.environ.get('PORT', 5000))
+    if 'PORT' not in os.environ:
+        try:
+            webbrowser.open_new('http://127.0.0.1:5000/')
+        except Exception:
+            pass
+            
+    print(f'Starting Dorm Finder database server on port {port}...')
+    app.run(host='0.0.0.0', port=port, debug=False)
