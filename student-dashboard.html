@@ -670,6 +670,34 @@
       font-weight: 600;
     }
 
+    /* FULL WIDTH MAP WIDGET STYLES */
+    .detail-map-box {
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+      height: 280px;
+      width: 100%;
+      position: relative;
+      margin-top: 0.5rem;
+    }
+    .detail-map-box iframe { width: 100% !important; height: 100%; border: 0; display: block; }
+    .btn-open-maps {
+      position: absolute;
+      bottom: 12px; right: 12px;
+      background: #ffffff;
+      color: #0f172a;
+      border: 1px solid #cbd5e1;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
     .owner-contact-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
@@ -1034,6 +1062,21 @@
               <div class="detail-section-title"><i class="fa-regular fa-file-lines"></i> House Rules</div>
               <div class="detail-rules-box" id="sdPropRules">
                 No visitors after 10PM. Quiet hours 10PM–6AM.
+              </div>
+            </div>
+
+            <!-- LOCATION MAP WIDGET -->
+            <div>
+              <div class="detail-section-title"><i class="fa-solid fa-location-dot"></i> Location</div>
+              <div class="detail-map-box">
+                <iframe 
+                  src="https://www.openstreetmap.org/export/embed.html?bbox=123.730%2C10.220%2C123.830%2C10.290&layer=mapnik&marker=10.255%2C123.780"
+                  title="Property Location Map"
+                  loading="lazy">
+                </iframe>
+                <a href="https://www.openstreetmap.org/?mlat=10.255&mlon=123.780#map=14/10.255/123.780" target="_blank" rel="noopener" class="btn-open-maps">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Open in Maps
+                </a>
               </div>
             </div>
 
