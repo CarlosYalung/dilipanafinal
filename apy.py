@@ -90,7 +90,7 @@ def init_db():
 
 @app.route('/')
 def serve_homepage():
-    return send_from_directory('.', 'homepage.html')
+    return send_from_directory('.', 'index.html')
 
 @app.route('/api/signup', methods=['POST'])
 def api_signup():
