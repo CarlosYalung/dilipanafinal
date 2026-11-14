@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard — DormFinder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    body { background-color: #f8fafc; color: #1e293b; display: flex; min-height: 100vh; overflow-x: hidden; }
+
+    /* ── SIDEBAR (same slate-blue as owner dashboard) ───────── */
+    .sidebar {
+      width: 260px; background-color: #1b2d47; color: #ffffff;
+      display: flex; flex-direction: column; justify-content: space-between;
+      position: fixed; top: 0; bottom: 0; left: 0; z-index: 100;
+    }
+    .sidebar-top { padding: 1.5rem 1.25rem; flex: 1; display: flex; flex-direction: column; }
+    .brand {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 1.2rem; font-weight: 800; color: #ffffff; text-decoration: none; margin-bottom: 2rem;
+    }
+    .brand-mark {
+      width: 34px; height: 34px; background: #314c75; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .sidebar-section-title {
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.4); margin-bottom: 0.75rem; font-weight: 700;
+    }
+    .sidebar-nav { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+    .nav-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.75rem 1rem; border-radius: 10px; color: rgba(255,255,255,0.7);
+      text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: all 0.2s;
+      cursor: pointer; background: transparent; border: none; width: 100%; text-align: left;
+    }
+    .nav-item span { display: flex; align-items: center; gap: 10px; }
+    .nav-item:hover { background-color: rgba(255,255,255,0.06); color: #ffffff; }
+    .nav-item.active { background-color: #314c75; color: #ffffff; box-shadow: 0 4px 12px rgba(49,76,117,0.3); }
+    .badge { background: #2563eb; color: #ffffff; font-size: 0.7rem; font-weight: 700; padding: 2px 7px; border-radius: 10px; }
+    .badge.warn { background: #f59e0b; }
+    .sidebar-bottom-nav {
+      padding: 1.25rem; border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex; flex-direction: column; gap: 4px;
+    }
+
+    /* ── MAIN AREA ─────────────────────────────────────────── */
+    .main-content { margin-left: 260px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; min-width: 0; }
+    .topbar {
+      height: 70px; background: #ffffff; border-bottom: 1px solid #e2e8f0;
+      display: flex; align-items: center; justify-content: flex-end;
+      padding: 0 2rem; position: sticky; top: 0; z-index: 90;
+    }
+    .topbar-right { display: flex; align-items: center; gap: 1.25rem; }
+    .icon-btn {
+      width: 38px; height: 38px; border-radius: 10px; border: 1px solid #e2e8f0; background: #ffffff;
+      color: #64748b; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;
+    }
+    .icon-btn:hover { background: #f8fafc; color: #1e293b; }
+    .user-profile-display { display: flex; align-items: center; gap: 10px; }
+    .user-meta .owner-name { font-size: 0.9rem; font-weight: 700; color: #0f172a; line-height: 1.2; text-align: right; }
+    .user-meta .owner-role { font-size: 0.72rem; color: #64748b; text-align: right; }
+
+    .dashboard-body { padding: 2.25rem 2.5rem; flex: 1; }
+    .tab-view { display: none; }
+    .tab-view.active { display: block; }
+
+    .dash-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; gap: 1rem; flex-wrap: wrap; }
+    .dash-title-area p { font-size: 0.82rem; color: #64748b; margin-bottom: 4px; font-weight: 600; }
+    .dash-title-area h1 { font-size: 1.85rem; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; }
+
+    /* ── STATS ─────────────────────────────────────────────── */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2.5rem; }
+    .stat-card {
+      background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.5rem;
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .stat-icon-box {
+      width: 44px; height: 44px; background: #f1f5f9; color: #1b2d47; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;
+    }
+    .stat-icon-box.yellow { background: #fef3c7; color: #d97706; }
+    .stat-icon-box.green { background: #d1fae5; color: #059669; }
+    .stat-icon-box.red { background: #fee2e2; color: #dc2626; }
+    .stat-info .stat-value { font-size: 1.5rem; font-weight: 800; color: #0f172a; line-height: 1.1; margin-bottom: 2px; }
+    .stat-info .stat-label { font-size: 0.8rem; color: #64748b; font-weight: 600; }
+
+    .section-header-flex { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; gap: 1rem; flex-wrap: wrap; }
+    .section-title-sm h2 { font-size: 1.15rem; font-weight: 800; color: #0f172a; }
+    .section-title-sm p { font-size: 0.8rem; color: #64748b; }
+    .view-all-link { font-size: 0.875rem; font-weight: 700; color: #1b2d47; text-decoration: none; cursor: pointer; background: none; border: none; }
+    .view-all-link:hover { text-decoration: underline; }
+
+    /* ── STATUS PILLS ──────────────────────────────────────── */
+    .pill {
+      display: inline-block; font-size: 0.72rem; font-weight: 800; padding: 4px 12px;
+      border-radius: 20px; text-transform: capitalize; white-space: nowrap;
+    }
+    .pill.pending  { background: #fef3c7; color: #b45309; }
+    .pill.approved { background: #d1fae5; color: #059669; }
+    .pill.rejected { background: #fee2e2; color: #dc2626; }
+    .pill.role-student { background: #dbeafe; color: #1d4ed8; }
+    .pill.role-owner   { background: #e0f2fe; color: #0369a1; }
+    .pill.role-admin   { background: #ede9fe; color: #6d28d9; }
+
+    /* ── LISTING CARDS (same look as owner property cards) ─── */
+    .properties-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2.5rem; }
+    .property-card {
+      background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden;
+      display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .property-card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.06); }
+    .prop-img-wrap { height: 180px; position: relative; background-size: cover; background-position: center; background-color: #e2e8f0; cursor: pointer; }
+    .prop-status-badge {
+      position: absolute; top: 12px; left: 12px; color: #ffffff; padding: 4px 10px;
+      border-radius: 20px; font-size: 0.72rem; font-weight: 700; text-transform: capitalize;
+    }
+    .prop-status-badge.pending  { background: rgba(245,158,11,0.95); }
+    .prop-status-badge.approved { background: rgba(16,185,129,0.9); }
+    .prop-status-badge.rejected { background: rgba(220,38,38,0.9); }
+    .prop-content { padding: 1.25rem; display: flex; flex-direction: column; flex: 1; justify-content: space-between; gap: 1rem; }
+    .prop-name { font-size: 1rem; font-weight: 800; color: #0f172a; margin-bottom: 2px; cursor: pointer; }
+    .prop-name:hover { color: #2563eb; }
+    .prop-owner-line { font-size: 0.82rem; color: #64748b; }
+    .prop-owner-line strong { color: #334155; }
+    .prop-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      border-top: 1px solid #f1f5f9; padding-top: 0.85rem; font-size: 0.82rem; color: #64748b; gap: 8px;
+    }
+    .prop-price { font-size: 1rem; font-weight: 800; color: #0f172a; }
+    .prop-price span { font-size: 0.75rem; font-weight: 500; color: #64748b; }
+    .card-actions { display: flex; gap: 8px; }
+
+    /* ── BUTTONS ───────────────────────────────────────────── */
+    .btn {
+      border: none; padding: 0.55rem 1.1rem; border-radius: 10px; font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s;
+    }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-approve { background: #059669; color: #ffffff; box-shadow: 0 4px 12px rgba(5,150,105,0.2); }
+    .btn-approve:hover:not(:disabled) { background: #047857; }
+    .btn-reject { background: #fee2e2; color: #dc2626; }
+    .btn-reject:hover:not(:disabled) { background: #fecaca; }
+    .btn-review { background: #1b2d47; color: #ffffff; box-shadow: 0 4px 12px rgba(27,45,71,0.2); }
+    .btn-review:hover:not(:disabled) { background: #132238; }
+    .btn-ghost { background: #f8fafc; border: 1px solid #cbd5e1; color: #475569; }
+    .btn-ghost:hover { background: #f1f5f9; }
+    .btn-block { flex: 1; }
+
+    /* ── FILTER BAR ────────────────────────────────────────── */
+    .filter-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .seg { display: inline-flex; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 4px; gap: 2px; }
+    .seg button {
+      border: none; background: transparent; padding: 0.5rem 1rem; border-radius: 9px;
+      font-size: 0.82rem; font-weight: 700; color: #64748b; cursor: pointer; transition: all 0.2s;
+    }
+    .seg button:hover { color: #0f172a; }
+    .seg button.active { background: #1b2d47; color: #ffffff; }
+    .seg .count { opacity: 0.7; font-weight: 600; margin-left: 4px; }
+    .search-input, .select-input {
+      padding: 0.65rem 1rem; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.875rem;
+      background: #ffffff; color: #1e293b; outline: none; transition: border-color 0.2s;
+    }
+    .search-input { flex: 1; min-width: 200px; max-width: 360px; }
+    .search-input:focus, .select-input:focus { border-color: #2563eb; }
+
+    /* ── TABLES ────────────────────────────────────────────── */
+    .table-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em;
+      color: #64748b; font-weight: 700; padding: 0.9rem 1.25rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0; white-space: nowrap;
+    }
+    td { padding: 1rem 1.25rem; font-size: 0.875rem; border-bottom: 1px solid #f1f5f9; color: #334155; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: #fafcff; }
+    .cell-user { display: flex; align-items: center; gap: 10px; }
+    .avatar-sm {
+      width: 34px; height: 34px; border-radius: 50%; background: #314c75; color: #ffffff;
+      display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800; flex-shrink: 0;
+    }
+    .avatar-sm.owner { background: #0891b2; }
+    .avatar-sm.admin { background: #6d28d9; }
+    .cell-strong { font-weight: 700; color: #0f172a; }
+    .cell-muted { font-size: 0.8rem; color: #64748b; }
+
+    /* ── OVERVIEW PANELS ───────────────────────────────────── */
+    .overview-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+    .panel { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.5rem; }
+    .row-item { display: flex; align-items: center; gap: 12px; padding: 0.85rem 0; border-bottom: 1px solid #f1f5f9; }
+    .row-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .row-item:first-child { padding-top: 0; }
+    .row-thumb { width: 48px; height: 48px; border-radius: 10px; background-size: cover; background-position: center; background-color: #e2e8f0; flex-shrink: 0; }
+    .row-main { flex: 1; min-width: 0; }
+    .row-title { font-weight: 700; font-size: 0.9rem; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .row-sub { font-size: 0.78rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .empty-state-card {
+      background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 16px; padding: 3rem 2rem;
+      text-align: center; grid-column: 1 / -1;
+    }
+    .empty-icon-circle {
+      width: 56px; height: 56px; border-radius: 50%; background: #f1f5f9; color: #64748b;
+      display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.3rem;
+    }
+    .empty-state-card h3 { font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
+    .empty-state-card p { font-size: 0.875rem; color: #64748b; }
+    .empty-inline { text-align: center; color: #94a3b8; font-size: 0.875rem; padding: 1.5rem 0; }
+
+    /* ── REVIEW MODAL ──────────────────────────────────────── */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(15,23,42,0.6); backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1.5rem;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-card {
+      background: #ffffff; border-radius: 20px; width: 100%; max-width: 760px; max-height: 92vh;
+      overflow-y: auto; padding: 2rem; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes modalPop { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    .modal-header-row { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.25rem; gap: 1rem; }
+    .modal-header-row h3 { font-size: 1.35rem; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
+    .modal-sub { font-size: 0.85rem; color: #64748b; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .modal-close-btn {
+      width: 30px; height: 30px; background: #f1f5f9; border: none; border-radius: 50%; color: #64748b;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .modal-close-btn:hover { background: #e2e8f0; color: #0f172a; }
+
+    .rv-gallery { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 1.5rem; }
+    .rv-main { height: 260px; border-radius: 14px; background-size: cover; background-position: center; background-color: #e2e8f0; }
+    .rv-thumbs { display: flex; flex-direction: column; gap: 10px; }
+    .rv-thumb { flex: 1; border-radius: 12px; background-size: cover; background-position: center; background-color: #e2e8f0; cursor: pointer; min-height: 0; border: 2px solid transparent; }
+    .rv-thumb:hover { border-color: #2563eb; }
+    .rv-facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+    .rv-fact { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.85rem 1rem; }
+    .rv-fact .k { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; font-weight: 700; margin-bottom: 4px; }
+    .rv-fact .v { font-size: 0.92rem; font-weight: 800; color: #0f172a; word-break: break-word; }
+    .rv-section-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 800; color: #64748b; margin: 1.25rem 0 0.5rem; }
+    .rv-text { font-size: 0.9rem; line-height: 1.6; color: #334155; background: #f8fafc; border-radius: 12px; padding: 0.9rem 1rem; white-space: pre-wrap; }
+    .rv-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .rv-chip { font-size: 0.8rem; font-weight: 600; background: #f1f5f9; border-radius: 20px; padding: 6px 12px; color: #334155; }
+    .rv-map { height: 230px; border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0; position: relative; z-index: 0; }
+    .rv-note-box { margin-top: 1.5rem; }
+    .rv-note-box label { display: block; font-size: 0.82rem; font-weight: 700; color: #334155; margin-bottom: 6px; }
+    .rv-note-box textarea {
+      width: 100%; border: 1px solid #cbd5e1; border-radius: 10px; padding: 0.7rem 0.9rem; font-size: 0.875rem;
+      resize: vertical; min-height: 70px; outline: none; color: #1e293b;
+    }
+    .rv-note-box textarea:focus { border-color: #2563eb; }
+    .rv-prev-note { margin-top: 1rem; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; border-radius: 12px; padding: 0.8rem 1rem; font-size: 0.85rem; }
+    .modal-footer-actions {
+      display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #f1f5f9;
+      padding-top: 1.25rem; margin-top: 1.5rem; gap: 10px; flex-wrap: wrap;
+    }
+    .modal-footer-right { display: flex; gap: 10px; }
+
+    /* ── TOAST ─────────────────────────────────────────────── */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px; background: #1b2d47; color: #ffffff; padding: 0.85rem 1.25rem;
+      border-radius: 12px; font-size: 0.875rem; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      transform: translateY(20px); opacity: 0; pointer-events: none; transition: all 0.25s; z-index: 2000; max-width: 360px;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.success { background: #059669; }
+    #toast.error { background: #dc2626; }
+
+    .leaflet-container { font-family: 'Plus Jakarta Sans', sans-serif; z-index: 0; }
+    .df-pin {
+      width: 30px; height: 30px; background: #16a34a; border: 2px solid #ffffff;
+      border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+    }
+    .df-pin::after { content: ''; position: absolute; width: 10px; height: 10px; background: #ffffff; border-radius: 50%; top: 8px; left: 8px; }
+
+    /* ── RESPONSIVE ────────────────────────────────────────── */
+    @media (max-width: 1100px) {
+      .properties-grid { grid-template-columns: repeat(2, 1fr); }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .overview-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 800px) {
+      body { flex-direction: column; }
+      .sidebar { position: static; width: 100%; }
+      .sidebar-top { padding: 1rem; }
+      .sidebar-nav { flex-direction: row; flex-wrap: wrap; }
+      .sidebar-nav li { flex: 1 1 auto; }
+      .brand { margin-bottom: 1rem; }
+      .sidebar-bottom-nav { flex-direction: row; padding: 0.75rem 1rem; }
+      .main-content { margin-left: 0; }
+      .dashboard-body { padding: 1.25rem; }
+      .properties-grid { grid-template-columns: 1fr; }
+      .rv-gallery, .rv-facts { grid-template-columns: 1fr; }
+      .rv-thumbs { flex-direction: row; }
+      .rv-thumb { min-height: 70px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <a href="index.html" class="brand">
+        <div class="brand-mark">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M12 2L3 9v13h6v-7h6v7h6V9z"/></svg>
+        </div>
+        DormFinder
+      </a>
+
+      <div class="sidebar-section-title">Administrator</div>
+      <ul class="sidebar-nav">
+        <li>
+          <button class="nav-item active" data-tab="overview" onclick="switchTab('overview')">
+            <span><i class="fa-solid fa-grid-2"></i> Overview</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-item" data-tab="listings" onclick="switchTab('listings')">
+            <span><i class="fa-solid fa-house-circle-check"></i> Listing Approvals</span>
+            <span class="badge warn" id="badge-pending">0</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-item" data-tab="users" onclick="switchTab('users')">
+            <span><i class="fa-solid fa-users"></i> Users</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-item" data-tab="bookings" onclick="switchTab('bookings')">
+            <span><i class="fa-regular fa-calendar-days"></i> Bookings</span>
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <div class="sidebar-bottom-nav">
+      <a class="nav-item" href="#" onclick="handleLogout(event)" style="color: #f87171; text-decoration: none;">
+        <span><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-right">
+        <div class="icon-btn" title="Refresh data" onclick="loadAll(true)"><i class="fa-solid fa-rotate"></i></div>
+        <div class="user-profile-display">
+          <div class="user-meta">
+            <div class="owner-name" id="nav-username">Admin</div>
+            <div class="owner-role">Administrator</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="dashboard-body">
+
+      <!-- OVERVIEW -->
+      <div id="tab-overview" class="tab-view active">
+        <div class="dash-header-row">
+          <div class="dash-title-area">
+            <p>Platform administration</p>
+            <h1>Welcome back, <span id="greet-name">Admin</span></h1>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon-box yellow"><i class="fa-regular fa-clock"></i></div>
+            <div class="stat-info"><div class="stat-value" id="stat-pending">0</div><div class="stat-label">Awaiting Approval</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon-box green"><i class="fa-solid fa-house-circle-check"></i></div>
+            <div class="stat-info"><div class="stat-value" id="stat-approved">0</div><div class="stat-label">Approved Listings</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon-box"><i class="fa-solid fa-users"></i></div>
+            <div class="stat-info"><div class="stat-value" id="stat-users">0</div><div class="stat-label">Total Users</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon-box"><i class="fa-regular fa-calendar-days"></i></div>
+            <div class="stat-info"><div class="stat-value" id="stat-bookings">0</div><div class="stat-label">Total Bookings</div></div>
+          </div>
+        </div>
+
+        <div class="overview-grid">
+          <div class="panel">
+            <div class="section-header-flex">
+              <div class="section-title-sm"><h2>Listings awaiting approval</h2><p>Newest submissions from property owners</p></div>
+              <button class="view-all-link" onclick="switchTab('listings')">View all</button>
+            </div>
+            <div id="overview-pending"></div>
+          </div>
+          <div class="panel">
+            <div class="section-header-flex">
+              <div class="section-title-sm"><h2>Recent bookings</h2><p>Latest student requests</p></div>
+              <button class="view-all-link" onclick="switchTab('bookings')">View all</button>
+            </div>
+            <div id="overview-bookings"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LISTING APPROVALS -->
+      <div id="tab-listings" class="tab-view">
+        <div class="dash-header-row">
+          <div class="dash-title-area">
+            <p>Verify property owners' submissions</p>
+            <h1>Listing Approvals</h1>
+          </div>
+        </div>
+        <div class="filter-bar">
+          <div class="seg" id="listing-filter">
+            <button data-f="pending" class="active" onclick="setListingFilter('pending')">Pending<span class="count" id="c-pending">0</span></button>
+            <button data-f="approved" onclick="setListingFilter('approved')">Approved<span class="count" id="c-approved">0</span></button>
+            <button data-f="rejected" onclick="setListingFilter('rejected')">Rejected<span class="count" id="c-rejected">0</span></button>
+            <button data-f="all" onclick="setListingFilter('all')">All<span class="count" id="c-all">0</span></button>
+          </div>
+          <input type="text" class="search-input" id="listing-search" placeholder="Search by property or owner…" oninput="renderListings()"/>
+        </div>
+        <div class="properties-grid" id="listings-grid"></div>
+      </div>
+
+      <!-- USERS -->
+      <div id="tab-users" class="tab-view">
+        <div class="dash-header-row">
+          <div class="dash-title-area">
+            <p>Student and owner accounts</p>
+            <h1>Users</h1>
+          </div>
+        </div>
+        <div class="filter-bar">
+          <input type="text" class="search-input" id="user-search" placeholder="Search by name or email…" oninput="renderUsers()"/>
+          <select class="select-input" id="user-role" onchange="renderUsers()">
+            <option value="">All roles</option>
+            <option value="student">Students</option>
+            <option value="owner">Owners</option>
+            <option value="admin">Admins</option>
+          </select>
+        </div>
+        <div class="table-card"><div class="table-wrap">
+          <table>
+            <thead><tr><th>User</th><th>Email</th><th>Role</th><th>Phone</th><th>Listings</th></tr></thead>
+            <tbody id="users-tbody"></tbody>
+          </table>
+        </div></div>
+      </div>
+
+      <!-- BOOKINGS -->
+      <div id="tab-bookings" class="tab-view">
+        <div class="dash-header-row">
+          <div class="dash-title-area">
+            <p>All booking requests across DormFinder</p>
+            <h1>Bookings</h1>
+          </div>
+        </div>
+        <div class="table-card"><div class="table-wrap">
+          <table>
+            <thead><tr><th>Student</th><th>Property</th><th>Room</th><th>Move-in</th><th>Monthly</th><th>Status</th></tr></thead>
+            <tbody id="bookings-tbody"></tbody>
+          </table>
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- REVIEW MODAL -->
+  <div class="modal-backdrop" id="reviewModal">
+    <div class="modal-card">
+      <div class="modal-header-row">
+        <div>
+          <h3 id="rvName">Listing</h3>
+          <div class="modal-sub" id="rvSub"></div>
+        </div>
+        <button class="modal-close-btn" onclick="closeReview()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="rv-gallery">
+        <div class="rv-main" id="rvMain"></div>
+        <div class="rv-thumbs" id="rvThumbs"></div>
+      </div>
+
+      <div class="rv-facts" id="rvFacts"></div>
+
+      <div class="rv-section-title">Description</div>
+      <div class="rv-text" id="rvDesc"></div>
+
+      <div class="rv-section-title">House rules</div>
+      <div class="rv-text" id="rvRules"></div>
+
+      <div class="rv-section-title">Amenities</div>
+      <div class="rv-chips" id="rvAmenities"></div>
+
+      <div class="rv-section-title">Pinned location</div>
+      <div class="rv-map" id="rvMap"></div>
+
+      <div class="rv-prev-note" id="rvPrevNote" style="display:none"></div>
+
+      <div class="rv-note-box" id="rvNoteBox">
+        <label for="rvNote">Reason (shown to the owner if you reject)</label>
+        <textarea id="rvNote" placeholder="e.g. Photos are unclear, please upload photos of the actual rooms."></textarea>
+      </div>
+
+      <div class="modal-footer-actions">
+        <button class="btn btn-ghost" onclick="closeReview()">Close</button>
+        <div class="modal-footer-right">
+          <button class="btn btn-reject" id="rvRejectBtn" onclick="submitReview('rejected')"><i class="fa-solid fa-xmark"></i> Reject</button>
+          <button class="btn btn-approve" id="rvApproveBtn" onclick="submitReview('approved')"><i class="fa-solid fa-check"></i> Approve</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // ── Session guard: only the admin may be here ────────────────────────
+    const session = JSON.parse(localStorage.getItem('df_user') || '{}');
+    if (session.role !== 'admin' || !session.token) {
+      window.location.href = 'signin.html';
+    }
+
+    let listings = [], users = [], bookings = [];
+    let listingFilter = 'pending';
+    let reviewing = null;
+    let rvMapObj = null, rvMarker = null;
+
+    // ── Helpers ──────────────────────────────────────────────────────────
+    const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g,
+      c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+    const initials = n => String(n || '?').trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    const FALLBACK_IMG = 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=600&q=80';
+    const bg = src => `background-image:url('${esc(src || FALLBACK_IMG)}')`;
+    const fmtDate = s => {
+      if (!s) return '—';
+      const d = new Date(String(s).replace(' ', 'T') + (String(s).includes('Z') ? '' : 'Z'));
+      return isNaN(d) ? esc(s) : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    };
+
+    let toastTimer;
+    function toast(msg, type) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'show ' + (type || '');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.className = '', 3000);
+    }
+
+    async function api(path, options = {}) {
+      const res = await fetch(path, {
+        ...options,
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.token, ...(options.headers || {}) }
+      });
+      if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem('df_user');
+        alert('Your admin session has expired. Please sign in again.');
+        window.location.href = 'signin.html';
+        throw new Error('unauthorized');
+      }
+      return res.json();
+    }
+
+    // ── Header info ──────────────────────────────────────────────────────
+    document.getElementById('nav-username').textContent = session.name || 'Admin';
+    document.getElementById('greet-name').textContent = (session.name || 'Admin').split(' ')[0];
+
+    // ── Tabs ─────────────────────────────────────────────────────────────
+    function switchTab(name) {
+      document.querySelectorAll('.tab-view').forEach(v => v.classList.toggle('active', v.id === 'tab-' + name));
+      document.querySelectorAll('.nav-item[data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+      window.scrollTo(0, 0);
+    }
+
+    // ── Load data ────────────────────────────────────────────────────────
+    async function loadAll(showMsg) {
+      try {
+        const [p, u, b] = await Promise.all([
+          api('/api/admin/properties'), api('/api/admin/users'), api('/api/admin/bookings')
+        ]);
+        if (p.success) listings = p.properties;
+        if (u.success) users = u.users;
+        if (b.success) bookings = b.bookings;
+        renderAll();
+        if (showMsg) toast('Data refreshed.', 'success');
+      } catch (err) {
+        if (err.message !== 'unauthorized') toast('Could not connect to the server.', 'error');
+      }
+    }
+
+    function renderAll() {
+      const count = s => listings.filter(l => l.status === s).length;
+      document.getElementById('stat-pending').textContent = count('pending');
+      document.getElementById('stat-approved').textContent = count('approved');
+      document.getElementById('stat-users').textContent = users.length;
+      document.getElementById('stat-bookings').textContent = bookings.length;
+      document.getElementById('badge-pending').textContent = count('pending');
+      document.getElementById('badge-pending').style.display = count('pending') ? '' : 'none';
+      document.getElementById('c-pending').textContent = count('pending');
+      document.getElementById('c-approved').textContent = count('approved');
+      document.getElementById('c-rejected').textContent = count('rejected');
+      document.getElementById('c-all').textContent = listings.length;
+      renderOverview();
+      renderListings();
+      renderUsers();
+      renderBookings();
+    }
+
+    // ── Overview ─────────────────────────────────────────────────────────
+    function renderOverview() {
+      const pend = listings.filter(l => l.status === 'pending').slice(0, 5);
+      document.getElementById('overview-pending').innerHTML = pend.length ? pend.map(l => `
+        <div class="row-item">
+          <div class="row-thumb" style="${bg(l.image)}"></div>
+          <div class="row-main">
+            <div class="row-title">${esc(l.name)}</div>
+            <div class="row-sub">by ${esc(l.owner_name)} · ${esc(l.rent)}/mo</div>
+          </div>
+          <button class="btn btn-review" onclick="openReview(${l.id})">Review</button>
+        </div>`).join('') : '<div class="empty-inline">Nothing waiting. All listings are reviewed.</div>';
+
+      const recent = bookings.slice(0, 5);
+      document.getElementById('overview-bookings').innerHTML = recent.length ? recent.map(b => `
+        <div class="row-item">
+          <div class="avatar-sm">${esc(initials(b.student_name))}</div>
+          <div class="row-main">
+            <div class="row-title">${esc(b.student_name)}</div>
+            <div class="row-sub">${esc(b.property_name)} · ${esc(b.room_name)}</div>
+          </div>
+          <span class="pill ${esc(b.status)}">${esc(b.status)}</span>
+        </div>`).join('') : '<div class="empty-inline">No bookings yet.</div>';
+    }
+
+    // ── Listings ─────────────────────────────────────────────────────────
+    function setListingFilter(f) {
+      listingFilter = f;
+      document.querySelectorAll('#listing-filter button').forEach(b => b.classList.toggle('active', b.dataset.f === f));
+      renderListings();
+    }
+
+    function renderListings() {
+      const q = document.getElementById('listing-search').value.trim().toLowerCase();
+      const list = listings.filter(l => {
+        if (listingFilter !== 'all' && l.status !== listingFilter) return false;
+        if (q && !(`${l.name} ${l.owner_name} ${l.owner_email}`.toLowerCase().includes(q))) return false;
+        return true;
+      });
+      const grid = document.getElementById('listings-grid');
+      if (!list.length) {
+        const msg = { pending: ['No listings waiting for approval', 'New submissions from property owners will show up here.'],
+                      approved: ['No approved listings yet', 'Approved listings appear publicly on the homepage and browse page.'],
+                      rejected: ['No rejected listings', 'Listings you reject will be listed here.'],
+                      all: ['No listings yet', 'Owners have not submitted any property.'] }[listingFilter];
+        grid.innerHTML = `<div class="empty-state-card"><div class="empty-icon-circle"><i class="fa-solid fa-house-circle-check"></i></div><h3>${msg[0]}</h3><p>${msg[1]}</p></div>`;
+        return;
+      }
+      grid.innerHTML = list.map(l => {
+        const actions = l.status === 'pending'
+          ? `<div class="card-actions">
+               <button class="btn btn-reject btn-block" onclick="quickReject(${l.id})">Reject</button>
+               <button class="btn btn-approve btn-block" onclick="quickApprove(${l.id}, this)">Approve</button>
+             </div>`
+          : `<div class="card-actions"><button class="btn btn-ghost btn-block" onclick="openReview(${l.id})">View details</button></div>`;
+        return `
+        <div class="property-card">
+          <div class="prop-img-wrap" style="${bg(l.image)}" onclick="openReview(${l.id})">
+            <span class="prop-status-badge ${esc(l.status)}">${esc(l.status)}</span>
+          </div>
+          <div class="prop-content">
+            <div>
+              <div class="prop-name" onclick="openReview(${l.id})">${esc(l.name)}</div>
+              <div class="prop-owner-line">Owner: <strong>${esc(l.owner_name)}</strong></div>
+              <div class="prop-owner-line">${esc(l.owner_email)}</div>
+            </div>
+            <div class="prop-footer">
+              <span>${esc(l.type)} · ${esc(l.totalRooms)} rooms</span>
+              <div class="prop-price">${esc(l.rent)}<span>/mo</span></div>
+            </div>
+            ${actions}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    async function sendReview(id, status, note) {
+      const data = await api(`/api/admin/properties/${id}/review`, {
+        method: 'POST', body: JSON.stringify({ status, note })
+      });
+      if (!data.success) { toast(data.message || 'Could not update listing.', 'error'); return false; }
+      const l = listings.find(x => x.id === id);
+      if (l) { l.status = status; l.reviewNote = status === 'rejected' ? (note || '') : ''; }
+      renderAll();
+      return true;
+    }
+
+    async function quickApprove(id, btn) {
+      btn.disabled = true;
+      if (await sendReview(id, 'approved', '')) toast('Listing approved. It is now public.', 'success');
+      else btn.disabled = false;
+    }
+    function quickReject(id) { openReview(id, true); }
+
+    // ── Review modal ─────────────────────────────────────────────────────
+    function openReview(id, focusReason) {
+      const l = listings.find(x => x.id === id);
+      if (!l) return;
+      reviewing = l;
+
+      document.getElementById('rvName').textContent = l.name;
+      document.getElementById('rvSub').innerHTML =
+        `<span class="pill ${esc(l.status)}">${esc(l.status)}</span>` +
+        `<span>Owner: <strong>${esc(l.owner_name)}</strong> (${esc(l.owner_email)})</span>` +
+        `<span>· Submitted ${fmtDate(l.createdAt)}</span>`;
+
+      const imgs = (l.images && l.images.length) ? l.images : [l.image];
+      const main = document.getElementById('rvMain');
+      main.style.cssText = bg(imgs[0]);
+      const thumbs = document.getElementById('rvThumbs');
+      thumbs.innerHTML = imgs.slice(0, 3).map((src, i) =>
+        `<div class="rv-thumb" style="${bg(src)}" data-i="${i}"></div>`).join('');
+      thumbs.querySelectorAll('.rv-thumb').forEach(t =>
+        t.addEventListener('click', () => { main.style.cssText = bg(imgs[+t.dataset.i]); }));
+
+      const lat = parseFloat(l.lat), lon = parseFloat(l.lon);
+      document.getElementById('rvFacts').innerHTML = [
+        ['Type', l.type], ['Monthly rent', l.rent], ['Rooms', `${l.availRooms} available / ${l.totalRooms} total`],
+        ['Address', l.address], ['Pinned at', isFinite(lat) && isFinite(lon) ? `${lat.toFixed(4)}, ${lon.toFixed(4)}` : 'No pin saved'],
+        ['Photos', `${imgs.filter(Boolean).length} uploaded`]
+      ].map(([k, v]) => `<div class="rv-fact"><div class="k">${k}</div><div class="v">${esc(v)}</div></div>`).join('');
+
+      document.getElementById('rvDesc').textContent = l.desc || 'No description provided.';
+      document.getElementById('rvRules').textContent = l.rules || 'No house rules provided.';
+      document.getElementById('rvAmenities').innerHTML = (l.amenities && l.amenities.length)
+        ? l.amenities.map(a => `<span class="rv-chip">✓ ${esc(a)}</span>`).join('')
+        : '<span style="color:#94a3b8;font-size:0.85rem">None listed</span>';
+
+      const prev = document.getElementById('rvPrevNote');
+      if (l.status === 'rejected' && l.reviewNote) {
+        prev.style.display = ''; prev.innerHTML = '<strong>Previous rejection reason:</strong> ' + esc(l.reviewNote);
+      } else prev.style.display = 'none';
+
+      document.getElementById('rvNote').value = l.status === 'rejected' ? (l.reviewNote || '') : '';
+      document.getElementById('rvApproveBtn').style.display = l.status === 'approved' ? 'none' : '';
+      document.getElementById('rvRejectBtn').style.display = l.status === 'rejected' ? 'none' : '';
+      document.getElementById('rvApproveBtn').disabled = false;
+      document.getElementById('rvRejectBtn').disabled = false;
+      document.getElementById('rvRejectBtn').innerHTML = l.status === 'approved'
+        ? '<i class="fa-solid fa-ban"></i> Revoke approval' : '<i class="fa-solid fa-xmark"></i> Reject';
+
+      document.getElementById('reviewModal').classList.add('open');
+      showReviewMap(lat, lon, l.name);
+      if (focusReason) setTimeout(() => document.getElementById('rvNote').focus(), 120);
+    }
+
+    function showReviewMap(lat, lon, name) {
+      const el = document.getElementById('rvMap');
+      if (typeof L === 'undefined') { el.innerHTML = '<div class="empty-inline" style="padding-top:5rem">Map could not be loaded.</div>'; return; }
+      if (!isFinite(lat) || !isFinite(lon)) { lat = 10.2480; lon = 123.7850; }
+      if (!rvMapObj) {
+        rvMapObj = L.map(el, { center: [lat, lon], zoom: 16, scrollWheelZoom: false });
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
+        }).addTo(rvMapObj);
+        const icon = L.divIcon({ className: '', html: '<div class="df-pin"></div>', iconSize: [30, 30], iconAnchor: [15, 30] });
+        rvMarker = L.marker([lat, lon], { icon }).addTo(rvMapObj);
+        rvMapObj.on('click', () => rvMapObj.scrollWheelZoom.enable());
+      }
+      rvMarker.setLatLng([lat, lon]);
+      rvMapObj.setView([lat, lon], 16);
+      setTimeout(() => rvMapObj.invalidateSize(), 80);
+    }
+
+    function closeReview() {
+      document.getElementById('reviewModal').classList.remove('open');
+      reviewing = null;
+    }
+
+    async function submitReview(status) {
+      if (!reviewing) return;
+      const note = document.getElementById('rvNote').value.trim();
+      if (status === 'rejected' && !note && reviewing.status !== 'approved') {
+        toast('Please add a short reason so the owner knows what to fix.', 'error');
+        document.getElementById('rvNote').focus();
+        return;
+      }
+      document.getElementById('rvApproveBtn').disabled = true;
+      document.getElementById('rvRejectBtn').disabled = true;
+      const id = reviewing.id;
+      if (await sendReview(id, status, note)) {
+        toast(status === 'approved' ? 'Listing approved. It is now public.' : 'Listing rejected.', status === 'approved' ? 'success' : '');
+        closeReview();
+      } else {
+        document.getElementById('rvApproveBtn').disabled = false;
+        document.getElementById('rvRejectBtn').disabled = false;
+      }
+    }
+
+    document.getElementById('reviewModal').addEventListener('click', e => { if (e.target.id === 'reviewModal') closeReview(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeReview(); });
+
+    // ── Users ────────────────────────────────────────────────────────────
+    function renderUsers() {
+      const q = document.getElementById('user-search').value.trim().toLowerCase();
+      const role = document.getElementById('user-role').value;
+      const list = users.filter(u => {
+        if (role && u.role !== role) return false;
+        if (q && !(`${u.name} ${u.email}`.toLowerCase().includes(q))) return false;
+        return true;
+      });
+      const tbody = document.getElementById('users-tbody');
+      if (!list.length) { tbody.innerHTML = '<tr><td colspan="5"><div class="empty-inline">No users found.</div></td></tr>'; return; }
+      tbody.innerHTML = list.map(u => {
+        const n = listings.filter(l => l.owner_email === u.email).length;
+        return `<tr>
+          <td><div class="cell-user"><div class="avatar-sm ${esc(u.role)}">${esc(initials(u.name))}</div><span class="cell-strong">${esc(u.name)}</span></div></td>
+          <td class="cell-muted">${esc(u.email)}</td>
+          <td><span class="pill role-${esc(u.role)}">${esc(u.role)}</span></td>
+          <td class="cell-muted">${esc(u.phone) || '—'}</td>
+          <td>${u.role === 'owner' ? n : '—'}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    // ── Bookings ─────────────────────────────────────────────────────────
+    function renderBookings() {
+      const tbody = document.getElementById('bookings-tbody');
+      if (!bookings.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-inline">No booking requests yet.</div></td></tr>'; return; }
+      tbody.innerHTML = bookings.map(b => `<tr>
+        <td><div class="cell-strong">${esc(b.student_name)}</div><div class="cell-muted">${esc(b.student_email)}</div></td>
+        <td><div class="cell-strong">${esc(b.property_name)}</div><div class="cell-muted">Owner: ${esc(b.owner_email)}</div></td>
+        <td>${esc(b.room_name)}</td>
+        <td>${esc(b.move_in_date)}</td>
+        <td class="cell-strong">${esc(b.rent)}</td>
+        <td><span class="pill ${esc(b.status)}">${esc(b.status)}</span></td>
+      </tr>`).join('');
+    }
+
+    function handleLogout(e) {
+      if (e) e.preventDefault();
+      localStorage.removeItem('df_user');
+      localStorage.removeItem('df_role');
+      window.location.href = 'index.html';
+    }
+
+    loadAll();
+  </script>
+</body>
+</html>

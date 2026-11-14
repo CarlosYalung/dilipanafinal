@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <style>
     /* ═══════════════════════════════════════════════════════════
         LANDING — GLOBAL (Slate Blue Theme)
@@ -143,10 +144,195 @@
     .hero-bg {
       position: absolute;
       inset: 0;
-      background-image: url('https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=1600&q=80');
-      background-size: cover;
-      background-position: center;
       z-index: 0;
+      overflow: hidden; /* Clips the bottom attribution bar */
+    }
+
+    #heroMap {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: #0b1630;
+    }
+
+    /* Dark-tint only the map tiles so the property pins keep their colors */
+    #heroMap .leaflet-tile-pane {
+      filter: invert(90%) hue-rotate(180deg) brightness(88%) contrast(130%);
+    }
+
+    .leaflet-container .leaflet-control-attribution {
+      font-size: 10px;
+      background: rgba(6,13,31,0.6);
+      color: rgba(255,255,255,0.6);
+    }
+    .leaflet-container .leaflet-control-attribution a { color: #93c5fd; }
+
+    .df-pin {
+      width: 30px; height: 30px;
+      background: #16a34a;
+      border: 2px solid #ffffff;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .df-pin::after {
+      content: '';
+      position: absolute;
+      width: 10px; height: 10px;
+      background: #ffffff;
+      border-radius: 50%;
+      top: 8px; left: 8px;
+    }
+    .leaflet-marker-icon:hover .df-pin {
+      transform: rotate(-45deg) scale(1.12);
+      box-shadow: 0 5px 12px rgba(0,0,0,0.5);
+    }
+
+    .df-pin.active { background: #2563eb; transform: rotate(-45deg) scale(1.15); }
+
+    /* ── PROPERTY SIDE PANEL (opens when a map pin is clicked) ── */
+    .dp {
+      position: absolute;
+      top: 64px; left: 0; bottom: 0;
+      width: 384px; max-width: 100%;
+      background: #ffffff;
+      color: #0f172a;
+      z-index: 6;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      box-shadow: 4px 0 28px rgba(0,0,0,0.38);
+      transform: translateX(-104%);
+      visibility: hidden;
+      transition: transform 0.3s ease, visibility 0s linear 0.3s;
+    }
+    .dp.open { transform: none; visibility: visible; transition: transform 0.3s ease, visibility 0s; }
+    .dp-scroll { flex: 1; overflow-y: auto; overscroll-behavior: contain; }
+    .dp * { box-sizing: border-box; }
+
+    .dp-photo { position: relative; height: 200px; background: #e2e8f0; }
+    .dp-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .dp-photo::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(180deg, rgba(15,23,42,0.35) 0%, rgba(15,23,42,0) 40%, rgba(15,23,42,0.35) 100%);
+    }
+    .dp-close {
+      position: absolute; top: 12px; right: 12px; z-index: 2;
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 0; background: #ffffff; color: #0f172a; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .dp-close:hover { background: #f1f5f9; }
+    .dp-seephotos {
+      position: absolute; left: 12px; bottom: 12px; z-index: 2;
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 7px 13px; border-radius: 100px; border: 0; cursor: pointer;
+      background: rgba(15,23,42,0.72); color: #ffffff;
+      font: 700 0.78rem 'Plus Jakarta Sans', sans-serif;
+      backdrop-filter: blur(4px);
+    }
+    .dp-price {
+      position: absolute; right: 12px; bottom: 12px; z-index: 2;
+      background: #ffffff; border-radius: 10px; padding: 6px 12px; text-align: right;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    .dp-price b { display: block; font-size: 1.05rem; font-weight: 800; color: #0f172a; line-height: 1.2; }
+    .dp-price small { font-size: 0.68rem; font-weight: 600; color: #64748b; }
+
+    .dp-head { padding: 16px 20px 12px; }
+    .dp-name { margin: 0; font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; color: #0f172a; line-height: 1.25; }
+    .dp-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 6px; font-size: 0.82rem; color: #475569; font-weight: 600; }
+    .dp-stars { color: #f59e0b; letter-spacing: 1px; }
+    .dp-slots {
+      display: inline-block; margin-top: 10px;
+      background: #dcfce7; color: #15803d; font-size: 0.74rem; font-weight: 800;
+      padding: 4px 10px; border-radius: 6px;
+    }
+    .dp-slots.low { background: #fef3c7; color: #d97706; }
+    .dp-slots.none { background: #fee2e2; color: #dc2626; }
+
+    .dp-tabs { display: flex; border-bottom: 1px solid #e2e8f0; padding: 0 8px; }
+    .dp-tab {
+      flex: 1; padding: 12px 6px; background: none; border: 0; cursor: pointer;
+      border-bottom: 3px solid transparent;
+      font: 700 0.85rem 'Plus Jakarta Sans', sans-serif; color: #64748b;
+    }
+    .dp-tab.active { color: #2563eb; border-bottom-color: #2563eb; }
+
+    .dp-actions { display: flex; justify-content: space-around; padding: 16px 12px 6px; }
+    .dp-act {
+      display: flex; flex-direction: column; align-items: center; gap: 7px;
+      background: none; border: 0; cursor: pointer; text-decoration: none;
+      font: 600 0.74rem 'Plus Jakarta Sans', sans-serif; color: #2563eb;
+      width: 76px;
+    }
+    .dp-act .ic {
+      width: 42px; height: 42px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: #dbeafe; color: #2563eb; transition: background 0.2s, color 0.2s;
+    }
+    .dp-act.primary .ic { background: #2563eb; color: #ffffff; }
+    .dp-act:hover .ic { background: #bfdbfe; }
+    .dp-act.primary:hover .ic { background: #1d4ed8; }
+
+    .dp-cta {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin: 12px 20px 4px; padding: 12px; border-radius: 100px;
+      background: #2563eb; color: #ffffff; text-decoration: none;
+      font: 700 0.92rem 'Plus Jakarta Sans', sans-serif;
+      transition: background 0.2s;
+    }
+    .dp-cta:hover { background: #1d4ed8; }
+
+    .dp-pane { display: none; padding: 8px 20px 24px; }
+    .dp-pane.active { display: block; }
+    .dp-row {
+      display: flex; align-items: flex-start; gap: 18px;
+      padding: 14px 0; border-bottom: 1px solid #f1f5f9;
+      font-size: 0.86rem; font-weight: 500; color: #1e293b; line-height: 1.45;
+      word-break: break-word;
+    }
+    .dp-row:last-child { border-bottom: 0; }
+    .dp-row svg { flex-shrink: 0; margin-top: 1px; color: #2563eb; }
+    .dp-row a { color: #2563eb; text-decoration: none; font-weight: 600; }
+    .dp-row a:hover { text-decoration: underline; }
+    .dp-label { margin: 18px 0 8px; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #64748b; }
+    .dp-label:first-child { margin-top: 10px; }
+    .dp-text { font-size: 0.88rem; line-height: 1.6; color: #334155; font-weight: 500; white-space: pre-line; word-break: break-word; }
+    .dp-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .dp-chip { padding: 6px 12px; border: 1px solid #e2e8f0; border-radius: 100px; font-size: 0.8rem; font-weight: 600; color: #1e293b; }
+    .dp-rules { background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 12px 14px; font-size: 0.85rem; color: #78350f; white-space: pre-line; word-break: break-word; }
+    .dp-room {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 14px; margin-bottom: 8px;
+      border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.86rem;
+    }
+    .dp-room b { font-weight: 800; color: #0f172a; }
+    .dp-room small { display: block; color: #2563eb; font-weight: 700; font-size: 0.78rem; margin-top: 2px; }
+    .dp-room .st { font-size: 0.75rem; font-weight: 800; }
+    .dp-room .st.ok { color: #16a34a; }
+    .dp-room .st.no { color: #dc2626; }
+    .dp-room.taken { opacity: 0.55; background: #f8fafc; }
+    .dp-toast {
+      position: absolute; left: 16px; right: 16px; bottom: 16px; z-index: 5;
+      background: #0f172a; color: #ffffff; border-radius: 10px; padding: 11px 14px;
+      font-size: 0.82rem; font-weight: 600; text-align: center;
+      opacity: 0; pointer-events: none; transform: translateY(8px);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .dp-toast.show { opacity: 1; transform: none; }
+    .dp-toast a { color: #93c5fd; font-weight: 700; }
+
+    @media (max-width: 700px) {
+      .dp {
+        top: auto; width: 100%; height: 72%;
+        border-radius: 18px 18px 0 0;
+        transform: translateY(104%);
+      }
+      .dp.open { transform: none; }
     }
 
     .hero-bg::after {
@@ -155,10 +341,12 @@
       inset: 0;
       background: linear-gradient(
         110deg,
-        rgba(6,13,31,0.96) 0%,
-        rgba(13,27,62,0.90) 45%,
-        rgba(13,27,62,0.55) 100%
+        rgba(6,13,31,0.88) 0%,
+        rgba(13,27,62,0.70) 45%,
+        rgba(13,27,62,0.40) 100%
       );
+      pointer-events: none;
+      z-index: 1;
     }
 
     .hero-orb {
@@ -166,7 +354,7 @@
       border-radius: 50%;
       filter: blur(80px);
       pointer-events: none;
-      z-index: 1;
+      z-index: 2;
     }
     .hero-orb-1 {
       width: 500px; height: 500px;
@@ -181,9 +369,18 @@
 
     .hero-inner {
       position: relative;
-      z-index: 2;
+      z-index: 3;
       width: 100%;
       padding: 80px 0 100px;
+      pointer-events: none;
+    }
+
+    .hero-inner h1, 
+    .hero-inner p, 
+    .hero-inner div, 
+    .hero-inner a, 
+    .hero-inner button {
+      pointer-events: auto;
     }
 
     .hero-eyebrow {
@@ -191,14 +388,15 @@
       align-items: center;
       gap: 7px;
       padding: 5px 13px;
-      background: rgba(49,76,117,0.25);
-      border: 1px solid rgba(96,165,250,0.30);
+      background: rgba(49,76,117,0.40);
+      border: 1px solid rgba(96,165,250,0.40);
       border-radius: 100px;
       font-size: 0.78rem;
       font-weight: 600;
       color: #93c5fd;
       letter-spacing: 0.04em;
       margin-bottom: 20px;
+      backdrop-filter: blur(8px);
     }
 
     .hero-eyebrow .dot {
@@ -221,6 +419,7 @@
       letter-spacing: -0.04em;
       margin-bottom: 20px;
       max-width: 680px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
     }
 
     .hero h1 .accent {
@@ -230,10 +429,11 @@
 
     .hero-sub {
       font-size: 1.05rem;
-      color: rgba(255,255,255,0.62);
+      color: rgba(255,255,255,0.85);
       line-height: 1.7;
       max-width: 500px;
       margin-bottom: 36px;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.5);
     }
 
     .hero-actions {
@@ -270,25 +470,31 @@
       align-items: center;
       gap: 8px;
       padding: 13px 24px;
-      background: rgba(255,255,255,0.08);
+      background: rgba(6,13,31,0.65);
       color: white;
-      border: 1.5px solid rgba(255,255,255,0.20);
+      border: 1.5px solid rgba(255,255,255,0.30);
       border-radius: 10px;
       font-size: 0.95rem;
       font-weight: 600;
       cursor: pointer;
+      backdrop-filter: blur(8px);
       transition: background 0.15s, border-color 0.15s;
       text-decoration: none;
     }
-    .btn-hero-ghost:hover { background: rgba(255,255,255,0.13); border-color: rgba(255,255,255,0.40); }
+    .btn-hero-ghost:hover { background: rgba(6,13,31,0.85); border-color: rgba(255,255,255,0.60); }
 
     .hero-stats {
       display: flex;
       gap: 40px;
       margin-top: 56px;
       padding-top: 40px;
-      border-top: 1px solid rgba(255,255,255,0.10);
+      border-top: 1px solid rgba(255,255,255,0.20);
       flex-wrap: wrap;
+      background: rgba(6,13,31,0.45);
+      padding: 24px;
+      border-radius: 14px;
+      backdrop-filter: blur(8px);
+      max-width: 680px;
     }
 
     .hero-stat h3 {
@@ -300,7 +506,7 @@
     }
     .hero-stat p {
       font-size: 0.82rem;
-      color: rgba(255,255,255,0.45);
+      color: rgba(255,255,255,0.75);
       margin-top: 4px;
       font-weight: 500;
     }
@@ -310,19 +516,20 @@
       bottom: 32px;
       left: 50%;
       transform: translateX(-50%);
-      z-index: 2;
+      z-index: 3;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 6px;
-      color: rgba(255,255,255,0.35);
+      color: rgba(255,255,255,0.65);
       font-size: 0.72rem;
       letter-spacing: 0.1em;
       font-weight: 600;
       text-transform: uppercase;
       animation: bounce 2.2s infinite;
+      pointer-events: none;
     }
-    .scroll-cue svg { opacity: 0.5; }
+    .scroll-cue svg { opacity: 0.8; }
 
     @keyframes bounce {
       0%, 100% { transform: translateX(-50%) translateY(0); }
@@ -522,6 +729,15 @@
       box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07);
       pointer-events: none;
     }
+
+    #areaMap { width: 100%; height: 380px; background: #0b1630; }
+    #areaMap .leaflet-tile-pane {
+      filter: invert(90%) hue-rotate(180deg) brightness(88%) contrast(130%);
+    }
+    .df-area-popup { font-family: 'Plus Jakarta Sans', sans-serif; min-width: 160px; }
+    .df-area-popup strong { display: block; font-size: 0.92rem; color: #0f172a; margin-bottom: 2px; }
+    .df-area-popup span { display: block; font-size: 0.78rem; color: #64748b; }
+    .df-area-popup a { display: inline-block; margin-top: 6px; font-size: 0.8rem; font-weight: 700; color: #2563eb; text-decoration: none; }
 
     .map-legend {
       display: flex;
@@ -847,9 +1063,17 @@
 
 <!-- HERO -->
 <section class="hero" id="hero">
-  <div class="hero-bg"></div>
+  <div class="hero-bg">
+    <div id="heroMap" role="img" aria-label="Map of DormFinder listings in Minglanilla"></div>
+  </div>
   <div class="hero-orb hero-orb-1"></div>
   <div class="hero-orb hero-orb-2"></div>
+
+  <!-- Property panel: slides in from the left when a map pin is clicked -->
+  <aside class="dp" id="dormPanel" aria-label="Property details" aria-hidden="true">
+    <div class="dp-scroll" id="dpScroll"></div>
+    <div class="dp-toast" id="dpToast" role="status"></div>
+  </aside>
 
   <div class="container hero-inner">
     <div class="hero-eyebrow">
@@ -1026,14 +1250,7 @@
       </div>
 
       <div class="map-frame-wrap">
-        <iframe
-          width="100%"
-          height="380"
-          style="border:none;display:block;"
-          loading="lazy"
-          src="https://www.openstreetmap.org/export/embed.html?bbox=123.755,10.225,123.870,10.275&layer=mapnik"
-          title="DormFinder Campus Area Map">
-        </iframe>
+        <div id="areaMap" role="img" aria-label="Map of DormFinder listings"></div>
       </div>
     </div>
   </div>
@@ -1175,7 +1392,295 @@
   </div>
 </footer>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+  // ── Hero background map: shows a pin for every property owners have added ──
+  (function initHeroMap() {
+    const DEFAULT_CENTER = [10.2475, 123.8000];
+    const map = L.map('heroMap', {
+      center: DEFAULT_CENTER,
+      zoom: 14,
+      zoomControl: false,
+      scrollWheelZoom: false, // keep page scrolling smooth
+      attributionControl: true,
+      zoomSnap: 0.25,
+      zoomAnimation: true,
+      markerZoomAnimation: true,
+      inertia: true
+    });
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
+    }).addTo(map);
+
+    const pinIcon = L.divIcon({
+      className: '',
+      html: '<div class="df-pin"></div>',
+      iconSize: [30, 30],
+      iconAnchor: [15, 30],
+      popupAnchor: [0, -30]
+    });
+
+    // ── Property side panel ──────────────────────────────────────────────
+    const PANEL_W = 384;
+    const panel = document.getElementById('dormPanel');
+    const panelScroll = document.getElementById('dpScroll');
+    const toastEl = document.getElementById('dpToast');
+    const FALLBACK_IMG = 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800&q=80';
+    let activeMarker = null;
+    let toastTimer = null;
+
+    // All owner-entered text is escaped before it goes into the template
+    const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => (
+      { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+    ));
+
+    const svg = (d, size = 20) =>
+      `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+    const ICON = {
+      close:   svg('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>', 18),
+      photos:  svg('<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>', 16),
+      dir:     svg('<polygon points="3 11 22 2 13 21 11 13 3 11"/>'),
+      msg:     svg('<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'),
+      map:     svg('<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>'),
+      share:   svg('<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/>'),
+      pin:     svg('<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>'),
+      door:    svg('<path d="M3 21h18"/><path d="M5 21V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v17"/><circle cx="15" cy="12" r="1"/>'),
+      user:    svg('<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'),
+      mail:    svg('<rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22 6 12 13 2 6"/>'),
+      cross:   svg('<circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/>'),
+      bed:     svg('<path d="M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8"/><path d="M2 16h20"/><path d="M6 10V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4"/>', 18)
+    };
+
+    function showToast(html) {
+      toastEl.innerHTML = html;
+      toastEl.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3200);
+    }
+
+    function renderPanel(p) {
+      const lat = parseFloat(p.lat), lon = parseFloat(p.lon);
+      const imgs = (p.images && p.images.length) ? p.images : [p.image || FALLBACK_IMG];
+      const total = Math.max(parseInt(p.totalRooms) || 1, 1);
+      const avail = Math.min(Math.max(parseInt(p.availRooms) || 0, 0), total);
+      const slotsText = avail > 0 ? `${avail} slot${avail === 1 ? '' : 's'} left` : 'Fully booked';
+      const slotsCls = avail === 0 ? 'none' : (avail <= 2 ? 'low' : '');
+      const amenities = (p.amenities && p.amenities.length) ? p.amenities : [];
+      const ownerName = p.owner_name || 'Property Owner';
+
+      let rooms = '';
+      for (let i = 1; i <= total; i++) {
+        const ok = i <= avail;
+        rooms += `
+          <div class="dp-room ${ok ? '' : 'taken'}">
+            <div><b>Room ${100 + i}</b><small>${esc(p.rent)}/mo</small></div>
+            <span class="st ${ok ? 'ok' : 'no'}">• ${ok ? 'Available' : 'Taken'}</span>
+          </div>`;
+      }
+
+      panelScroll.innerHTML = `
+        <div class="dp-photo">
+          <img id="dpImg" src="${esc(imgs[0])}" alt="${esc(p.name)}">
+          <button class="dp-close" data-act="close" aria-label="Close">${ICON.close}</button>
+          <button class="dp-seephotos" data-act="photos">${ICON.photos} ${imgs.length > 1 ? `See photos (<span id="dpPhotoCount">1/${imgs.length}</span>)` : '1 photo'}</button>
+          <div class="dp-price"><b>${esc(p.rent)}</b><small>per month</small></div>
+        </div>
+
+        <div class="dp-head">
+          <h2 class="dp-name">${esc(p.name || 'Property')}</h2>
+          <div class="dp-meta">
+            <span>4.0</span><span class="dp-stars">★★★★☆</span>
+            <span>• ${esc(p.type || 'Dormitory')}</span>
+          </div>
+          <span class="dp-slots ${slotsCls}">${slotsText}</span>
+        </div>
+
+        <div class="dp-tabs" role="tablist">
+          <button class="dp-tab active" data-tab="overview" role="tab">Overview</button>
+          <button class="dp-tab" data-tab="rooms" role="tab">Rooms</button>
+          <button class="dp-tab" data-tab="details" role="tab">Details</button>
+        </div>
+
+        <div class="dp-actions">
+          <button class="dp-act primary" data-act="directions"><span class="ic">${ICON.dir}</span>Directions</button>
+          <button class="dp-act" data-act="message"><span class="ic">${ICON.msg}</span>Message</button>
+          <button class="dp-act" data-act="openmap"><span class="ic">${ICON.map}</span>Open map</button>
+          <button class="dp-act" data-act="share"><span class="ic">${ICON.share}</span>Share</button>
+        </div>
+
+        <a class="dp-cta" href="browser.html?property=${encodeURIComponent(p.id)}">${ICON.bed} Check availability</a>
+
+        <div class="dp-pane active" data-pane="overview">
+          <div class="dp-row">${ICON.pin}<span>${esc(p.address || 'Minglanilla, Cebu')}</span></div>
+          <div class="dp-row">${ICON.door}<span>${avail} of ${total} room${total === 1 ? '' : 's'} available</span></div>
+          <div class="dp-row">${ICON.user}<span>${esc(ownerName)} <span style="color:#64748b">· Property Owner</span></span></div>
+          ${p.owner_email ? `<div class="dp-row">${ICON.mail}<a href="mailto:${esc(p.owner_email)}">${esc(p.owner_email)}</a></div>` : ''}
+          <div class="dp-row">${ICON.cross}<span>${lat.toFixed(4)}, ${lon.toFixed(4)}</span></div>
+        </div>
+
+        <div class="dp-pane" data-pane="rooms">
+          <div class="dp-label">Select a room to book</div>
+          ${rooms}
+        </div>
+
+        <div class="dp-pane" data-pane="details">
+          <div class="dp-label">About</div>
+          <div class="dp-text">${esc(p.desc || 'No description provided.')}</div>
+          <div class="dp-label">Amenities</div>
+          ${amenities.length
+            ? `<div class="dp-chips">${amenities.map(a => `<span class="dp-chip">✓ ${esc(a)}</span>`).join('')}</div>`
+            : '<div class="dp-text">No amenities listed.</div>'}
+          <div class="dp-label">House rules</div>
+          <div class="dp-rules">${esc(p.rules || 'No specific rules.')}</div>
+        </div>
+      `;
+      panelScroll.scrollTop = 0;
+      panelScroll._photoIdx = 0;
+      panelScroll._imgs = imgs;
+      panelScroll._prop = p;
+    }
+
+    function openPanel(p, marker) {
+      renderPanel(p);
+      panel.classList.add('open');
+      panel.setAttribute('aria-hidden', 'false');
+
+      if (activeMarker && activeMarker._icon) activeMarker._icon.firstChild.classList.remove('active');
+      activeMarker = marker;
+      if (marker._icon) marker._icon.firstChild.classList.add('active');
+
+      // Pan so the pin sits in the middle of the area that is NOT covered by the panel
+      const z = Math.max(map.getZoom(), 15);
+      const shift = window.innerWidth > 700 ? PANEL_W / 2 : 0;
+      const target = map.unproject(map.project(marker.getLatLng(), z).subtract([shift, 0]), z);
+      map.flyTo(target, z, { duration: 0.7 });
+    }
+
+    function closePanel() {
+      panel.classList.remove('open');
+      panel.setAttribute('aria-hidden', 'true');
+      if (activeMarker && activeMarker._icon) activeMarker._icon.firstChild.classList.remove('active');
+      activeMarker = null;
+    }
+
+    panel.addEventListener('click', e => {
+      const tab = e.target.closest('[data-tab]');
+      if (tab) {
+        panel.querySelectorAll('.dp-tab').forEach(t => t.classList.toggle('active', t === tab));
+        panel.querySelectorAll('.dp-pane').forEach(el => el.classList.toggle('active', el.dataset.pane === tab.dataset.tab));
+        return;
+      }
+      const btn = e.target.closest('[data-act]');
+      if (!btn) return;
+      const p = panelScroll._prop;
+      const lat = parseFloat(p.lat), lon = parseFloat(p.lon);
+
+      switch (btn.dataset.act) {
+        case 'close':
+          closePanel();
+          break;
+        case 'photos': {
+          const imgs = panelScroll._imgs;
+          if (imgs.length < 2) break;
+          panelScroll._photoIdx = (panelScroll._photoIdx + 1) % imgs.length;
+          document.getElementById('dpImg').src = imgs[panelScroll._photoIdx];
+          document.getElementById('dpPhotoCount').textContent = `${panelScroll._photoIdx + 1}/${imgs.length}`;
+          break;
+        }
+        case 'directions':
+          window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`, '_blank', 'noopener');
+          break;
+        case 'openmap':
+          window.open(`https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=17/${lat}/${lon}`, '_blank', 'noopener');
+          break;
+        case 'message': {
+          const u = JSON.parse(localStorage.getItem('df_user') || 'null');
+          if (!u || !u.email) {
+            showToast('Sign in as a student to message the owner. <a href="signin.html">Sign in</a>');
+          } else if (u.role === 'student') {
+            window.location.href = 'student-dashboard.html';
+          } else {
+            showToast('Only students can message property owners.');
+          }
+          break;
+        }
+        case 'share': {
+          const url = `${location.origin}/browser.html?property=${encodeURIComponent(p.id)}`;
+          if (navigator.share) {
+            navigator.share({ title: p.name, url }).catch(() => {});
+          } else if (navigator.clipboard) {
+            navigator.clipboard.writeText(url).then(() => showToast('Link copied to clipboard'));
+          } else {
+            showToast(esc(url));
+          }
+          break;
+        }
+      }
+    });
+
+    map.on('click', closePanel);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+
+    fetch('/api/properties')
+      .then(r => r.json())
+      .then(data => {
+        if (!data || !data.success) return;
+        const points = [];
+        data.properties.forEach(p => {
+          const lat = parseFloat(p.lat), lon = parseFloat(p.lon);
+          if (!isFinite(lat) || !isFinite(lon)) return; // listings without a saved pin
+          const marker = L.marker([lat, lon], { icon: pinIcon, title: p.name }).addTo(map);
+          marker.on('click', () => openPanel(p, marker));
+          points.push([lat, lon]);
+        });
+        if (points.length === 1) {
+          map.flyTo(points[0], 15, { duration: 1.2 });
+        } else if (points.length > 1) {
+          map.flyToBounds(points, { padding: [80, 80], maxZoom: 15, duration: 1.2 });
+        }
+      })
+      .catch(err => console.error('Could not load property pins:', err));
+  })();
+
+  // ── "Find dorms near your school" map: a pin for every listed property ──
+  (function initAreaMap() {
+    const el = document.getElementById('areaMap');
+    if (!el) return;
+    const map = L.map(el, { center: [10.2475, 123.8000], zoom: 14, scrollWheelZoom: false, zoomSnap: 0.25 });
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
+    }).addTo(map);
+    map.on('click', () => map.scrollWheelZoom.enable());
+
+    const icon = L.divIcon({ className: '', html: '<div class="df-pin"></div>',
+      iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -30] });
+    const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g,
+      c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+
+    fetch('/api/properties')
+      .then(r => r.json())
+      .then(data => {
+        if (!data || !data.success) return;
+        const points = [];
+        data.properties.forEach(p => {
+          const lat = parseFloat(p.lat), lon = parseFloat(p.lon);
+          if (!isFinite(lat) || !isFinite(lon)) return;
+          L.marker([lat, lon], { icon, title: p.name }).addTo(map).bindPopup(
+            `<div class="df-area-popup"><strong>${esc(p.name)}</strong>` +
+            `<span>${esc(p.address || '')}</span>` +
+            `<span>${esc(p.rent || '')}${p.rent ? '/month' : ''}</span>` +
+            `<a href="browser.html">View listings →</a></div>`);
+          points.push([lat, lon]);
+        });
+        if (points.length === 1) map.setView(points[0], 15);
+        else if (points.length > 1) map.fitBounds(points, { padding: [50, 50], maxZoom: 15 });
+      })
+      .catch(err => console.error('Could not load property pins:', err));
+  })();
+
   window.addEventListener('scroll', () => {
     document.getElementById('land-nav').classList.toggle('scrolled', window.scrollY > 40);
   });

@@ -680,7 +680,6 @@
       position: relative;
       margin-top: 0.5rem;
     }
-    .detail-map-box iframe { width: 100% !important; height: 100%; border: 0; display: block; }
     .btn-open-maps {
       position: absolute;
       bottom: 12px; right: 12px;
@@ -854,6 +853,28 @@
       .stats-grid, .dorms-grid { grid-template-columns: 1fr; }
       .detail-layout-grid { grid-template-columns: 1fr; }
     }
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    /* ── Leaflet map + pin (same look as the homepage map) ── */
+    .df-pin {
+      width: 30px; height: 30px;
+      background: #16a34a;
+      border: 2px solid #ffffff;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+    }
+    .df-pin::after {
+      content: '';
+      position: absolute;
+      width: 10px; height: 10px;
+      background: #ffffff;
+      border-radius: 50%;
+      top: 8px; left: 8px;
+    }
+    .leaflet-container { font-family: 'Plus Jakarta Sans', sans-serif; z-index: 0; }
+    .btn-open-maps, .map-open-btn { z-index: 1000; }
   </style>
 </head>
 <body>
@@ -1069,12 +1090,8 @@
             <div>
               <div class="detail-section-title"><i class="fa-solid fa-location-dot"></i> Location</div>
               <div class="detail-map-box">
-                <iframe 
-                  src="https://www.openstreetmap.org/export/embed.html?bbox=123.730%2C10.220%2C123.830%2C10.290&layer=mapnik&marker=10.255%2C123.780"
-                  title="Property Location Map"
-                  loading="lazy">
-                </iframe>
-                <a href="https://www.openstreetmap.org/?mlat=10.255&mlon=123.780#map=14/10.255/123.780" target="_blank" rel="noopener" class="btn-open-maps">
+                <div id="sdMap" style="width:100%;height:100%;"></div>
+                <a id="sdMapLink" href="https://www.openstreetmap.org/?mlat=10.255&mlon=123.780#map=14/10.255/123.780" target="_blank" rel="noopener" class="btn-open-maps">
                   <i class="fa-solid fa-arrow-up-right-from-square"></i> Open in Maps
                 </a>
               </div>
@@ -1250,7 +1267,37 @@
     </div>
   </div>
 
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
+    // ── Shared map helper: one Leaflet map per container, pin follows the selected property ──
+    const _dfDetailMaps = {};
+    function dfShowPropertyMap(containerId, lat, lon, name) {
+      const el = document.getElementById(containerId);
+      if (!el || typeof L === 'undefined') return;
+      lat = parseFloat(lat); lon = parseFloat(lon);
+      if (!isFinite(lat) || !isFinite(lon)) { lat = 10.2480; lon = 123.7850; }
+
+      let m = _dfDetailMaps[containerId];
+      if (!m) {
+        const map = L.map(el, { center: [lat, lon], zoom: 16, scrollWheelZoom: false });
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
+        }).addTo(map);
+        const icon = L.divIcon({ className: '', html: '<div class="df-pin"></div>',
+          iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -30] });
+        const marker = L.marker([lat, lon], { icon }).addTo(map);
+        map.on('click', () => map.scrollWheelZoom.enable());
+        // The map lives in a hidden tab until a property is opened, so resize it when it appears
+        if (window.ResizeObserver) new ResizeObserver(() => map.invalidateSize()).observe(el);
+        m = _dfDetailMaps[containerId] = { map, marker };
+      }
+      m.marker.setLatLng([lat, lon]);
+      m.marker.unbindTooltip();
+      if (name) m.marker.bindTooltip(name, { direction: 'top', offset: [0, -30] });
+      m.map.setView([lat, lon], 16);
+      setTimeout(() => m.map.invalidateSize(), 80);
+    }
     let savedDormsList = [];
     let allDatabaseProperties = [];
     let activeSelectedProperty = null;
@@ -1355,6 +1402,12 @@
       document.getElementById('sdPropDesc').textContent = p.desc || 'No description available.';
       document.getElementById('sdPropRules').textContent = p.rules || 'No specific rules.';
       document.getElementById('sdPropPrice').innerHTML = `${p.rent}<span>/month</span>`;
+
+      // Location map: pin this property (was the same fixed map for every dorm)
+      const mapLat = parseFloat(p.lat) || 10.2480;
+      const mapLon = parseFloat(p.lon) || 123.7850;
+      dfShowPropertyMap('sdMap', mapLat, mapLon, p.name);
+      document.getElementById('sdMapLink').href = `https://www.openstreetmap.org/?mlat=${mapLat}&mlon=${mapLon}#map=17/${mapLat}/${mapLon}`;
 
       const ownerName = p.owner_name || (p.owner_email ? p.owner_email.split('@')[0] : 'Property Owner');
       const ownerEmail = p.owner_email || 'owner@dormfinder.com';

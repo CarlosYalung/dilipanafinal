@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <!-- Leaflet CSS for Map Location Picker -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   
   <style>
     * {
@@ -424,6 +426,16 @@
       font-weight: 700;
     }
     .prop-status-badge.full { background: rgba(59, 130, 246, 0.9); }
+    .prop-status-badge.pending { background: rgba(245, 158, 11, 0.95); }
+    .prop-status-badge.rejected { background: rgba(220, 38, 38, 0.9); }
+    .prop-review-note {
+      font-size: 0.78rem; color: #991b1b; background: #fef2f2; border: 1px solid #fecaca;
+      border-radius: 8px; padding: 6px 10px; margin: -0.6rem 0 1rem;
+    }
+    .prop-review-wait {
+      font-size: 0.78rem; color: #92400e; background: #fffbeb; border: 1px solid #fde68a;
+      border-radius: 8px; padding: 6px 10px; margin: -0.6rem 0 1rem;
+    }
 
     .prop-options-btn {
       position: absolute;
@@ -653,11 +665,6 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
 
-    .map-preview-wrapper iframe {
-      width: 100%;
-      height: 100%;
-      border: 0;
-    }
 
     .map-open-btn {
       position: absolute;
@@ -845,17 +852,6 @@
       min-height: 80px;
     }
 
-    .fixed-address-box {
-      background: #f8fafc;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      padding: 0.7rem 0.9rem;
-      font-size: 0.9rem;
-      color: #0f172a;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
     .amenities-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -1011,6 +1007,27 @@
       .detail-layout-grid { grid-template-columns: 1fr; }
       .detail-photo-gallery { grid-template-columns: 1fr; }
     }
+  </style>
+  <style>
+    /* ── Leaflet map + pin (same look as the homepage map) ── */
+    .df-pin {
+      width: 30px; height: 30px;
+      background: #16a34a;
+      border: 2px solid #ffffff;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+    }
+    .df-pin::after {
+      content: '';
+      position: absolute;
+      width: 10px; height: 10px;
+      background: #ffffff;
+      border-radius: 50%;
+      top: 8px; left: 8px;
+    }
+    .leaflet-container { font-family: 'Plus Jakarta Sans', sans-serif; z-index: 0; }
+    .btn-open-maps, .map-open-btn { z-index: 1000; }
   </style>
 </head>
 <body>
@@ -1302,7 +1319,7 @@
               </div>
               <div class="detail-badges-row">
                 <span class="badge-type" id="detailPropType">Apartment</span>
-                <span><i class="fa-solid fa-location-dot"></i> <span id="detailPropLocation">Brgy. Cadulawan, Minglanilla, Cebu</span></span>
+                <span><i class="fa-solid fa-location-dot"></i> <span id="detailPropLocation">Minglanilla, Cebu</span></span>
                 <span><i class="fa-regular fa-user"></i> <span id="detailPropSlots">1 slot left</span></span>
                 <span style="color: #d97706; font-weight: 700;"><i class="fa-solid fa-star"></i> 4.0</span>
               </div>
@@ -1329,7 +1346,7 @@
             <div>
               <div class="detail-section-title"><i class="fa-solid fa-map-location-dot"></i> Location</div>
               <div class="map-preview-wrapper">
-                <iframe id="mapEmbedIframe" src="https://www.openstreetmap.org/export/embed.html?bbox=123.755,10.258,123.788,10.288&layer=mapnik"></iframe>
+                <div id="ownerDetailMap" style="width:100%;height:100%;"></div>
                 <a id="mapExternalLink" href="https://www.openstreetmap.org" target="_blank" class="map-open-btn">
                   <i class="fa-solid fa-arrow-up-right-from-square"></i> Open in Maps
                 </a>
@@ -1395,31 +1412,14 @@
         </div>
       </div>
 
+      <!-- MAP LOCATION PICKER -->
       <div class="modal-form-group">
-        <label>Address / Location</label>
-        <div class="fixed-address-box">Minglanilla, Cebu</div>
-        <label style="font-size: 0.75rem; color: #64748b; margin-top: 6px; margin-bottom: 6px;">Select Barangay:</label>
-        <select id="newPropBarangay" style="width: 100%; border: 1px solid #cbd5e1; border-radius: 10px; padding: 0.7rem 0.9rem; font-size: 0.9rem; color: #0f172a; outline: none; background: #ffffff;">
-          <option value="Cadulawan">Cadulawan</option>
-          <option value="Calajo-an">Calajo-an</option>
-          <option value="Camp 7">Camp 7</option>
-          <option value="Camp 8">Camp 8</option>
-          <option value="Cuanos">Cuanos</option>
-          <option value="Guindaruhan">Guindaruhan</option>
-          <option value="Linao">Linao</option>
-          <option value="Manduang">Manduang</option>
-          <option value="Pakigne">Pakigne</option>
-          <option value="Poblacion Ward I">Poblacion Ward I</option>
-          <option value="Poblacion Ward II">Poblacion Ward II</option>
-          <option value="Poblacion Ward III">Poblacion Ward III</option>
-          <option value="Poblacion Ward IV">Poblacion Ward IV</option>
-          <option value="Tubod">Tubod</option>
-          <option value="Tulay">Tulay</option>
-          <option value="Tunghaan">Tunghaan</option>
-          <option value="Tungkil">Tungkil</option>
-          <option value="Tungkop">Tungkop</option>
-          <option value="Vito">Vito</option>
-        </select>
+        <label>Pin Exact Property Location on Map</label>
+        <p style="font-size: 0.78rem; color: #64748b; margin-bottom: 8px;">Click anywhere on the Minglanilla map or drag the pin to set your exact location.</p>
+        <div id="ownerPickerMap" style="width: 100%; height: 220px; border-radius: 10px; border: 1px solid #cbd5e1; margin-bottom: 6px;"></div>
+        <div id="selectedCoordsText" style="font-size: 0.8rem; font-weight: 700; color: #2563eb;">Selected Coordinates: 10.2480, 123.7850</div>
+        <input type="hidden" id="propLat" value="10.2480"/>
+        <input type="hidden" id="propLon" value="123.7850"/>
       </div>
 
       <div class="form-grid-2">
@@ -1478,34 +1478,79 @@
     </div>
   </div>
 
+  <!-- Leaflet JS Library -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    const barangayCoordinates = {
-      "Cadulawan": { lat: 10.2727, lon: 123.7718, bbox: "123.755,10.258,123.788,10.288" },
-      "Calajo-an": { lat: 10.2378, lon: 123.7942, bbox: "123.780,10.225,123.810,10.250" },
-      "Camp 7": { lat: 10.2950, lon: 123.7480, bbox: "123.730,10.280,123.765,10.310" },
-      "Camp 8": { lat: 10.2820, lon: 123.7580, bbox: "123.740,10.268,123.775,10.295" },
-      "Cuanos": { lat: 10.2310, lon: 123.7780, bbox: "123.760,10.218,123.795,10.245" },
-      "Guindaruhan": { lat: 10.2825, lon: 123.7652, bbox: "123.750,10.268,123.782,10.298" },
-      "Linao": { lat: 10.2580, lon: 123.7990, bbox: "123.785,10.245,123.815,10.272" },
-      "Manduang": { lat: 10.2640, lon: 123.7520, bbox: "123.735,10.250,123.768,10.278" },
-      "Pakigne": { lat: 10.2530, lon: 123.7920, bbox: "123.778,10.240,123.808,10.268" },
-      "Poblacion Ward I": { lat: 10.2450, lon: 123.7960, bbox: "123.782,10.232,123.810,10.258" },
-      "Poblacion Ward II": { lat: 10.2440, lon: 123.7930, bbox: "123.780,10.230,123.808,10.256" },
-      "Poblacion Ward III": { lat: 10.2480, lon: 123.7890, bbox: "123.775,10.234,123.802,10.260" },
-      "Poblacion Ward IV": { lat: 10.2510, lon: 123.7850, bbox: "123.770,10.238,123.798,10.264" },
-      "Tubod": { lat: 10.2620, lon: 123.7810, bbox: "123.768,10.248,123.795,10.275" },
-      "Tulay": { lat: 10.2360, lon: 123.7880, bbox: "123.772,10.222,123.802,10.250" },
-      "Tunghaan": { lat: 10.2438, lon: 123.7832, bbox: "123.768,10.230,123.798,10.258" },
-      "Tungkil": { lat: 10.2480, lon: 123.8050, bbox: "123.790,10.235,123.820,10.262" },
-      "Tungkop": { lat: 10.2280, lon: 123.7850, bbox: "123.770,10.215,123.800,10.242" },
-      "Vito": { lat: 10.2560, lon: 123.7680, bbox: "123.752,10.242,123.782,10.270" }
-    };
+    // ── Shared map helper: one Leaflet map per container, pin follows the selected property ──
+    const _dfDetailMaps = {};
+    function dfShowPropertyMap(containerId, lat, lon, name) {
+      const el = document.getElementById(containerId);
+      if (!el || typeof L === 'undefined') return;
+      lat = parseFloat(lat); lon = parseFloat(lon);
+      if (!isFinite(lat) || !isFinite(lon)) { lat = 10.2480; lon = 123.7850; }
 
+      let m = _dfDetailMaps[containerId];
+      if (!m) {
+        const map = L.map(el, { center: [lat, lon], zoom: 16, scrollWheelZoom: false });
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
+        }).addTo(map);
+        const icon = L.divIcon({ className: '', html: '<div class="df-pin"></div>',
+          iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -30] });
+        const marker = L.marker([lat, lon], { icon }).addTo(map);
+        map.on('click', () => map.scrollWheelZoom.enable());
+        // The map lives in a hidden tab until a property is opened, so resize it when it appears
+        if (window.ResizeObserver) new ResizeObserver(() => map.invalidateSize()).observe(el);
+        m = _dfDetailMaps[containerId] = { map, marker };
+      }
+      m.marker.setLatLng([lat, lon]);
+      m.marker.unbindTooltip();
+      if (name) m.marker.bindTooltip(name, { direction: 'top', offset: [0, -30] });
+      m.map.setView([lat, lon], 16);
+      setTimeout(() => m.map.invalidateSize(), 80);
+    }
     let customProperties = [];
     let uploadedImagesList = [];
     let allUserMessages = [];
     let activeChatPartnerEmail = null;
     let activeChatPropertyId = null;
+
+    let pickerMap = null;
+    let pickerMarker = null;
+
+    function initPickerMap(lat = 10.2480, lon = 123.7850) {
+      setTimeout(() => {
+        if (!pickerMap) {
+          pickerMap = L.map('ownerPickerMap').setView([lat, lon], 14);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19
+          }).addTo(pickerMap);
+
+          pickerMarker = L.marker([lat, lon], { draggable: true }).addTo(pickerMap);
+
+          pickerMarker.on('dragend', function (e) {
+            const pos = pickerMarker.getLatLng();
+            updateSelectedCoords(pos.lat, pos.lng);
+          });
+
+          pickerMap.on('click', function (e) {
+            pickerMarker.setLatLng(e.latlng);
+            updateSelectedCoords(e.latlng.lat, e.latlng.lng);
+          });
+        } else {
+          pickerMap.setView([lat, lon], 14);
+          pickerMarker.setLatLng([lat, lon]);
+        }
+        pickerMap.invalidateSize();
+      }, 200);
+    }
+
+    function updateSelectedCoords(lat, lon) {
+      document.getElementById('propLat').value = lat.toFixed(4);
+      document.getElementById('propLon').value = lon.toFixed(4);
+      document.getElementById('selectedCoordsText').textContent = `Selected Coordinates: ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+    }
 
     (function loadOwnerProfile() {
       const u = JSON.parse(localStorage.getItem('df_user') || 'null');
@@ -1563,12 +1608,24 @@
         }
 
         let html = '';
+        const dfEsc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
         customProperties.forEach((p, index) => {
           const isFull = p.occupied.split('/')[0] === p.occupied.split('/')[1];
+          const status = p.status || 'approved';
+          let badgeCls = isFull ? 'full' : '';
+          let badgeTxt = isFull ? 'Full' : 'Active';
+          let reviewHtml = '';
+          if (status === 'pending') {
+            badgeCls = 'pending'; badgeTxt = 'Pending approval';
+            reviewHtml = `<div class="prop-review-wait">Waiting for admin approval. It is not public yet.</div>`;
+          } else if (status === 'rejected') {
+            badgeCls = 'rejected'; badgeTxt = 'Rejected';
+            reviewHtml = `<div class="prop-review-note"><strong>Admin note:</strong> ${dfEsc(p.reviewNote) || 'No reason given.'} Edit the listing and save to resubmit it.</div>`;
+          }
           html += `
             <div class="property-card">
               <div class="prop-img-wrap" style="background-image: url('${p.image}')" onclick="openPropertyDetail(${index})">
-                <span class="prop-status-badge ${isFull ? 'full' : ''}">${isFull ? 'Full' : 'Active'}</span>
+                <span class="prop-status-badge ${badgeCls}">${badgeTxt}</span>
                 <button class="prop-options-btn" onclick="event.stopPropagation(); openEditPropertyModal(${index})"><i class="fa-solid fa-ellipsis"></i></button>
               </div>
               <div class="prop-content">
@@ -1576,6 +1633,7 @@
                   <div class="prop-name" onclick="openPropertyDetail(${index})">${p.name}</div>
                   <div class="prop-address">${p.address}</div>
                 </div>
+                ${reviewHtml}
                 <div class="prop-footer">
                   <span>${p.occupied} occupied</span>
                   <div class="prop-price">${p.rent}<span>/mo</span></div>
@@ -1589,7 +1647,8 @@
       });
 
       const count = customProperties.length;
-      document.getElementById('stat-active-listings').textContent = count;
+      const activeCount = customProperties.filter(p => (p.status || 'approved') === 'approved').length;
+      document.getElementById('stat-active-listings').textContent = activeCount;
       document.getElementById('stat-total-props').textContent = count;
     }
 
@@ -1684,7 +1743,6 @@
       }
     }
 
-    /* ── MESSAGING FUNCTIONS ───────────────────────────── */
     async function fetchUserMessages() {
       const sessionUser = JSON.parse(localStorage.getItem('df_user') || '{}');
       if (!sessionUser.email) return;
@@ -1811,18 +1869,17 @@
 
       document.getElementById('detailPropName').textContent = p.name;
       document.getElementById('detailPropType').textContent = p.type || 'Apartment';
-      document.getElementById('detailPropLocation').textContent = p.barangay ? `Brgy. ${p.barangay}, Minglanilla, Cebu` : p.address;
+      document.getElementById('detailPropLocation').textContent = p.address || 'Minglanilla, Cebu';
       document.getElementById('detailPropSlots').textContent = `${p.availRooms || 1} slot left`;
       document.getElementById('detailPropSlotsBadge').textContent = `${p.availRooms || 1} slot left`;
       document.getElementById('detailPropDesc').textContent = p.desc || 'No description provided.';
       document.getElementById('detailPropRules').textContent = p.rules || 'No specific rules.';
       document.getElementById('detailPropPrice').innerHTML = `${p.rent}<span>/month</span>`;
 
-      const barangay = p.barangay || 'Cadulawan';
-      const locInfo = barangayCoordinates[barangay] || barangayCoordinates['Cadulawan'];
-
-      document.getElementById('mapEmbedIframe').src = `https://www.openstreetmap.org/export/embed.html?bbox=${locInfo.bbox}&layer=mapnik`;
-      document.getElementById('mapExternalLink').href = `https://www.openstreetmap.org/?mlat=${locInfo.lat}&mlon=${locInfo.lon}#map=15/${locInfo.lat}/${locInfo.lon}`;
+      const lat = p.lat || 10.2480;
+      const lon = p.lon || 123.7850;
+      dfShowPropertyMap('ownerDetailMap', lat, lon, p.name);
+      document.getElementById('mapExternalLink').href = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=15/${lat}/${lon}`;
 
       const imgs = p.images && p.images.length > 0 ? p.images : [p.image];
       let galleryHtml = `<div class="detail-main-img" style="background-image: url('${imgs[0]}')"></div>`;
@@ -1927,7 +1984,6 @@
       document.getElementById('newPropName').value = '';
       document.getElementById('newPropType').value = 'Apartment';
       document.getElementById('newPropRent').value = '';
-      document.getElementById('newPropBarangay').value = 'Cadulawan';
       document.getElementById('newPropTotalRooms').value = '';
       document.getElementById('newPropAvailRooms').value = '';
       document.getElementById('newPropDesc').value = '';
@@ -1937,6 +1993,7 @@
       uploadedImagesList = [];
       renderThumbnails();
       document.getElementById('addPropertyModal').classList.add('open');
+      initPickerMap(10.2480, 123.7850);
     }
 
     function openEditPropertyModal(index) {
@@ -1949,11 +2006,14 @@
       document.getElementById('newPropName').value = p.name || '';
       document.getElementById('newPropType').value = p.type || 'Apartment';
       document.getElementById('newPropRent').value = p.rawRent || '';
-      document.getElementById('newPropBarangay').value = p.barangay || 'Cadulawan';
       document.getElementById('newPropTotalRooms').value = p.totalRooms || '10';
       document.getElementById('newPropAvailRooms').value = p.availRooms || '5';
       document.getElementById('newPropDesc').value = p.desc || '';
       document.getElementById('newPropRules').value = p.rules || '';
+
+      const lat = p.lat || 10.2480;
+      const lon = p.lon || 123.7850;
+      updateSelectedCoords(lat, lon);
 
       document.querySelectorAll('.amenities-grid input[type="checkbox"]').forEach(cb => {
         cb.checked = p.amenities && p.amenities.includes(cb.value);
@@ -1962,6 +2022,7 @@
       uploadedImagesList = p.images ? [...p.images] : [p.image];
       renderThumbnails();
       document.getElementById('addPropertyModal').classList.add('open');
+      initPickerMap(lat, lon);
     }
 
     function closeAddPropertyModal() {
@@ -1983,7 +2044,8 @@
       const name = document.getElementById('newPropName').value.trim();
       const type = document.getElementById('newPropType').value;
       const rentVal = document.getElementById('newPropRent').value.trim();
-      const selectedBarangay = document.getElementById('newPropBarangay').value;
+      const lat = parseFloat(document.getElementById('propLat').value);
+      const lon = parseFloat(document.getElementById('propLon').value);
       const totalRooms = document.getElementById('newPropTotalRooms').value.trim() || '10';
       const availRooms = document.getElementById('newPropAvailRooms').value.trim() || '5';
       const desc = document.getElementById('newPropDesc').value.trim();
@@ -1999,30 +2061,25 @@
         return;
       }
 
-      const fullAddress = `Brgy. ${selectedBarangay}, Minglanilla, Cebu`;
       const occupiedCount = parseInt(totalRooms) - parseInt(availRooms);
-      const occupiedStr = `${Math.max(0, occupiedCount)}/${totalRooms}`;
-      const formattedRent = `₱${parseInt(rentVal).toLocaleString()}`;
-      
-      const propertyImages = uploadedImagesList.length > 0 ? uploadedImagesList : ['https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=600&q=80'];
-      const primaryImage = propertyImages[0];
-
       const propertyPayload = {
         id: propId,
         owner_email: ownerEmail,
         name,
         type,
-        address: fullAddress,
-        barangay: selectedBarangay,
+        address: `Minglanilla, Cebu (Pinned Location)`,
+        lat: lat,
+        lon: lon,
         rawRent: rentVal,
-        rent: formattedRent,
+        rent: `₱${parseInt(rentVal).toLocaleString()}`,
         totalRooms,
         availRooms,
-        occupied: occupiedStr,
+        occupied: `${Math.max(0, occupiedCount)}/${totalRooms}`,
         desc,
         rules,
         amenities: selectedAmenities,
-        image: primaryImage
+        image: uploadedImagesList.length > 0 ? uploadedImagesList[0] : 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=600&q=80',
+        images: uploadedImagesList
       };
 
       try {
@@ -2034,7 +2091,7 @@
         const data = await response.json();
 
         if (response.ok && data.success) {
-          alert('Property saved successfully to database!');
+          alert(data.message || 'Property saved successfully!');
           closeAddPropertyModal();
           fetchOwnerProperties();
         } else {

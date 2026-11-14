@@ -254,30 +254,6 @@
     }
     .checkbox-label input { width: 16px; height: 16px; accent-color: #2563eb; cursor: pointer; border-radius: 4px; }
 
-    .map-sidebar-preview {
-      margin-top: 1.5rem;
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid #e2e8f0;
-      height: 200px;
-      width: 100%;
-      position: relative;
-    }
-    .map-sidebar-preview iframe { width: 100% !important; height: 100%; border: 0; display: block; }
-    .map-sidebar-btn {
-      position: absolute;
-      bottom: 8px; right: 8px;
-      background: #ffffff;
-      color: #0f172a;
-      border: 1px solid #cbd5e1;
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-decoration: none;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    }
-
     /* Results Area */
     .results-topbar {
       display: flex;
@@ -418,7 +394,23 @@
     }
     .detail-main-img { height: 340px; background-size: cover; background-position: center; border-radius: 14px; }
     .detail-side-imgs { display: flex; flex-direction: column; gap: 12px; }
-    .detail-sub-img { height: 164px; background-size: cover; background-position: center; border-radius: 14px; }
+    .detail-sub-img { height: 164px; background-size: cover; background-position: center; border-radius: 14px; position: relative; }
+    .detail-more-overlay {
+      position: absolute; inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      color: #ffffff;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-size: 0.85rem; font-weight: 700;
+      border-radius: 14px;
+    }
+    .detail-slots-badge {
+      display: inline-block;
+      background: #fef3c7; color: #d97706;
+      font-size: 0.78rem; font-weight: 800;
+      padding: 4px 10px; border-radius: 6px;
+    }
+    .room-card-option.taken { opacity: 0.5; cursor: not-allowed; background: #f8fafc; }
+    .room-status.taken { color: #dc2626; font-size: 0.7rem; font-weight: 700; margin-top: 4px; }
 
     .detail-layout-grid {
       display: grid;
@@ -475,7 +467,6 @@
       position: relative;
       margin-top: 0.5rem;
     }
-    .detail-map-box iframe { width: 100% !important; height: 100%; border: 0; display: block; }
     .btn-open-maps {
       position: absolute;
       bottom: 12px; right: 12px;
@@ -631,6 +622,28 @@
       .detail-layout-grid { grid-template-columns: 1fr; }
     }
   </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    /* ── Leaflet map + pin (same look as the homepage map) ── */
+    .df-pin {
+      width: 30px; height: 30px;
+      background: #16a34a;
+      border: 2px solid #ffffff;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+    }
+    .df-pin::after {
+      content: '';
+      position: absolute;
+      width: 10px; height: 10px;
+      background: #ffffff;
+      border-radius: 50%;
+      top: 8px; left: 8px;
+    }
+    .leaflet-container { font-family: 'Plus Jakarta Sans', sans-serif; z-index: 0; }
+    .btn-open-maps, .map-open-btn { z-index: 1000; }
+  </style>
 </head>
 <body>
 
@@ -729,18 +742,6 @@
           <label class="checkbox-label"><input type="checkbox" value="Parking" class="amenity-chk" onchange="applyFilters()"> Parking</label>
           <label class="checkbox-label"><input type="checkbox" value="Study Area" class="amenity-chk" onchange="applyFilters()"> Study Area</label>
         </div>
-
-        <div class="filter-group-title" style="margin-top: 1rem;">Campus Area Map</div>
-        <div class="map-sidebar-preview">
-          <iframe 
-            src="https://www.openstreetmap.org/export/embed.html?bbox=123.730%2C10.220%2C123.830%2C10.290&layer=mapnik&marker=10.255%2C123.780"
-            title="Minglanilla Campus Map"
-            loading="lazy">
-          </iframe>
-          <a href="https://www.openstreetmap.org/?mlat=10.255&mlon=123.780#map=14/10.255/123.780" target="_blank" rel="noopener" class="map-sidebar-btn">
-            <i class="fa-solid fa-arrow-up-right-from-square"></i> Open map
-          </a>
-        </div>
       </aside>
 
       <!-- RESULTS CONTENT AREA -->
@@ -778,7 +779,8 @@
           <div class="detail-badges-row">
             <span class="badge-type" id="detPropType">Dormitory</span>
             <span><i class="fa-solid fa-location-dot"></i> <span id="detPropLocation">Minglanilla, Cebu</span></span>
-            <span><i class="fa-solid fa-star" style="color:#f59e0b"></i> <span id="detPropRating">4.5</span></span>
+            <span><i class="fa-regular fa-user"></i> <span id="detPropSlots">1 slot left</span></span>
+            <span style="color: #d97706; font-weight: 700;"><i class="fa-solid fa-star"></i> <span id="detPropRating">4.0</span></span>
           </div>
         </div>
 
@@ -795,14 +797,10 @@
         </div>
 
         <div>
-          <div class="detail-section-title"><i class="fa-solid fa-location-dot"></i> Location</div>
+          <div class="detail-section-title"><i class="fa-solid fa-map-location-dot"></i> Location</div>
           <div class="detail-map-box">
-            <iframe 
-              src="https://www.openstreetmap.org/export/embed.html?bbox=123.730%2C10.220%2C123.830%2C10.290&layer=mapnik&marker=10.255%2C123.780"
-              title="Property Location Map"
-              loading="lazy">
-            </iframe>
-            <a href="https://www.openstreetmap.org/?mlat=10.255&mlon=123.780#map=14/10.255/123.780" target="_blank" rel="noopener" class="btn-open-maps">
+            <div id="detMap" style="width:100%;height:100%;"></div>
+            <a id="detMapLink" href="https://www.openstreetmap.org" target="_blank" rel="noopener" class="btn-open-maps">
               <i class="fa-solid fa-arrow-up-right-from-square"></i> Open in Maps
             </a>
           </div>
@@ -827,7 +825,7 @@
       <div class="detail-booking-card">
         <div class="booking-price-header">
           <div class="booking-price-val" id="detPropPrice">₱3,500<span>/month</span></div>
-          <span style="font-size: 0.8rem; font-weight:700; color:#16a34a;">Available now</span>
+          <span class="detail-slots-badge" id="detPropSlotsBadge">1 slot left</span>
         </div>
 
         <label style="font-size:0.82rem; font-weight:800; color:#0f172a; display:block; margin-bottom:8px;">SELECT A ROOM</label>
@@ -863,10 +861,40 @@
     </div>
   </div>
 
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
+    // ── Shared map helper: one Leaflet map per container, pin follows the selected property ──
+    const _dfDetailMaps = {};
+    function dfShowPropertyMap(containerId, lat, lon, name) {
+      const el = document.getElementById(containerId);
+      if (!el || typeof L === 'undefined') return;
+      lat = parseFloat(lat); lon = parseFloat(lon);
+      if (!isFinite(lat) || !isFinite(lon)) { lat = 10.2480; lon = 123.7850; }
+
+      let m = _dfDetailMaps[containerId];
+      if (!m) {
+        const map = L.map(el, { center: [lat, lon], zoom: 16, scrollWheelZoom: false });
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
+        }).addTo(map);
+        const icon = L.divIcon({ className: '', html: '<div class="df-pin"></div>',
+          iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -30] });
+        const marker = L.marker([lat, lon], { icon }).addTo(map);
+        map.on('click', () => map.scrollWheelZoom.enable());
+        // The map lives in a hidden tab until a property is opened, so resize it when it appears
+        if (window.ResizeObserver) new ResizeObserver(() => map.invalidateSize()).observe(el);
+        m = _dfDetailMaps[containerId] = { map, marker };
+      }
+      m.marker.setLatLng([lat, lon]);
+      m.marker.unbindTooltip();
+      if (name) m.marker.bindTooltip(name, { direction: 'top', offset: [0, -30] });
+      m.map.setView([lat, lon], 16);
+      setTimeout(() => m.map.invalidateSize(), 80);
+    }
     let allProperties = [];
     let activeProperty = null;
-    let selectedRoom = 'Room 101';
+    let selectedRoom = null;
 
     (async function initBrowse() {
       const sessionUser = JSON.parse(localStorage.getItem('df_user') || 'null');
@@ -955,7 +983,7 @@
               <div>
                 <div class="dorm-top-info">
                   <div class="dorm-name">${p.name}</div>
-                  <div class="dorm-rating"><i class="fa-solid fa-star"></i> 4.8</div>
+                  <div class="dorm-rating"><i class="fa-solid fa-star"></i> 4.0</div>
                 </div>
                 <div class="dorm-location">${p.address}</div>
               </div>
@@ -994,10 +1022,22 @@
 
       document.getElementById('detPropName').textContent = p.name;
       document.getElementById('detPropType').textContent = p.type || 'Dormitory';
-      document.getElementById('detPropLocation').textContent = p.address;
+      document.getElementById('detPropLocation').textContent = p.address || 'Minglanilla, Cebu';
       document.getElementById('detPropDesc').textContent = p.desc || 'No description provided.';
       document.getElementById('detPropRules').textContent = p.rules || 'No specific rules.';
       document.getElementById('detPropPrice').innerHTML = `${p.rent}<span>/month</span>`;
+
+      const totalRoomsCount = parseInt(p.totalRooms) || 1;
+      const availRoomsCount = Math.min(parseInt(p.availRooms) || 0, totalRoomsCount);
+      const slotsText = availRoomsCount > 0 ? `${availRoomsCount} slot${availRoomsCount === 1 ? '' : 's'} left` : 'Fully booked';
+      document.getElementById('detPropSlots').textContent = slotsText;
+      document.getElementById('detPropSlotsBadge').textContent = slotsText;
+
+      // Pinned location (same logic as the owner dashboard)
+      const lat = parseFloat(p.lat) || 10.2480;
+      const lon = parseFloat(p.lon) || 123.7850;
+      dfShowPropertyMap('detMap', lat, lon, p.name);
+      document.getElementById('detMapLink').href = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=15/${lat}/${lon}`;
 
       const ownerName = p.owner_name || 'Property Owner';
       const ownerEmail = p.owner_email || 'owner@dormfinder.com';
@@ -1005,31 +1045,42 @@
       document.getElementById('detOwnerEmail').textContent = ownerEmail;
       document.getElementById('detOwnerInitials').textContent = ownerName.slice(0, 2).toUpperCase();
 
-      const img = p.image || 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=600&q=80';
+      // Photo gallery (same layout as the owner dashboard)
+      const fallbackImg = 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=600&q=80';
+      const imgs = (p.images && p.images.length > 0) ? p.images : [p.image || fallbackImg];
       document.getElementById('detailGalleryContainer').innerHTML = `
-        <div class="detail-main-img" style="background-image: url('${img}')"></div>
+        <div class="detail-main-img" style="background-image: url('${imgs[0]}')"></div>
         <div class="detail-side-imgs">
-          <div class="detail-sub-img" style="background-image: url('${img}')"></div>
-          <div class="detail-sub-img" style="background-image: url('${img}')"></div>
+          <div class="detail-sub-img" style="background-image: url('${imgs[1] || imgs[0]}')"></div>
+          <div class="detail-sub-img" style="background-image: url('${imgs[2] || imgs[0]}')">
+            <div class="detail-more-overlay">
+              <i class="fa-regular fa-image" style="font-size: 1.1rem; margin-bottom: 2px;"></i>
+              View all ${imgs.length} photo${imgs.length === 1 ? '' : 's'}
+            </div>
+          </div>
         </div>
       `;
 
-      let amHtml = '';
-      (p.amenities || ['WiFi', 'CCTV', 'Kitchen']).forEach(am => {
-        amHtml += `<div class="detail-amenity-pill"><i class="fa-solid fa-check" style="color:#2563eb"></i> ${am}</div>`;
-      });
-      document.getElementById('detAmenitiesContainer').innerHTML = amHtml;
+      const listAm = (p.amenities && p.amenities.length > 0) ? p.amenities : ['WiFi', 'AC', 'Kitchen'];
+      document.getElementById('detAmenitiesContainer').innerHTML = listAm.map(am =>
+        `<div class="detail-amenity-pill"><i class="fa-solid fa-check" style="color:#2563eb"></i> ${am}</div>`
+      ).join('');
 
+      // Rooms: total / available come from the owner's listing (same as student dashboard)
       let roomsHtml = '';
-      for (let i = 1; i <= 4; i++) {
-        const roomName = `Room 10${i}`;
-        const isSelected = i === 1 ? 'selected' : '';
-        if (i === 1) selectedRoom = roomName;
+      selectedRoom = null;
+      for (let i = 1; i <= totalRoomsCount; i++) {
+        const roomName = `Room ${100 + i}`;
+        const isAvailable = i <= availRoomsCount;
+        let cls = 'room-card-option';
+        if (isAvailable && !selectedRoom) { cls += ' selected'; selectedRoom = roomName; }
+        if (!isAvailable) cls += ' taken';
+        const clickAttr = isAvailable ? `onclick="selectRoomCard(this, '${roomName}')"` : '';
         roomsHtml += `
-          <div class="room-card-option ${isSelected}" onclick="selectRoomCard(this, '${roomName}')">
+          <div class="${cls}" ${clickAttr}>
             <div class="room-title">${roomName}</div>
             <div class="room-price">${p.rent}/mo</div>
-            <div class="room-status avail">• Available</div>
+            <div class="room-status ${isAvailable ? 'avail' : 'taken'}">• ${isAvailable ? 'Available' : 'Taken'}</div>
           </div>
         `;
       }
@@ -1060,6 +1111,10 @@
       }
 
       if (actionType === 'booking') {
+        if (!selectedRoom) {
+          alert('No rooms are currently available for this property.');
+          return;
+        }
         const moveIn = document.getElementById('detMoveInDate').value;
         if (!moveIn) {
           alert('Please select a move-in date.');
