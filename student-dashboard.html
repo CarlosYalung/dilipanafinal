@@ -548,6 +548,225 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       transition: all 0.2s;
     }
+    /* ── REVIEWS & RECOMMENDATIONS ───────────────────────── */
+    .rv-section { margin-top: 0.5rem; }
+    .rv-tabs { display: flex; gap: 1.75rem; border-bottom: 1px solid #e2e8f0; margin-bottom: 1.25rem; }
+    .rv-tab {
+      background: none; border: none; cursor: pointer; padding: 0 0 0.8rem; margin-bottom: -1px;
+      font: 700 0.95rem 'Plus Jakarta Sans', sans-serif; color: #475569;
+      border-bottom: 3px solid transparent;
+    }
+    .rv-tab:hover { color: #0f172a; }
+    .rv-tab.active { color: #2563eb; border-bottom-color: #2563eb; }
+    .rv-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .rv-h { font-size: 1.15rem; font-weight: 800; color: #0f172a; }
+    .rv-sort {
+      padding: 0.5rem 0.8rem; border: 1px solid #e2e8f0; border-radius: 10px; background: #ffffff;
+      font: 600 0.82rem 'Plus Jakarta Sans', sans-serif; color: #334155; cursor: pointer; outline: none;
+    }
+    .rv-summary {
+      display: flex; gap: 1.75rem; align-items: center; flex-wrap: wrap;
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem;
+    }
+    .rv-score { text-align: center; min-width: 120px; }
+    .rv-score .n { font-size: 2.4rem; font-weight: 800; color: #0f172a; line-height: 1; }
+    .rv-score .n span { font-size: 1rem; font-weight: 600; color: #94a3b8; }
+    .rv-score .sub { font-size: 0.78rem; color: #64748b; margin-top: 6px; font-weight: 600; }
+    .rv-score .rec { font-size: 0.78rem; color: #15803d; font-weight: 800; margin-top: 3px; }
+    .rv-stars { display: inline-flex; gap: 2px; font-size: 1rem; letter-spacing: 0; }
+    .rv-stars span { color: #e2e8f0; }
+    .rv-stars span.on { color: #f59e0b; }
+    .rv-stars.big { font-size: 1.3rem; margin-top: 6px; }
+    .rv-chips { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; }
+    .rv-chip {
+      background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.45rem 0.85rem; cursor: pointer;
+      font: 600 0.82rem 'Plus Jakarta Sans', sans-serif; color: #475569; transition: all 0.15s;
+    }
+    .rv-chip:hover { border-color: #2563eb; color: #2563eb; }
+    .rv-chip.active { border-color: #2563eb; background: #eff6ff; color: #2563eb; }
+    .rv-chip.zero { opacity: 0.55; }
+    .rv-summary.empty { color: #64748b; font-size: 0.9rem; }
+
+    .rv-form-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.25rem; margin-bottom: 1.5rem; }
+    .rv-form-title { font-size: 0.95rem; font-weight: 800; color: #0f172a; margin-bottom: 0.6rem; }
+    .rv-star-row { display: flex; align-items: center; gap: 12px; margin-bottom: 0.8rem; }
+    .rv-star-input { display: inline-flex; gap: 4px; }
+    .rv-star-input button { background: none; border: none; cursor: pointer; font-size: 1.8rem; line-height: 1; color: #e2e8f0; padding: 0; transition: transform 0.1s, color 0.1s; }
+    .rv-star-input button.on { color: #f59e0b; }
+    .rv-star-input button:hover { transform: scale(1.15); }
+    #rvStarLabel { font-size: 0.82rem; font-weight: 700; color: #64748b; }
+    .rv-form-card textarea {
+      width: 100%; min-height: 88px; resize: vertical; padding: 0.8rem 0.95rem;
+      border: 1px solid #e2e8f0; border-radius: 12px; outline: none;
+      font: 500 0.9rem 'Plus Jakarta Sans', sans-serif; color: #1e293b;
+    }
+    .rv-form-card textarea:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
+    .rv-form-bottom { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-top: 0.8rem; }
+    .rv-rec-check { display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 600; color: #334155; cursor: pointer; }
+    .rv-rec-check input { width: 16px; height: 16px; accent-color: #2563eb; cursor: pointer; }
+    .rv-form-actions { display: flex; gap: 8px; }
+    .rv-submit { background: #2563eb; color: #ffffff; border: none; border-radius: 10px; padding: 0.65rem 1.3rem; font: 700 0.86rem 'Plus Jakarta Sans', sans-serif; cursor: pointer; }
+    .rv-submit:hover { background: #1d4ed8; }
+    .rv-submit:disabled { background: #94a3b8; cursor: not-allowed; }
+    .rv-del { background: #ffffff; color: #dc2626; border: 1px solid #fecaca; border-radius: 10px; padding: 0.65rem 1.1rem; font: 700 0.86rem 'Plus Jakarta Sans', sans-serif; cursor: pointer; }
+    .rv-note { display: flex; gap: 10px; align-items: center; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 14px; padding: 1rem 1.2rem; margin-bottom: 1.5rem; font-size: 0.88rem; color: #475569; }
+    .rv-note a { color: #2563eb; font-weight: 800; text-decoration: none; }
+
+    .rv-item { display: flex; gap: 0.9rem; padding: 1.1rem 0; border-bottom: 1px solid #f1f5f9; }
+    .rv-item:last-child { border-bottom: none; }
+    .rv-avatar { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.95rem; }
+    .rv-body { flex: 1; min-width: 0; }
+    .rv-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+    .rv-head b { font-size: 0.9rem; color: #0f172a; font-weight: 800; }
+    .rv-time { font-size: 0.76rem; color: #94a3b8; font-weight: 600; }
+    .rv-tag { font-size: 0.7rem; font-weight: 800; color: #15803d; background: #dcfce7; padding: 2px 8px; border-radius: 20px; }
+    .rv-text { font-size: 0.9rem; line-height: 1.55; color: #334155; margin-top: 6px; white-space: pre-line; word-break: break-word; }
+    .rv-rec-tag { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 0.78rem; font-weight: 700; color: #2563eb; }
+    .rv-rec-tag.no { color: #94a3b8; }
+    .rv-own { margin-top: 8px; font-size: 0.78rem; }
+    .rv-own button { background: none; border: none; cursor: pointer; padding: 0; font: 700 0.78rem 'Plus Jakarta Sans', sans-serif; color: #64748b; }
+    .rv-own button:hover { color: #2563eb; }
+    .rv-own button.d:hover { color: #dc2626; }
+    .rv-more { display: block; margin: 0.75rem auto 0; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 0.6rem 1.4rem; font: 700 0.85rem 'Plus Jakarta Sans', sans-serif; color: #334155; cursor: pointer; }
+    .rv-more:hover { border-color: #2563eb; color: #2563eb; }
+    .rv-loading, .rv-none { text-align: center; padding: 2rem 1rem; color: #64748b; font-size: 0.9rem; }
+
+    .rec-intro { font-size: 0.9rem; color: #64748b; margin-bottom: 1rem; }
+    .rec-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    .rec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s; }
+    .rec-card:hover { border-color: #2563eb; box-shadow: 0 8px 22px rgba(37, 99, 235, 0.12); transform: translateY(-2px); }
+    .rec-img { position: relative; height: 130px; background-size: cover; background-position: center; background-color: #e2e8f0; }
+    .rec-body { padding: 0.9rem 1rem 1rem; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+    .rec-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .rec-name { font-weight: 800; color: #0f172a; font-size: 0.95rem; }
+    .rec-rate { font-size: 0.8rem; font-weight: 800; color: #0f172a; white-space: nowrap; }
+    .rec-rate i { color: #f59e0b; font-size: 0.72rem; }
+    .rec-loc { font-size: 0.8rem; color: #64748b; }
+    .rec-reasons { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 2px; }
+    .rec-reasons span { background: #eff6ff; color: #2563eb; font-size: 0.7rem; font-weight: 800; padding: 3px 8px; border-radius: 20px; }
+    .rec-price { margin-top: auto; padding-top: 6px; font-weight: 800; color: #0f172a; font-size: 1rem; }
+    .rec-price small { font-size: 0.75rem; font-weight: 500; color: #64748b; }
+    @media (max-width: 800px) { .rec-grid { grid-template-columns: 1fr; } }
+
+    .dorm-compare-btn {
+      position: absolute; left: 12px; bottom: 12px;
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 20px; border: none; cursor: pointer;
+      background: rgba(255,255,255,0.95); color: #314c75;
+      font: 700 0.74rem 'Plus Jakarta Sans', sans-serif;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+      transition: background 0.2s, color 0.2s;
+    }
+    .dorm-compare-btn:hover { background: #dbeafe; color: #1d4ed8; }
+    .dorm-compare-btn.active { background: #2563eb; color: #ffffff; }
+
+    /* ── COMPARE TOOL ───────────────────────────────────── */
+    .compare-tray {
+      position: fixed; bottom: 20px; left: calc(50% + 130px);
+      transform: translate(-50%, 160%);
+      z-index: 900; max-width: calc(100vw - 320px);
+      display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+      background: #0f172a; color: #ffffff;
+      border-radius: 18px; padding: 10px 14px 10px 16px;
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.35);
+      transition: transform 0.3s ease;
+    }
+    .compare-tray.show { transform: translate(-50%, 0); }
+    .tray-thumbs { display: flex; gap: 8px; }
+    .tray-thumb {
+      position: relative; width: 42px; height: 42px; border-radius: 10px;
+      background-size: cover; background-position: center; background-color: #334155;
+      border: 2px solid rgba(255,255,255,0.25);
+    }
+    .tray-thumb button {
+      position: absolute; top: -7px; right: -7px; width: 18px; height: 18px;
+      border-radius: 50%; border: none; background: #ef4444; color: #fff;
+      font-size: 0.6rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .tray-thumb.empty { border-style: dashed; background: transparent; }
+    .tray-text { font-size: 0.82rem; font-weight: 600; color: #cbd5e1; }
+    .tray-btn {
+      border: none; border-radius: 10px; padding: 0.6rem 1.1rem; cursor: pointer;
+      font: 700 0.85rem 'Plus Jakarta Sans', sans-serif;
+      background: #2563eb; color: #ffffff;
+    }
+    .tray-btn:disabled { background: #334155; color: #94a3b8; cursor: not-allowed; }
+    .tray-clear { background: none; border: none; color: #94a3b8; font: 600 0.8rem 'Plus Jakarta Sans', sans-serif; cursor: pointer; }
+    .tray-clear:hover { color: #ffffff; }
+    @media (max-width: 900px) { .compare-tray { left: 50%; max-width: calc(100vw - 24px); } }
+
+    .cmp-toast {
+      position: fixed; bottom: 90px; left: calc(50% + 130px); transform: translateX(-50%);
+      background: #0f172a; color: #fff; padding: 0.7rem 1.1rem; border-radius: 10px;
+      font-size: 0.85rem; font-weight: 600; z-index: 950;
+      opacity: 0; pointer-events: none; transition: opacity 0.25s;
+    }
+    .cmp-toast.show { opacity: 1; }
+
+    .cmp-slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .cmp-slot {
+      background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 0.9rem;
+      display: flex; align-items: center; gap: 0.85rem; min-height: 84px;
+    }
+    .cmp-slot.empty { border-style: dashed; border-color: #cbd5e1; background: #f8fafc; flex-direction: column; align-items: stretch; justify-content: center; gap: 0.5rem; }
+    .cmp-slot .s-label { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #94a3b8; }
+    .cmp-slot select {
+      width: 100%; padding: 0.6rem 0.75rem; border: 1px solid #cbd5e1; border-radius: 10px;
+      font: 600 0.85rem 'Plus Jakarta Sans', sans-serif; color: #1e293b; background: #ffffff; outline: none;
+    }
+    .cmp-slot select:focus { border-color: #2563eb; }
+    .cmp-slot .s-img { width: 58px; height: 58px; border-radius: 12px; background-size: cover; background-position: center; background-color: #e2e8f0; flex-shrink: 0; }
+    .cmp-slot .s-info { flex: 1; min-width: 0; }
+    .cmp-slot .s-name { font-weight: 800; color: #0f172a; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cmp-slot .s-price { font-size: 0.82rem; color: #2563eb; font-weight: 700; }
+    .cmp-slot .s-remove { background: #f1f5f9; border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; color: #64748b; flex-shrink: 0; }
+    .cmp-slot .s-remove:hover { background: #fee2e2; color: #dc2626; }
+
+    .cmp-summary {
+      background: linear-gradient(135deg, #eff6ff, #f0fdf4);
+      border: 1px solid #bfdbfe; border-radius: 16px; padding: 1.1rem 1.25rem; margin-bottom: 1.25rem;
+    }
+    .cmp-summary h3 { font-size: 1rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem; }
+    .cmp-summary ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .cmp-summary li { font-size: 0.88rem; color: #334155; display: flex; gap: 8px; align-items: flex-start; }
+    .cmp-summary li i { color: #16a34a; margin-top: 3px; }
+    .cmp-verdict { margin-top: 0.8rem; padding-top: 0.8rem; border-top: 1px solid #dbeafe; font-size: 0.9rem; font-weight: 700; color: #1e3a8a; }
+
+    .cmp-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem; }
+    .cmp-toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 600; color: #475569; cursor: pointer; }
+    .cmp-toggle input { accent-color: #2563eb; width: 16px; height: 16px; cursor: pointer; }
+    .cmp-table-wrap { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow-x: auto; }
+    .cmp-table { width: 100%; border-collapse: collapse; min-width: 560px; }
+    .cmp-table th, .cmp-table td { padding: 0.9rem 1rem; text-align: left; vertical-align: top; border-bottom: 1px solid #f1f5f9; font-size: 0.88rem; color: #1e293b; word-break: break-word; }
+    .cmp-table tr:last-child td { border-bottom: none; }
+    .cmp-table .row-label { width: 150px; font-weight: 700; color: #64748b; background: #f8fafc; position: sticky; left: 0; z-index: 1; }
+    .cmp-table thead th { background: #ffffff; vertical-align: top; border-bottom: 2px solid #e2e8f0; }
+    .cmp-table thead th.row-label { background: #f8fafc; }
+    .cmp-head-img { height: 110px; border-radius: 12px; background-size: cover; background-position: center; background-color: #e2e8f0; margin-bottom: 0.7rem; }
+    .cmp-head-name { font-weight: 800; color: #0f172a; font-size: 1rem; margin-bottom: 4px; }
+    .cmp-head-type { display: inline-block; background: #eff6ff; color: #2563eb; font-size: 0.72rem; font-weight: 800; padding: 3px 9px; border-radius: 6px; margin-bottom: 6px; }
+    .cmp-badges { display: flex; flex-wrap: wrap; gap: 5px; }
+    .cmp-badge { background: #dcfce7; color: #15803d; font-size: 0.7rem; font-weight: 800; padding: 3px 8px; border-radius: 20px; }
+    .cmp-table td.best { background: #f0fdf4; font-weight: 800; color: #15803d; }
+    .cmp-table td.best::after { content: ' ★'; color: #16a34a; }
+    .cmp-table .group-row td { background: #f1f5f9; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #64748b; padding: 0.55rem 1rem; }
+    .cmp-yes { color: #16a34a; font-weight: 800; }
+    .cmp-no { color: #cbd5e1; font-weight: 800; }
+    .cmp-table.diff-only tr.cmp-same { display: none; }
+    .cmp-text { white-space: pre-line; font-size: 0.84rem; color: #475569; font-weight: 500; }
+    .cmp-act-btn { border: none; border-radius: 8px; padding: 0.55rem 1rem; font: 700 0.82rem 'Plus Jakarta Sans', sans-serif; cursor: pointer; background: #2563eb; color: #fff; margin-right: 6px; margin-bottom: 4px; }
+    .cmp-act-btn.ghost { background: #f1f5f9; color: #475569; }
+    .cmp-empty { background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 20px; padding: 3rem 2rem; text-align: center; color: #64748b; }
+    .cmp-empty i { font-size: 2rem; color: #94a3b8; margin-bottom: 0.75rem; display: block; }
+    .cmp-empty h3 { color: #0f172a; font-size: 1.05rem; font-weight: 800; margin-bottom: 4px; }
+    .cmp-detail-btn {
+      display: inline-flex; align-items: center; gap: 7px; margin-top: 10px;
+      padding: 0.5rem 1rem; border-radius: 10px; border: 1px solid #bfdbfe; cursor: pointer;
+      background: #eff6ff; color: #2563eb; font: 700 0.82rem 'Plus Jakarta Sans', sans-serif;
+    }
+    .cmp-detail-btn.active { background: #2563eb; color: #ffffff; border-color: #2563eb; }
+    @media (max-width: 800px) { .cmp-slots { grid-template-columns: 1fr; } }
+
     .dorm-fav-btn:hover { color: #ef4444; }
     .dorm-fav-btn.favorited { color: #ef4444; background: #fff1f2; }
     .dorm-fav-btn.favorited i { font-weight: 900; }
@@ -828,6 +1047,42 @@
       box-shadow: 0 20px 40px rgba(0,0,0,0.2);
     }
 
+    /* ── CLICKABLE BOOKING CARDS + DETAILS MODAL ───────────── */
+    .booking-card { cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s; }
+    .booking-card:hover { border-color: #2563eb !important; box-shadow: 0 6px 18px rgba(37, 99, 235, 0.12); transform: translateY(-1px); }
+    .booking-link {
+      background: none; border: none; padding: 0; cursor: pointer; text-align: left;
+      font: inherit; font-weight: 800; color: #2563eb;
+      border-bottom: 1.5px dashed rgba(37, 99, 235, 0.45);
+    }
+    .booking-link:hover { color: #1d4ed8; border-bottom-style: solid; border-color: #1d4ed8; }
+    .bd-card { max-width: 540px; max-height: 90vh; overflow-y: auto; }
+    .bd-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+    .bd-head h3 { font-size: 1.2rem; font-weight: 800; color: #0f172a; }
+    .bd-close { background: #f1f5f9; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; color: #64748b; }
+    .bd-close:hover { background: #e2e8f0; color: #0f172a; }
+    .bd-photo { height: 150px; border-radius: 14px; background-size: cover; background-position: center; background-color: #e2e8f0; margin-bottom: 1rem; }
+    .bd-title { font-size: 1.2rem; font-weight: 800; color: #0f172a; }
+    .bd-sub { font-size: 0.85rem; color: #64748b; margin: 4px 0 1rem; }
+    .bd-pill { display: inline-block; font-weight: 800; font-size: 0.75rem; padding: 5px 12px; border-radius: 20px; text-transform: capitalize; }
+    .bd-pill.pending { background: #fef3c7; color: #b45309; }
+    .bd-pill.approved { background: #d1fae5; color: #059669; }
+    .bd-pill.rejected { background: #fee2e2; color: #dc2626; }
+    .bd-pill.cancelled { background: #e2e8f0; color: #475569; }
+    .bd-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 1rem 1.1rem; margin-top: 1rem; }
+    .bd-box-title { font-size: 0.75rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #64748b; margin-bottom: 0.6rem; }
+    .bd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem 1rem; }
+    .bd-grid .k { font-size: 0.72rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+    .bd-grid .v { font-size: 0.9rem; font-weight: 700; color: #0f172a; word-break: break-word; }
+    .bd-quote { margin-top: 0.9rem; padding: 0.75rem 0.9rem; background: #ffffff; border-left: 3px solid #2563eb; border-radius: 6px; font-size: 0.85rem; color: #475569; font-style: italic; word-break: break-word; }
+    .bd-owner { display: flex; align-items: center; gap: 0.9rem; }
+    .bd-avatar { width: 44px; height: 44px; border-radius: 50%; background: #314c75; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; flex-shrink: 0; }
+    .bd-owner-info { font-size: 0.85rem; color: #475569; word-break: break-word; }
+    .bd-owner-info b { display: block; font-size: 1rem; color: #0f172a; }
+    .bd-owner-info a { color: #2563eb; text-decoration: none; font-weight: 600; }
+    .bd-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 1.25rem; }
+    .bd-actions button { border: none; border-radius: 10px; padding: 0.7rem 1.2rem; font-weight: 700; font-size: 0.88rem; cursor: pointer; font-family: inherit; }
+
     .empty-state-card {
       background: #ffffff;
       border: 1px dashed #cbd5e1;
@@ -917,6 +1172,12 @@
           <button class="nav-item" onclick="switchTab('messages', this)">
             <span><i class="fa-regular fa-message"></i> Messages</span>
             <span class="badge" id="badge-messages">0</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-item" id="nav-compare" onclick="switchTab('compare', this)">
+            <span><i class="fa-solid fa-code-compare"></i> Compare Dorms</span>
+            <span class="badge" id="badge-compare">0</span>
           </button>
         </li>
       </ul>
@@ -1063,10 +1324,13 @@
               <div class="detail-title-row">
                 <h1 id="sdPropName">Sunrise Dormitory</h1>
               </div>
+              <div>
+                <button class="cmp-detail-btn" id="sdCompareBtn" onclick="if (activeSelectedProperty) toggleCompare(activeSelectedProperty.id)"><i class="fa-solid fa-code-compare"></i> Compare</button>
+              </div>
               <div class="detail-badges-row">
                 <span class="badge-type" id="sdPropType">Dormitory</span>
                 <span><i class="fa-solid fa-location-dot"></i> <span id="sdPropLocation">Minglanilla, Cebu</span></span>
-                <span><i class="fa-solid fa-star" style="color:#f59e0b"></i> 4.5</span>
+                <span><i class="fa-solid fa-star" style="color:#f59e0b"></i> <span id="sdPropRating">New</span></span>
               </div>
             </div>
 
@@ -1110,6 +1374,30 @@
                 </div>
                 <button class="btn-msg-owner" onclick="openMessageModal()"><i class="fa-regular fa-message"></i> Message</button>
               </div>
+            </div>
+
+            <!-- REVIEWS & RECOMMENDATIONS -->
+            <div class="rv-section">
+              <div class="rv-tabs">
+                <button class="rv-tab active" id="rvTabReviews" onclick="switchRvTab('reviews')">Reviews <span id="rvTabCount"></span></button>
+                <button class="rv-tab" id="rvTabRecs" onclick="switchRvTab('recs')">Recommendations</button>
+              </div>
+
+              <div id="rvPaneReviews">
+                <div class="rv-top">
+                  <div class="rv-h">Reviews (<span id="rvCount">0</span>)</div>
+                  <select class="rv-sort" id="rvSort" onchange="setRvSort(this.value)">
+                    <option value="newest">Sort by: Newest</option>
+                    <option value="highest">Sort by: Highest rating</option>
+                    <option value="lowest">Sort by: Lowest rating</option>
+                  </select>
+                </div>
+                <div id="rvSummary"></div>
+                <div id="rvForm"></div>
+                <div id="rvList"></div>
+              </div>
+
+              <div id="rvPaneRecs" style="display: none;"></div>
             </div>
           </div>
 
@@ -1205,6 +1493,20 @@
       </div>
 
       <!-- 7. PROFILE TAB -->
+      <!-- COMPARE DORMS TAB -->
+      <div id="tab-compare" class="tab-view">
+        <div class="dash-header-row" style="margin-bottom: 1rem;">
+          <div class="dash-title-area">
+            <p>Student dashboard</p>
+            <h1>Compare Dorms</h1>
+          </div>
+        </div>
+        <p style="color: #64748b; margin-bottom: 1.5rem;">Pick up to 3 dorms and see them side by side, so you can decide which one is better for you.</p>
+
+        <div class="cmp-slots" id="cmpSlots"></div>
+        <div id="cmpResult"></div>
+      </div>
+
       <div id="tab-profile" class="tab-view">
         <div class="dash-header-row" style="margin-bottom: 1.5rem;">
           <div class="dash-title-area">
@@ -1253,6 +1555,21 @@
   </div>
 
   <!-- MESSAGE OWNER MODAL -->
+  <!-- COMPARE TRAY (floating bar) -->
+  <div class="compare-tray" id="compareTray" aria-live="polite"></div>
+  <div class="cmp-toast" id="cmpToast"></div>
+
+  <!-- BOOKING DETAILS (opens when the student clicks a booking) -->
+  <div class="modal-backdrop" id="bookingDetailModal" onclick="if(event.target===this) closeBookingDetail()">
+    <div class="modal-card bd-card">
+      <div class="bd-head">
+        <h3>Booking Details</h3>
+        <button class="bd-close" onclick="closeBookingDetail()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="bookingDetailBody"></div>
+    </div>
+  </div>
+
   <div class="modal-backdrop" id="messageOwnerModal">
     <div class="modal-card">
       <div class="dash-header-row" style="margin-bottom: 1.25rem;">
@@ -1298,6 +1615,652 @@
       m.map.setView([lat, lon], 16);
       setTimeout(() => m.map.invalidateSize(), 80);
     }
+    let studentBookings = [];
+    const escHtml = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+    const initialsOf = name => (String(name || '?').trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2)) || '?';
+    const fmtDate = d => {
+      if (!d) return '—';
+      const dt = new Date(String(d).replace(' ', 'T'));
+      return isNaN(dt) ? escHtml(d) : dt.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    };
+    /* ══════════ REVIEWS & RECOMMENDATIONS ══════════ */
+    const RV_LABELS = ['', 'Poor', 'Fair', 'Good', 'Very good', 'Excellent'];
+    const RV_COLORS = [['#fde4d3', '#9a3412'], ['#fbd5e0', '#9d174d'], ['#dbeafe', '#1e40af'], ['#dcfce7', '#166534'], ['#ede9fe', '#5b21b6'], ['#fef3c7', '#92400e']];
+    let rvState = { propId: null, reviews: [], summary: null, filter: 0, sort: 'newest', shown: 5, myRating: 0 };
+
+    function ratingLabel(p) { return p && Number(p.reviewCount) > 0 ? Number(p.rating).toFixed(1) : 'New'; }
+    function dfSessionUser() { try { return JSON.parse(localStorage.getItem('df_user') || 'null'); } catch (e) { return null; } }
+    function starsHtml(n) {
+      let out = '';
+      for (let i = 1; i <= 5; i++) out += `<span class="${i <= Math.round(n) ? 'on' : ''}">★</span>`;
+      return `<span class="rv-stars">${out}</span>`;
+    }
+    function timeAgo(ts) {
+      if (!ts) return '';
+      const d = new Date(String(ts).replace(' ', 'T') + 'Z');   // the server stores UTC
+      const sec = Math.max(0, (Date.now() - d.getTime()) / 1000);
+      const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'} ago`;
+      if (sec < 60) return 'Just now';
+      if (sec < 3600) return plural(Math.floor(sec / 60), 'min');
+      if (sec < 86400) return plural(Math.floor(sec / 3600), 'hour');
+      if (sec < 604800) return plural(Math.floor(sec / 86400), 'day');
+      if (sec < 2592000) return plural(Math.floor(sec / 604800), 'week');
+      if (sec < 31536000) return plural(Math.floor(sec / 2592000), 'month');
+      return plural(Math.floor(sec / 31536000), 'year');
+    }
+
+    function updateDetailRating(p) {
+      const el = document.getElementById('sdPropRating');
+      if (!el) return;
+      el.textContent = Number(p.reviewCount) > 0 ? `${Number(p.rating).toFixed(1)} (${p.reviewCount})` : 'New';
+    }
+
+    function initReviewsSection(p) {
+      updateDetailRating(p);
+      rvState = { propId: p.id, reviews: [], summary: null, filter: 0, sort: 'newest', shown: 5, myRating: 0 };
+      document.getElementById('rvSort').value = 'newest';
+      document.getElementById('rvTabCount').textContent = '';
+      document.getElementById('rvCount').textContent = '0';
+      switchRvTab('reviews');
+      renderRecommendations(p);
+      loadReviews(p);
+    }
+
+    function switchRvTab(tab) {
+      document.getElementById('rvPaneReviews').style.display = tab === 'reviews' ? 'block' : 'none';
+      document.getElementById('rvPaneRecs').style.display = tab === 'recs' ? 'block' : 'none';
+      document.getElementById('rvTabReviews').classList.toggle('active', tab === 'reviews');
+      document.getElementById('rvTabRecs').classList.toggle('active', tab === 'recs');
+    }
+
+    async function loadReviews(p) {
+      const list = document.getElementById('rvList');
+      list.innerHTML = '<div class="rv-loading">Loading reviews…</div>';
+      document.getElementById('rvSummary').innerHTML = '';
+      document.getElementById('rvForm').innerHTML = '';
+      const u = dfSessionUser();
+      try {
+        const res = await fetch(`/api/properties/${p.id}/reviews?viewer_email=${encodeURIComponent(u && u.email ? u.email : '')}`);
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error('bad response');
+        if (rvState.propId !== p.id) return;            // the student opened another dorm meanwhile
+        rvState.reviews = data.reviews;
+        rvState.summary = data.summary;
+      } catch (err) {
+        list.innerHTML = '<div class="rv-loading">Could not load reviews right now.</div>';
+        return;
+      }
+      renderRvSummary();
+      renderRvForm();
+      renderRvList();
+    }
+
+    function renderRvSummary() {
+      const s = rvState.summary;
+      const el = document.getElementById('rvSummary');
+      document.getElementById('rvTabCount').textContent = s.count ? `(${s.count})` : '';
+      document.getElementById('rvCount').textContent = s.count;
+
+      if (!s.count) {
+        el.innerHTML = `<div class="rv-summary empty"><div class="rv-score"><div class="n">–</div><div class="sub">No ratings yet</div></div><div>Be the first to rate this dorm and help other students decide.</div></div>`;
+        return;
+      }
+      let chips = `<button class="rv-chip ${rvState.filter === 0 ? 'active' : ''}" onclick="setRvFilter(0)">All</button>`;
+      for (let n = 5; n >= 1; n--) {
+        const c = s.distribution[String(n)] || 0;
+        chips += `<button class="rv-chip ${rvState.filter === n ? 'active' : ''} ${c === 0 ? 'zero' : ''}" onclick="setRvFilter(${n})">${n} ★ (${c})</button>`;
+      }
+      el.innerHTML = `
+        <div class="rv-summary">
+          <div class="rv-score">
+            <div class="n">${s.average.toFixed(1)}<span>/5</span></div>
+            ${starsHtml(s.average).replace('rv-stars', 'rv-stars big')}
+            <div class="sub">${s.count} review${s.count === 1 ? '' : 's'}</div>
+            <div class="rec"><i class="fa-regular fa-thumbs-up"></i> ${s.recommendPct}% recommend</div>
+          </div>
+          <div class="rv-chips">${chips}</div>
+        </div>`;
+    }
+
+    function setRvFilter(n) { rvState.filter = (rvState.filter === n ? 0 : n); rvState.shown = 5; renderRvSummary(); renderRvList(); }
+    function setRvSort(v) { rvState.sort = v; rvState.shown = 5; renderRvList(); }
+    function showMoreReviews() { rvState.shown += 5; renderRvList(); }
+
+    function renderRvList() {
+      const el = document.getElementById('rvList');
+      let list = rvState.reviews.slice();
+      if (rvState.filter) list = list.filter(r => r.rating === rvState.filter);
+      if (rvState.sort === 'highest') list.sort((a, b) => b.rating - a.rating || b.id - a.id);
+      else if (rvState.sort === 'lowest') list.sort((a, b) => a.rating - b.rating || b.id - a.id);
+
+      if (!list.length) {
+        el.innerHTML = `<div class="rv-none">${rvState.reviews.length ? 'No reviews with that rating.' : 'No reviews yet. Be the first to share your experience.'}</div>`;
+        return;
+      }
+      const visible = list.slice(0, rvState.shown);
+      el.innerHTML = visible.map(r => {
+        const name = r.name || 'Student';
+        const hash = [...name].reduce((h, ch) => h + ch.charCodeAt(0), 0);
+        const [bg, fg] = RV_COLORS[hash % RV_COLORS.length];
+        return `
+          <div class="rv-item">
+            <div class="rv-avatar" style="background:${bg}; color:${fg}">${escHtml(name.trim().charAt(0).toUpperCase())}</div>
+            <div class="rv-body">
+              <div class="rv-head">
+                <b>${escHtml(name)}${r.mine ? ' (you)' : ''}</b>
+                <span class="rv-time">${timeAgo(r.created_at)}</span>
+                ${r.booked ? '<span class="rv-tag"><i class="fa-solid fa-circle-check"></i> Booked here</span>' : ''}
+              </div>
+              ${starsHtml(r.rating)}
+              ${r.comment ? `<div class="rv-text">${escHtml(r.comment)}</div>` : ''}
+              <div class="rv-rec-tag ${r.recommend ? '' : 'no'}"><i class="fa-regular ${r.recommend ? 'fa-thumbs-up' : 'fa-thumbs-down'}"></i> ${r.recommend ? 'Recommends this dorm' : 'Does not recommend'}</div>
+              ${r.mine ? `<div class="rv-own"><button class="d" onclick="deleteMyReview()"><i class="fa-regular fa-trash-can"></i> Delete</button></div>` : ''}
+            </div>
+          </div>`;
+      }).join('') + (list.length > visible.length ? `<button class="rv-more" onclick="showMoreReviews()">Show more reviews (${list.length - visible.length})</button>` : '');
+    }
+
+    function renderRvForm() {
+      const box = document.getElementById('rvForm');
+      const p = activeSelectedProperty;
+      const u = dfSessionUser();
+      if (!p) { box.innerHTML = ''; return; }
+
+      if (!u || !u.email) {
+        box.innerHTML = `<div class="rv-note"><i class="fa-regular fa-comment-dots"></i><span><a href="signin.html">Sign in</a> to rate this dorm and leave a review.</span></div>`;
+        return;
+      }
+      if (u.role === 'admin') { box.innerHTML = ''; return; }
+      if (p.owner_email && p.owner_email.toLowerCase() === u.email.toLowerCase()) {
+        box.innerHTML = `<div class="rv-note"><i class="fa-regular fa-circle-user"></i><span>You cannot review your own property.</span></div>`;
+        return;
+      }
+
+      // Already reviewed -> no form. The student can delete their review from the list, then post a new one.
+      if (rvState.reviews.some(r => r.mine)) { box.innerHTML = ''; rvState.myRating = 0; return; }
+
+      rvState.myRating = 0;
+      box.innerHTML = `
+        <div class="rv-form-card">
+          <div class="rv-form-title">Rate this dorm</div>
+          <div class="rv-star-row">
+            <div class="rv-star-input" id="rvStarInput" onmouseleave="paintRvStars(rvState.myRating)">
+              ${[1, 2, 3, 4, 5].map(v => `<button type="button" data-v="${v}" onmouseenter="paintRvStars(${v})" onclick="setRvRating(${v})" aria-label="${v} star${v === 1 ? '' : 's'}">★</button>`).join('')}
+            </div>
+            <span id="rvStarLabel"></span>
+          </div>
+          <textarea id="rvComment" maxlength="1000" placeholder="Share your experience: owner, cleanliness, noise, location, value for money…"></textarea>
+          <div class="rv-form-bottom">
+            <label class="rv-rec-check"><input type="checkbox" id="rvRecommend" checked> I recommend this dorm</label>
+            <div class="rv-form-actions">
+              <button type="button" class="rv-submit" id="rvSubmitBtn" onclick="submitReview()">Post review</button>
+            </div>
+          </div>
+        </div>`;
+      paintRvStars(0);
+    }
+
+    function paintRvStars(n) {
+      document.querySelectorAll('#rvStarInput button').forEach(b => b.classList.toggle('on', Number(b.dataset.v) <= n));
+      const lbl = document.getElementById('rvStarLabel');
+      if (lbl) lbl.textContent = n ? RV_LABELS[n] : 'Tap a star to rate';
+    }
+    function setRvRating(v) { rvState.myRating = v; paintRvStars(v); }
+
+    function applySummaryToProperty(p, s) {
+      p.rating = s.average; p.reviewCount = s.count; p.recommendPct = s.recommendPct;
+      updateDetailRating(p);
+      filterDorms();                                   // refresh the rating shown on the dorm cards
+      if (typeof renderRecommendations === 'function') renderRecommendations(p);
+    }
+
+    async function submitReview() {
+      const u = dfSessionUser();
+      const p = activeSelectedProperty;
+      if (!u || !u.email || !p) return;
+      if (!rvState.myRating) { cmpToast('Please choose a star rating first.'); return; }
+
+      const btn = document.getElementById('rvSubmitBtn');
+      btn.disabled = true;
+      try {
+        const res = await fetch(`/api/properties/${p.id}/reviews`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_email: u.email,
+            rating: rvState.myRating,
+            comment: document.getElementById('rvComment').value,
+            recommend: document.getElementById('rvRecommend').checked
+          })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          applySummaryToProperty(p, data.summary);
+          await loadReviews(p);
+          cmpToast(data.message);
+        } else {
+          cmpToast(data.message || 'Could not save your review.');
+          btn.disabled = false;
+        }
+      } catch (err) {
+        cmpToast('Could not connect to the server.');
+        btn.disabled = false;
+      }
+    }
+
+    async function deleteMyReview() {
+      const u = dfSessionUser();
+      const p = activeSelectedProperty;
+      const mine = rvState.reviews.find(r => r.mine);
+      if (!u || !p || !mine) return;
+      if (!confirm('Delete your review?')) return;
+      try {
+        const res = await fetch(`/api/reviews/${mine.id}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_email: u.email })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          applySummaryToProperty(p, data.summary);
+          await loadReviews(p);
+          cmpToast('Your review was deleted.');
+        } else {
+          cmpToast(data.message || 'Could not delete the review.');
+        }
+      } catch (err) {
+        cmpToast('Could not connect to the server.');
+      }
+    }
+
+    // ── Recommendations: similar dorms, ranked by type, price, rating, availability and area ──
+    function renderRecommendations(base) {
+      const pane = document.getElementById('rvPaneRecs');
+      const peso = n => '₱' + Number(n).toLocaleString('en-PH');
+      const rentOf = p => parseFloat(String(p.rawRent || p.rent || '0').replace(/[^0-9.]/g, '')) || 0;
+      const baseRent = rentOf(base);
+      const baseType = (base.type || '').toLowerCase();
+      const baseArea = (base.barangay || '').toLowerCase();
+
+      const ranked = allDatabaseProperties
+        .filter(o => Number(o.id) !== Number(base.id))
+        .map(o => {
+          let score = 0;
+          const why = [];
+          const rent = rentOf(o);
+          if (baseType && (o.type || '').toLowerCase() === baseType) { score += 2; why.push('Same type'); }
+          if (baseRent > 0 && rent > 0) {
+            const diff = Math.abs(rent - baseRent) / baseRent;
+            if (diff <= 0.2) { score += 2; why.push('Similar price'); }
+            else if (diff <= 0.4) { score += 1; }
+            if (rent < baseRent * 0.9) { score += 1; why.push(`${peso(baseRent - rent)} cheaper`); }
+          }
+          if (Number(o.reviewCount) > 0) {
+            score += (Number(o.rating) / 5) * 3;
+            if (Number(o.rating) >= 4.5) why.push('Top rated');
+            if (Number(o.recommendPct) >= 80 && Number(o.reviewCount) >= 2) why.push(`${o.recommendPct}% recommend`);
+          }
+          const avail = parseInt(o.availRooms) || 0;
+          if (avail > 0) { score += 1; why.push(`${avail} room${avail === 1 ? '' : 's'} free`); } else { score -= 2; }
+          if (baseArea && (o.barangay || '').toLowerCase() === baseArea) { score += 1; why.push('Same area'); }
+          return { o, score, why: why.slice(0, 3) };
+        })
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 4);
+
+      if (!ranked.length) {
+        pane.innerHTML = '<div class="rv-none">There are no other dorms to recommend yet.</div>';
+        return;
+      }
+      pane.innerHTML = `
+        <div class="rec-intro">Dorms you may also like, based on <b>${escHtml(base.name)}</b>.</div>
+        <div class="rec-grid">
+          ${ranked.map(({ o, why }) => `
+            <div class="rec-card" onclick="openStudentDormDetail(${allDatabaseProperties.indexOf(o)})">
+              <div class="rec-img" style="background-image: url('${escHtml(o.image || '')}')">
+                <button class="dorm-compare-btn ${compareIds.includes(Number(o.id)) ? 'active' : ''}" data-cmp-id="${o.id}" onclick="event.stopPropagation(); toggleCompare(${o.id})">
+                  <i class="fa-solid ${compareIds.includes(Number(o.id)) ? 'fa-check' : 'fa-code-compare'}"></i> ${compareIds.includes(Number(o.id)) ? 'Added' : 'Compare'}
+                </button>
+              </div>
+              <div class="rec-body">
+                <div class="rec-top">
+                  <div class="rec-name">${escHtml(o.name)}</div>
+                  <div class="rec-rate"><i class="fa-solid fa-star"></i> ${ratingLabel(o)}${Number(o.reviewCount) > 0 ? ` (${o.reviewCount})` : ''}</div>
+                </div>
+                <div class="rec-loc">${escHtml(o.address || '')}</div>
+                <div class="rec-reasons">${why.map(w => `<span>${escHtml(w)}</span>`).join('')}</div>
+                <div class="rec-price">${escHtml(o.rent)} <small>/month</small></div>
+              </div>
+            </div>`).join('')}
+        </div>`;
+    }
+
+    /* ══════════ COMPARE DORMS ══════════ */
+    const COMPARE_MAX = 3;
+    let currentTabId = 'overview';
+    let compareIds = [];
+    try { compareIds = (JSON.parse(localStorage.getItem('df_compare') || '[]') || []).map(Number).filter(Boolean).slice(0, COMPARE_MAX); } catch (e) { compareIds = []; }
+
+    function saveCompare() { try { localStorage.setItem('df_compare', JSON.stringify(compareIds)); } catch (e) {} }
+    function compareProp(id) { return allDatabaseProperties.find(p => Number(p.id) === Number(id)); }
+
+    function cmpToast(msg) {
+      const el = document.getElementById('cmpToast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(cmpToast._t);
+      cmpToast._t = setTimeout(() => el.classList.remove('show'), 2400);
+    }
+
+    function toggleCompare(id) {
+      const pid = Number(id);
+      if (compareIds.includes(pid)) {
+        compareIds = compareIds.filter(x => x !== pid);
+      } else {
+        if (compareIds.length >= COMPARE_MAX) {
+          cmpToast('You can compare up to ' + COMPARE_MAX + ' dorms. Remove one first.');
+          return;
+        }
+        compareIds.push(pid);
+      }
+      saveCompare();
+      refreshCompareUI();
+    }
+
+    function removeCompare(id) {
+      compareIds = compareIds.filter(x => x !== Number(id));
+      saveCompare();
+      refreshCompareUI();
+    }
+
+    function clearCompare() {
+      compareIds = [];
+      saveCompare();
+      refreshCompareUI();
+    }
+
+    function addCompareFromSelect(sel) {
+      const id = Number(sel.value);
+      if (!id) return;
+      if (!compareIds.includes(id) && compareIds.length < COMPARE_MAX) compareIds.push(id);
+      saveCompare();
+      refreshCompareUI();
+    }
+
+    function refreshCompareButtons() {
+      document.querySelectorAll('.dorm-compare-btn').forEach(btn => {
+        const on = compareIds.includes(Number(btn.dataset.cmpId));
+        btn.classList.toggle('active', on);
+        btn.innerHTML = `<i class="fa-solid ${on ? 'fa-check' : 'fa-code-compare'}"></i> ${on ? 'Added' : 'Compare'}`;
+      });
+      const detailBtn = document.getElementById('sdCompareBtn');
+      if (detailBtn && activeSelectedProperty) {
+        const on = compareIds.includes(Number(activeSelectedProperty.id));
+        detailBtn.classList.toggle('active', on);
+        detailBtn.innerHTML = on
+          ? '<i class="fa-solid fa-check"></i> Added to compare'
+          : '<i class="fa-solid fa-code-compare"></i> Compare';
+      }
+    }
+
+    function refreshCompareUI() {
+      document.getElementById('badge-compare').textContent = compareIds.length;
+      refreshCompareButtons();
+      renderCompareTray();
+      if (currentTabId === 'compare') renderCompareTab();
+    }
+
+    function renderCompareTray() {
+      const tray = document.getElementById('compareTray');
+      if (!tray) return;
+      const hideOn = ['compare', 'profile', 'messages'];
+      if (compareIds.length === 0 || hideOn.includes(currentTabId)) {
+        tray.classList.remove('show');
+        return;
+      }
+      let thumbs = '';
+      for (let i = 0; i < COMPARE_MAX; i++) {
+        const p = compareIds[i] ? compareProp(compareIds[i]) : null;
+        thumbs += p
+          ? `<div class="tray-thumb" title="${escHtml(p.name)}" style="background-image: url('${escHtml(p.image || '')}')"><button onclick="removeCompare(${p.id})" aria-label="Remove ${escHtml(p.name)}"><i class="fa-solid fa-xmark"></i></button></div>`
+          : `<div class="tray-thumb empty"></div>`;
+      }
+      tray.innerHTML = `
+        <div class="tray-thumbs">${thumbs}</div>
+        <div class="tray-text">${compareIds.length} of ${COMPARE_MAX} selected${compareIds.length < 2 ? ' · add one more to compare' : ''}</div>
+        <button class="tray-btn" ${compareIds.length < 2 ? 'disabled' : ''} onclick="switchTab('compare', document.getElementById('nav-compare'))">Compare now</button>
+        <button class="tray-clear" onclick="clearCompare()">Clear</button>
+      `;
+      tray.classList.add('show');
+    }
+
+    // Normalised numbers/lists used for comparing
+    function cmpInfo(p) {
+      const rent = parseFloat(String(p.rawRent || p.rent || '0').replace(/[^0-9.]/g, '')) || 0;
+      let total = parseInt(p.totalRooms) || 0;
+      let avail = parseInt(p.availRooms) || 0;
+      if (total && avail > total) avail = total;
+      const amenities = (p.amenities || []).map(a => String(a).trim()).filter(Boolean);
+      const rating = Number(p.reviewCount) > 0 ? Number(p.rating) : 0;
+      return { p, rent, total, avail, amenities, rating, ratingCount: Number(p.reviewCount) || 0 };
+    }
+
+    function renderCompareTab() {
+      const slotsEl = document.getElementById('cmpSlots');
+      const resultEl = document.getElementById('cmpResult');
+      if (!slotsEl || !resultEl) return;
+
+      const chosen = compareIds.map(compareProp).filter(Boolean);
+      const peso = n => '₱' + Number(n).toLocaleString('en-PH');
+
+      // ── slots ──
+      let slotsHtml = '';
+      for (let i = 0; i < COMPARE_MAX; i++) {
+        const p = chosen[i];
+        if (p) {
+          slotsHtml += `
+            <div class="cmp-slot">
+              <div class="s-img" style="background-image: url('${escHtml(p.image || '')}')"></div>
+              <div class="s-info">
+                <div class="s-name">${escHtml(p.name)}</div>
+                <div class="s-price">${escHtml(p.rent)}/mo</div>
+              </div>
+              <button class="s-remove" onclick="removeCompare(${p.id})" title="Remove"><i class="fa-solid fa-xmark"></i></button>
+            </div>`;
+        } else {
+          const options = allDatabaseProperties
+            .filter(x => !compareIds.includes(Number(x.id)))
+            .map(x => `<option value="${x.id}">${escHtml(x.name)} — ${escHtml(x.rent)}/mo</option>`).join('');
+          slotsHtml += `
+            <div class="cmp-slot empty">
+              <div class="s-label">Dorm ${i + 1}${i < 2 ? '' : ' (optional)'}</div>
+              <select onchange="addCompareFromSelect(this)" ${options ? '' : 'disabled'}>
+                <option value="">${options ? 'Choose a dorm…' : 'No more dorms to add'}</option>
+                ${options}
+              </select>
+            </div>`;
+        }
+      }
+      slotsEl.innerHTML = slotsHtml;
+
+      if (chosen.length < 2) {
+        resultEl.innerHTML = `
+          <div class="cmp-empty">
+            <i class="fa-solid fa-code-compare"></i>
+            <h3>${chosen.length === 0 ? 'Nothing to compare yet' : 'Add one more dorm'}</h3>
+            <p>Choose at least 2 dorms above, or press <b>Compare</b> on any dorm card in <a href="#" onclick="switchTab('browse', document.querySelector('.sidebar-nav li:nth-child(2) .nav-item')); return false;" style="color:#2563eb; font-weight:700;">Browse Dorms</a>.</p>
+          </div>`;
+        return;
+      }
+
+      const infos = chosen.map(cmpInfo);
+
+      // ── winners ──
+      const winners = { price: new Set(), amen: new Set(), rooms: new Set(), rating: new Set() };
+      const rents = infos.map(i => i.rent).filter(r => r > 0);
+      if (rents.length >= 2 && Math.min(...rents) !== Math.max(...rents)) {
+        const m = Math.min(...rents);
+        infos.forEach((i, k) => { if (i.rent === m) winners.price.add(k); });
+      }
+      const ac = infos.map(i => i.amenities.length);
+      if (Math.min(...ac) !== Math.max(...ac)) {
+        const m = Math.max(...ac);
+        infos.forEach((i, k) => { if (i.amenities.length === m) winners.amen.add(k); });
+      }
+      const rc = infos.map(i => i.avail);
+      if (Math.min(...rc) !== Math.max(...rc) && Math.max(...rc) > 0) {
+        const m = Math.max(...rc);
+        infos.forEach((i, k) => { if (i.avail === m) winners.rooms.add(k); });
+      }
+
+      const ratedInfos = infos.filter(i => i.rating > 0);
+      if (ratedInfos.length >= 2) {
+        const rs = ratedInfos.map(i => i.rating);
+        if (Math.min(...rs) !== Math.max(...rs)) {
+          const m = Math.max(...rs);
+          infos.forEach((i, k) => { if (i.rating === m) winners.rating.add(k); });
+        }
+      }
+
+      // ── quick takeaways ──
+      const takeaways = [];
+      if (winners.price.size) {
+        const cheapest = infos[[...winners.price][0]];
+        const priciest = infos.reduce((a, b) => (b.rent > a.rent ? b : a));
+        takeaways.push(`<b>${escHtml(cheapest.p.name)}</b> is the cheapest at ${peso(cheapest.rent)}/mo — ${peso(priciest.rent - cheapest.rent)} less per month than <b>${escHtml(priciest.p.name)}</b>.`);
+      } else {
+        takeaways.push('The monthly rent is the same for these dorms.');
+      }
+      if (winners.amen.size) {
+        const best = infos[[...winners.amen][0]];
+        takeaways.push(`<b>${escHtml(best.p.name)}</b> includes the most amenities (${best.amenities.length}).`);
+      }
+      if (winners.rooms.size) {
+        const best = infos[[...winners.rooms][0]];
+        takeaways.push(`<b>${escHtml(best.p.name)}</b> has the most rooms free right now (${best.avail}).`);
+      }
+      if (winners.rating.size) {
+        const best = infos[[...winners.rating][0]];
+        takeaways.push(`<b>${escHtml(best.p.name)}</b> has the best rating (${best.rating.toFixed(1)} from ${best.ratingCount} review${best.ratingCount === 1 ? '' : 's'}).`);
+      }
+      const noRoom = infos.filter(i => i.avail === 0);
+      if (noRoom.length) {
+        takeaways.push(`<b>${noRoom.map(i => escHtml(i.p.name)).join(', ')}</b> ${noRoom.length === 1 ? 'has' : 'have'} no available rooms at the moment.`);
+      }
+
+      const criteria = [['price', winners.price], ['amenities', winners.amen], ['free rooms', winners.rooms]];
+      if (ratedInfos.length >= 2) criteria.push(['rating', winners.rating]);
+      const wins = infos.map((_, k) => criteria.filter(c => c[1].has(k)).length);
+      const top = Math.max(...wins);
+      const leaders = wins.map((w, k) => (w === top ? k : -1)).filter(k => k >= 0);
+      let verdict;
+      if (top >= 2 && leaders.length === 1) {
+        verdict = `<i class="fa-solid fa-trophy" style="color:#f59e0b"></i> On paper, <b>${escHtml(infos[leaders[0]].p.name)}</b> comes out ahead (best on ${top} of ${criteria.length} points: ${criteria.map(c => c[0]).join(', ')}).`;
+      } else {
+        verdict = `<i class="fa-solid fa-scale-balanced" style="color:#2563eb"></i> It's a close call — no dorm wins on everything. Check the rows below for what matters most to you.`;
+      }
+
+      // ── table rows ──
+      const rows = [];   // {label, cells:[html], keys:[string], best:Set, group?}
+      rows.push({ label: 'Monthly rent', cells: infos.map(i => escHtml(i.p.rent) + '/mo'), keys: infos.map(i => String(i.rent)), best: winners.price });
+      rows.push({ label: 'Type', cells: infos.map(i => escHtml(i.p.type || '—')), keys: infos.map(i => i.p.type || '') });
+      rows.push({ label: 'Location', cells: infos.map(i => escHtml(i.p.address || '—')), keys: infos.map(i => i.p.address || '') });
+      rows.push({
+        label: 'Rooms available',
+        cells: infos.map(i => i.total ? `${i.avail} of ${i.total}` : String(i.avail)),
+        keys: infos.map(i => i.avail + '/' + i.total),
+        best: winners.rooms
+      });
+      rows.push({ label: 'Occupied', cells: infos.map(i => escHtml(i.p.occupied || '—')), keys: infos.map(i => i.p.occupied || '') });
+      rows.push({ label: 'Amenities included', cells: infos.map(i => String(i.amenities.length)), keys: infos.map(i => String(i.amenities.length)), best: winners.amen });
+      rows.push({
+        label: 'Rating',
+        cells: infos.map(i => i.rating > 0 ? `★ ${i.rating.toFixed(1)} <span style="font-weight:500;color:#64748b">(${i.ratingCount})</span>` : '<span style="font-weight:500;color:#94a3b8">No reviews yet</span>'),
+        keys: infos.map(i => String(i.rating)),
+        best: winners.rating
+      });
+
+      // each amenity: ✓ / ✗ (case-insensitive union)
+      const seen = new Map();
+      infos.forEach(i => i.amenities.forEach(a => { if (!seen.has(a.toLowerCase())) seen.set(a.toLowerCase(), a); }));
+      const amenRows = [];
+      seen.forEach((label, low) => {
+        const has = infos.map(i => i.amenities.some(a => a.toLowerCase() === low));
+        amenRows.push({
+          label: escHtml(label),
+          cells: has.map(h => h ? '<span class="cmp-yes"><i class="fa-solid fa-check"></i> Yes</span>' : '<span class="cmp-no"><i class="fa-solid fa-xmark"></i> No</span>'),
+          keys: has.map(String)
+        });
+      });
+
+      const textRows = [
+        { label: 'House rules', cells: infos.map(i => `<div class="cmp-text">${escHtml(i.p.rules || 'No specific rules.')}</div>`), keys: infos.map(i => i.p.rules || '') },
+        { label: 'Description', cells: infos.map(i => `<div class="cmp-text">${escHtml(i.p.desc || 'No description provided.')}</div>`), keys: infos.map(i => i.p.desc || '') },
+        { label: 'Owner', cells: infos.map(i => escHtml(i.p.owner_name || 'Property Owner')), keys: infos.map(i => i.p.owner_name || '') }
+      ];
+
+      const rowHtml = r => {
+        const same = r.keys.every(k => k === r.keys[0]);
+        return `<tr class="${same ? 'cmp-same' : ''}">
+          <td class="row-label">${r.label}</td>
+          ${r.cells.map((c, k) => `<td class="${r.best && r.best.has(k) ? 'best' : ''}">${c}</td>`).join('')}
+        </tr>`;
+      };
+      const groupRow = t => `<tr class="group-row"><td colspan="${infos.length + 1}">${t}</td></tr>`;
+
+      const headCells = infos.map((i, k) => {
+        const badges = [];
+        if (winners.price.has(k)) badges.push('Lowest price');
+        if (winners.amen.has(k)) badges.push('Most amenities');
+        if (winners.rooms.has(k)) badges.push('Most rooms free');
+        if (winners.rating.has(k)) badges.push('Best rated');
+        return `
+          <th>
+            <div class="cmp-head-img" style="background-image: url('${escHtml(i.p.image || '')}')"></div>
+            <div class="cmp-head-type">${escHtml(i.p.type || 'Dormitory')}</div>
+            <div class="cmp-head-name">${escHtml(i.p.name)}</div>
+            <div class="cmp-badges">${badges.map(b => `<span class="cmp-badge">${b}</span>`).join('')}</div>
+          </th>`;
+      }).join('');
+
+      const actionCells = infos.map(i => `
+        <td>
+          <button class="cmp-act-btn" onclick="openStudentDormDetail(${allDatabaseProperties.indexOf(i.p)})">View &amp; book</button>
+          <button class="cmp-act-btn ghost" onclick="removeCompare(${i.p.id})">Remove</button>
+        </td>`).join('');
+
+      resultEl.innerHTML = `
+        <div class="cmp-summary">
+          <h3><i class="fa-solid fa-lightbulb" style="color:#f59e0b"></i> Quick comparison</h3>
+          <ul>${takeaways.map(t => `<li><i class="fa-solid fa-circle-check"></i><span>${t}</span></li>`).join('')}</ul>
+          <div class="cmp-verdict">${verdict}</div>
+        </div>
+
+        <div class="cmp-toolbar">
+          <label class="cmp-toggle"><input type="checkbox" id="cmpDiffOnly" onchange="document.getElementById('cmpTable').classList.toggle('diff-only', this.checked)"> Show differences only</label>
+          <button class="tray-clear" style="color:#64748b" onclick="clearCompare()">Clear all</button>
+        </div>
+
+        <div class="cmp-table-wrap">
+          <table class="cmp-table" id="cmpTable">
+            <thead><tr><th class="row-label"></th>${headCells}</tr></thead>
+            <tbody>
+              ${groupRow('Price &amp; availability')}
+              ${rowHtml(rows[0])}${rowHtml(rows[3])}${rowHtml(rows[4])}
+              ${groupRow('Place')}
+              ${rowHtml(rows[6])}${rowHtml(rows[1])}${rowHtml(rows[2])}
+              ${groupRow('Amenities')}
+              ${rowHtml(rows[5])}
+              ${amenRows.length ? amenRows.map(rowHtml).join('') : `<tr><td class="row-label">Amenities</td>${infos.map(() => '<td class="cmp-text">None listed</td>').join('')}</tr>`}
+              ${groupRow('Rules &amp; owner')}
+              ${textRows.map(rowHtml).join('')}
+              <tr><td class="row-label">Next step</td>${actionCells}</tr>
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
     let savedDormsList = [];
     let allDatabaseProperties = [];
     let activeSelectedProperty = null;
@@ -1332,7 +2295,10 @@
         const data = await response.json();
         if (response.ok && data.success) {
           allDatabaseProperties = data.properties;
+          compareIds = compareIds.filter(id => allDatabaseProperties.some(p => Number(p.id) === id));
+          saveCompare();
           renderStudentDorms(allDatabaseProperties);
+          refreshCompareUI();
         }
       } catch (err) {
         console.error('Could not load properties from database:', err);
@@ -1361,18 +2327,21 @@
       properties.forEach((p, idx) => {
         const isFav = savedDormsList.some(d => d.name === p.name);
         cardsHtml += `
-          <div class="dorm-card" onclick="openStudentDormDetail(${idx})">
+          <div class="dorm-card" onclick="openStudentDormDetail(${allDatabaseProperties.indexOf(p)})">
             <div class="dorm-img-wrap" style="background-image: url('${p.image || 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=600&q=80'}')">
               <span class="dorm-status-badge">Available now</span>
-              <button class="dorm-fav-btn ${isFav ? 'favorited' : ''}" onclick="event.stopPropagation(); toggleSaveDorm(this, '${p.name}', '${p.address}', '${p.rent}', '4.8', '${p.image || ''}')">
+              <button class="dorm-fav-btn ${isFav ? 'favorited' : ''}" onclick="event.stopPropagation(); toggleSaveDorm(this, '${p.name}', '${p.address}', '${p.rent}', '${ratingLabel(p)}', '${p.image || ''}')">
                 <i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+              </button>
+              <button class="dorm-compare-btn ${compareIds.includes(Number(p.id)) ? 'active' : ''}" data-cmp-id="${p.id}" onclick="event.stopPropagation(); toggleCompare(${p.id})">
+                <i class="fa-solid ${compareIds.includes(Number(p.id)) ? 'fa-check' : 'fa-code-compare'}"></i> ${compareIds.includes(Number(p.id)) ? 'Added' : 'Compare'}
               </button>
             </div>
             <div class="dorm-content">
               <div>
                 <div class="dorm-top-info">
                   <div class="dorm-name">${p.name}</div>
-                  <div class="dorm-rating"><i class="fa-solid fa-star"></i> 4.8</div>
+                  <div class="dorm-rating"><i class="fa-solid fa-star"></i> ${ratingLabel(p)}</div>
                 </div>
                 <div class="dorm-location">${p.address}</div>
               </div>
@@ -1395,6 +2364,8 @@
       if (!p) return;
 
       activeSelectedProperty = p;
+      refreshCompareButtons();
+      initReviewsSection(p);
 
       document.getElementById('sdPropName').textContent = p.name;
       document.getElementById('sdPropType').textContent = p.type || 'Dormitory';
@@ -1548,8 +2519,11 @@
 
     function renderStudentBookings(bookings) {
       const container = document.getElementById('studentBookingsContainer');
-      document.getElementById('stat-bookings-count').textContent = bookings.length;
-      document.getElementById('badge-bookings').textContent = bookings.length;
+      const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+      studentBookings = bookings;
+      const activeCount = bookings.filter(b => b.status !== 'cancelled').length;
+      document.getElementById('stat-bookings-count').textContent = activeCount;
+      document.getElementById('badge-bookings').textContent = activeCount;
 
       if (bookings.length === 0) {
         container.innerHTML = `
@@ -1562,28 +2536,134 @@
         return;
       }
 
+      const palette = {
+        pending:   ['#d97706', '#fef3c7'],
+        approved:  ['#059669', '#d1fae5'],
+        rejected:  ['#dc2626', '#fee2e2'],
+        cancelled: ['#475569', '#e2e8f0']
+      };
+
       let html = `<div style="display: flex; flex-direction: column; gap: 1rem;">`;
       bookings.forEach(b => {
-        let statusColor = '#d97706';
-        let statusBg = '#fef3c7';
-        if (b.status === 'approved') { statusColor = '#059669'; statusBg = '#d1fae5'; }
-        else if (b.status === 'rejected') { statusColor = '#dc2626'; statusBg = '#fee2e2'; }
+        const [statusColor, statusBg] = palette[b.status] || palette.pending;
+        const canCancel = b.status === 'pending';   // once the owner approves, the booking is locked
+        const dim = b.status === 'cancelled' ? 'opacity: 0.65;' : '';
 
         html += `
-          <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.25rem; display: flex; align-items: center; justify-content: space-between;">
+          <div class="booking-card" onclick="openBookingDetail(${b.id})" title="Click to view booking details" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; ${dim}">
             <div>
-              <div style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 4px;">${b.property_name} (${b.room_name})</div>
-              <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 6px;"><i class="fa-regular fa-calendar"></i> Move-in: ${b.move_in_date} | Rent: ${b.rent}/mo</div>
-              ${b.message ? `<div style="font-size: 0.82rem; color: #475569; font-style: italic;">"${b.message}"</div>` : ''}
+              <div style="font-size: 1.05rem; margin-bottom: 4px;"><button class="booking-link" onclick="event.stopPropagation(); openBookingDetail(${b.id})">${esc(b.property_name)} (${esc(b.room_name)})</button></div>
+              <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 6px;"><i class="fa-regular fa-calendar"></i> Move-in: ${esc(b.move_in_date)} | Rent: ${esc(b.rent)}/mo</div>
+              ${b.message ? `<div style="font-size: 0.82rem; color: #475569; font-style: italic;">"${esc(b.message)}"</div>` : ''}
             </div>
-            <div>
-              <span style="background: ${statusBg}; color: ${statusColor}; font-weight: 800; font-size: 0.8rem; padding: 6px 14px; border-radius: 20px; text-transform: capitalize;">${b.status}</span>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="background: ${statusBg}; color: ${statusColor}; font-weight: 800; font-size: 0.8rem; padding: 6px 14px; border-radius: 20px; text-transform: capitalize;">${esc(b.status)}</span>
+              ${canCancel ? `<button onclick="event.stopPropagation(); cancelBooking(${b.id})" style="background: #ffffff; color: #dc2626; border: 1px solid #fecaca; padding: 0.45rem 1rem; border-radius: 8px; font-weight: 700; font-size: 0.82rem; cursor: pointer; font-family: inherit;"><i class="fa-solid fa-xmark"></i> Cancel</button>` : ''}
             </div>
           </div>
         `;
       });
       html += `</div>`;
       container.innerHTML = html;
+    }
+
+    function openBookingDetail(bookingId) {
+      const b = studentBookings.find(x => x.id === bookingId);
+      if (!b) return;
+
+      const propIndex = allDatabaseProperties.findIndex(p => String(p.id) === String(b.property_id));
+      const photo = b.property_image ? `<div class="bd-photo" style="background-image: url('${escHtml(b.property_image)}')"></div>` : '';
+      const ownerEmail = b.owner_email ? `<a href="mailto:${escHtml(b.owner_email)}">${escHtml(b.owner_email)}</a>` : '';
+      const ownerPhone = b.owner_phone ? `<br/><a href="tel:${escHtml(b.owner_phone)}">${escHtml(b.owner_phone)}</a>` : '';
+
+      let note = '';
+      if (b.status === 'pending') note = 'Waiting for the owner to respond. You can still cancel while it is pending.';
+      else if (b.status === 'approved') note = 'The owner approved this booking. It can no longer be cancelled here.';
+      else if (b.status === 'rejected') note = 'The owner declined this request.';
+      else if (b.status === 'cancelled') note = 'You cancelled this booking.';
+
+      document.getElementById('bookingDetailBody').innerHTML = `
+        ${photo}
+        <div class="bd-title">${escHtml(b.property_name)}</div>
+        <div class="bd-sub"><i class="fa-solid fa-location-dot"></i> ${escHtml(b.property_address || 'Minglanilla, Cebu')}</div>
+        <span class="bd-pill ${escHtml(b.status)}">${escHtml(b.status)}</span>
+        <span style="font-size: 0.8rem; color: #64748b; margin-left: 8px;">${note}</span>
+
+        <div class="bd-box">
+          <div class="bd-box-title">Your booking</div>
+          <div class="bd-grid">
+            <div><div class="k">Room</div><div class="v">${escHtml(b.room_name)}</div></div>
+            <div><div class="k">Monthly rent</div><div class="v">${escHtml(b.rent)}</div></div>
+            <div><div class="k">Move-in date</div><div class="v">${escHtml(b.move_in_date)}</div></div>
+            <div><div class="k">Requested on</div><div class="v">${fmtDate(b.created_at)}</div></div>
+          </div>
+          ${b.message ? `<div class="bd-quote">"${escHtml(b.message)}"</div>` : ''}
+        </div>
+
+        <div class="bd-box">
+          <div class="bd-box-title">Property owner</div>
+          <div class="bd-owner">
+            <div class="bd-avatar">${escHtml(initialsOf(b.owner_name))}</div>
+            <div class="bd-owner-info"><b>${escHtml(b.owner_name)}</b>${ownerEmail}${ownerPhone}</div>
+          </div>
+        </div>
+
+        <div class="bd-actions">
+          ${b.status === 'pending' ? `<button onclick="cancelBooking(${b.id})" style="background: #fef2f2; color: #dc2626;"><i class="fa-solid fa-xmark"></i> Cancel booking</button>` : ''}
+          <button onclick="messageBookingOwner(${b.id})" style="background: #eff6ff; color: #2563eb;"><i class="fa-regular fa-message"></i> Message owner</button>
+          ${propIndex >= 0 ? `<button onclick="viewBookedProperty(${b.id})" style="background: #2563eb; color: #ffffff;"><i class="fa-regular fa-eye"></i> View property</button>` : ''}
+        </div>
+      `;
+      document.getElementById('bookingDetailModal').classList.add('open');
+    }
+
+    function closeBookingDetail() {
+      document.getElementById('bookingDetailModal').classList.remove('open');
+    }
+
+    function messageBookingOwner(bookingId) {
+      const b = studentBookings.find(x => x.id === bookingId);
+      if (!b || !b.owner_email) return;
+      closeBookingDetail();
+      switchTab('messages');
+      selectConversation(b.owner_email, escHtml(b.owner_name), b.property_id, escHtml(b.property_name));
+    }
+
+    function viewBookedProperty(bookingId) {
+      const b = studentBookings.find(x => x.id === bookingId);
+      if (!b) return;
+      const idx = allDatabaseProperties.findIndex(p => String(p.id) === String(b.property_id));
+      if (idx < 0) return;
+      closeBookingDetail();
+      openStudentDormDetail(idx);
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeBookingDetail(); });
+    refreshCompareUI();
+
+    async function cancelBooking(bookingId) {
+      const sessionUser = JSON.parse(localStorage.getItem('df_user') || '{}');
+      if (!sessionUser.email) return;
+
+      if (!confirm('Cancel this booking request?')) return;
+
+      try {
+        const response = await fetch(`/api/bookings/${bookingId}/cancel`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ student_email: sessionUser.email })
+        });
+        const data = await response.json();
+        if (response.ok && data.success) {
+          closeBookingDetail();
+          await fetchStudentBookings();
+        } else {
+          alert(data.message || 'Could not cancel the booking.');
+          await fetchStudentBookings();
+        }
+      } catch (err) {
+        alert('Could not connect to the server.');
+      }
     }
 
     /* ── MESSAGING FUNCTIONS ───────────────────────────── */
@@ -1774,6 +2854,10 @@
         if (matchingNav) matchingNav.classList.add('active');
       }
       window.scrollTo(0, 0);
+
+      currentTabId = tabId;
+      renderCompareTray();
+      if (tabId === 'compare') renderCompareTab();
 
       if (tabId === 'messages') {
         fetchUserMessages();

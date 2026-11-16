@@ -624,6 +624,115 @@
   </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <style>
+    /* ── REVIEWS & RECOMMENDATIONS ───────────────────────── */
+    .rv-section { margin-top: 0.5rem; }
+    .rv-tabs { display: flex; gap: 1.75rem; border-bottom: 1px solid #e2e8f0; margin-bottom: 1.25rem; }
+    .rv-tab {
+      background: none; border: none; cursor: pointer; padding: 0 0 0.8rem; margin-bottom: -1px;
+      font: 700 0.95rem 'Plus Jakarta Sans', sans-serif; color: #475569;
+      border-bottom: 3px solid transparent;
+    }
+    .rv-tab:hover { color: #0f172a; }
+    .rv-tab.active { color: #2563eb; border-bottom-color: #2563eb; }
+    .rv-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .rv-h { font-size: 1.15rem; font-weight: 800; color: #0f172a; }
+    .rv-sort {
+      padding: 0.5rem 0.8rem; border: 1px solid #e2e8f0; border-radius: 10px; background: #ffffff;
+      font: 600 0.82rem 'Plus Jakarta Sans', sans-serif; color: #334155; cursor: pointer; outline: none;
+    }
+    .rv-summary {
+      display: flex; gap: 1.75rem; align-items: center; flex-wrap: wrap;
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem;
+    }
+    .rv-score { text-align: center; min-width: 120px; }
+    .rv-score .n { font-size: 2.4rem; font-weight: 800; color: #0f172a; line-height: 1; }
+    .rv-score .n span { font-size: 1rem; font-weight: 600; color: #94a3b8; }
+    .rv-score .sub { font-size: 0.78rem; color: #64748b; margin-top: 6px; font-weight: 600; }
+    .rv-score .rec { font-size: 0.78rem; color: #15803d; font-weight: 800; margin-top: 3px; }
+    .rv-stars { display: inline-flex; gap: 2px; font-size: 1rem; letter-spacing: 0; }
+    .rv-stars span { color: #e2e8f0; }
+    .rv-stars span.on { color: #f59e0b; }
+    .rv-stars.big { font-size: 1.3rem; margin-top: 6px; }
+    .rv-chips { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; }
+    .rv-chip {
+      background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.45rem 0.85rem; cursor: pointer;
+      font: 600 0.82rem 'Plus Jakarta Sans', sans-serif; color: #475569; transition: all 0.15s;
+    }
+    .rv-chip:hover { border-color: #2563eb; color: #2563eb; }
+    .rv-chip.active { border-color: #2563eb; background: #eff6ff; color: #2563eb; }
+    .rv-chip.zero { opacity: 0.55; }
+    .rv-summary.empty { color: #64748b; font-size: 0.9rem; }
+
+    .rv-form-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.25rem; margin-bottom: 1.5rem; }
+    .rv-form-title { font-size: 0.95rem; font-weight: 800; color: #0f172a; margin-bottom: 0.6rem; }
+    .rv-star-row { display: flex; align-items: center; gap: 12px; margin-bottom: 0.8rem; }
+    .rv-star-input { display: inline-flex; gap: 4px; }
+    .rv-star-input button { background: none; border: none; cursor: pointer; font-size: 1.8rem; line-height: 1; color: #e2e8f0; padding: 0; transition: transform 0.1s, color 0.1s; }
+    .rv-star-input button.on { color: #f59e0b; }
+    .rv-star-input button:hover { transform: scale(1.15); }
+    #rvStarLabel { font-size: 0.82rem; font-weight: 700; color: #64748b; }
+    .rv-form-card textarea {
+      width: 100%; min-height: 88px; resize: vertical; padding: 0.8rem 0.95rem;
+      border: 1px solid #e2e8f0; border-radius: 12px; outline: none;
+      font: 500 0.9rem 'Plus Jakarta Sans', sans-serif; color: #1e293b;
+    }
+    .rv-form-card textarea:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
+    .rv-form-bottom { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-top: 0.8rem; }
+    .rv-rec-check { display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 600; color: #334155; cursor: pointer; }
+    .rv-rec-check input { width: 16px; height: 16px; accent-color: #2563eb; cursor: pointer; }
+    .rv-form-actions { display: flex; gap: 8px; }
+    .rv-submit { background: #2563eb; color: #ffffff; border: none; border-radius: 10px; padding: 0.65rem 1.3rem; font: 700 0.86rem 'Plus Jakarta Sans', sans-serif; cursor: pointer; }
+    .rv-submit:hover { background: #1d4ed8; }
+    .rv-submit:disabled { background: #94a3b8; cursor: not-allowed; }
+    .rv-del { background: #ffffff; color: #dc2626; border: 1px solid #fecaca; border-radius: 10px; padding: 0.65rem 1.1rem; font: 700 0.86rem 'Plus Jakarta Sans', sans-serif; cursor: pointer; }
+    .rv-note { display: flex; gap: 10px; align-items: center; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 14px; padding: 1rem 1.2rem; margin-bottom: 1.5rem; font-size: 0.88rem; color: #475569; }
+    .rv-note a { color: #2563eb; font-weight: 800; text-decoration: none; }
+
+    .rv-item { display: flex; gap: 0.9rem; padding: 1.1rem 0; border-bottom: 1px solid #f1f5f9; }
+    .rv-item:last-child { border-bottom: none; }
+    .rv-avatar { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.95rem; }
+    .rv-body { flex: 1; min-width: 0; }
+    .rv-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+    .rv-head b { font-size: 0.9rem; color: #0f172a; font-weight: 800; }
+    .rv-time { font-size: 0.76rem; color: #94a3b8; font-weight: 600; }
+    .rv-tag { font-size: 0.7rem; font-weight: 800; color: #15803d; background: #dcfce7; padding: 2px 8px; border-radius: 20px; }
+    .rv-text { font-size: 0.9rem; line-height: 1.55; color: #334155; margin-top: 6px; white-space: pre-line; word-break: break-word; }
+    .rv-rec-tag { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 0.78rem; font-weight: 700; color: #2563eb; }
+    .rv-rec-tag.no { color: #94a3b8; }
+    .rv-own { margin-top: 8px; font-size: 0.78rem; }
+    .rv-own button { background: none; border: none; cursor: pointer; padding: 0; font: 700 0.78rem 'Plus Jakarta Sans', sans-serif; color: #64748b; }
+    .rv-own button:hover { color: #2563eb; }
+    .rv-own button.d:hover { color: #dc2626; }
+    .rv-more { display: block; margin: 0.75rem auto 0; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 0.6rem 1.4rem; font: 700 0.85rem 'Plus Jakarta Sans', sans-serif; color: #334155; cursor: pointer; }
+    .rv-more:hover { border-color: #2563eb; color: #2563eb; }
+    .rv-loading, .rv-none { text-align: center; padding: 2rem 1rem; color: #64748b; font-size: 0.9rem; }
+
+    .rec-intro { font-size: 0.9rem; color: #64748b; margin-bottom: 1rem; }
+    .rec-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    .rec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s; }
+    .rec-card:hover { border-color: #2563eb; box-shadow: 0 8px 22px rgba(37, 99, 235, 0.12); transform: translateY(-2px); }
+    .rec-img { position: relative; height: 130px; background-size: cover; background-position: center; background-color: #e2e8f0; }
+    .rec-body { padding: 0.9rem 1rem 1rem; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+    .rec-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .rec-name { font-weight: 800; color: #0f172a; font-size: 0.95rem; }
+    .rec-rate { font-size: 0.8rem; font-weight: 800; color: #0f172a; white-space: nowrap; }
+    .rec-rate i { color: #f59e0b; font-size: 0.72rem; }
+    .rec-loc { font-size: 0.8rem; color: #64748b; }
+    .rec-reasons { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 2px; }
+    .rec-reasons span { background: #eff6ff; color: #2563eb; font-size: 0.7rem; font-weight: 800; padding: 3px 8px; border-radius: 20px; }
+    .rec-price { margin-top: auto; padding-top: 6px; font-weight: 800; color: #0f172a; font-size: 1rem; }
+    .rec-price small { font-size: 0.75rem; font-weight: 500; color: #64748b; }
+    @media (max-width: 800px) { .rec-grid { grid-template-columns: 1fr; } }
+
+    .rv-form-card textarea { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .df-toast {
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+      background: #0f172a; color: #fff; padding: 0.7rem 1.1rem; border-radius: 10px;
+      font-size: 0.85rem; font-weight: 600; z-index: 1200;
+      opacity: 0; pointer-events: none; transition: opacity 0.25s;
+    }
+    .df-toast.show { opacity: 1; }
+
     /* ── Leaflet map + pin (same look as the homepage map) ── */
     .df-pin {
       width: 30px; height: 30px;
@@ -780,7 +889,7 @@
             <span class="badge-type" id="detPropType">Dormitory</span>
             <span><i class="fa-solid fa-location-dot"></i> <span id="detPropLocation">Minglanilla, Cebu</span></span>
             <span><i class="fa-regular fa-user"></i> <span id="detPropSlots">1 slot left</span></span>
-            <span style="color: #d97706; font-weight: 700;"><i class="fa-solid fa-star"></i> <span id="detPropRating">4.0</span></span>
+            <span style="color: #d97706; font-weight: 700;"><i class="fa-solid fa-star"></i> <span id="detPropRating">New</span></span>
           </div>
         </div>
 
@@ -819,6 +928,30 @@
             <button class="btn-msg-owner" onclick="handleProtectedAction('message')"><i class="fa-regular fa-message"></i> Message</button>
           </div>
         </div>
+
+        <!-- REVIEWS & RECOMMENDATIONS -->
+        <div class="rv-section">
+          <div class="rv-tabs">
+            <button class="rv-tab active" id="rvTabReviews" onclick="switchRvTab('reviews')">Reviews <span id="rvTabCount"></span></button>
+            <button class="rv-tab" id="rvTabRecs" onclick="switchRvTab('recs')">Recommendations</button>
+          </div>
+
+          <div id="rvPaneReviews">
+            <div class="rv-top">
+              <div class="rv-h">Reviews (<span id="rvCount">0</span>)</div>
+              <select class="rv-sort" id="rvSort" onchange="setRvSort(this.value)">
+                <option value="newest">Sort by: Newest</option>
+                <option value="highest">Sort by: Highest rating</option>
+                <option value="lowest">Sort by: Lowest rating</option>
+              </select>
+            </div>
+            <div id="rvSummary"></div>
+            <div id="rvForm"></div>
+            <div id="rvList"></div>
+          </div>
+
+          <div id="rvPaneRecs" style="display: none;"></div>
+        </div>
       </div>
 
       <!-- RIGHT COLUMN: ROOM PICKER AND BOOKING FORM -->
@@ -847,12 +980,14 @@
     </div>
   </div>
 
+  <div class="df-toast" id="dfToast"></div>
+
   <!-- AUTH REQUIRED MODAL -->
   <div class="modal-backdrop" id="authModal">
     <div class="modal-card">
       <div class="modal-icon-circle"><i class="fa-solid fa-lock"></i></div>
       <h3>Sign In Required</h3>
-      <p>You need to be signed in as a student to submit booking requests or message property owners.</p>
+      <p>You need to be signed in to submit booking requests, message property owners, or rate and review a dorm.</p>
       <div class="modal-actions">
         <a href="signin.html" class="btn-modal-login">Sign In</a>
         <a href="signup.html" class="btn-modal-signup">Sign Up</a>
@@ -972,9 +1107,9 @@
       }
 
       let html = '';
-      properties.forEach((p, idx) => {
+      properties.forEach(p => {
         html += `
-          <div class="dorm-card" onclick="openDetailView(${idx})">
+          <div class="dorm-card" onclick="openDetailView(${p.id})">
             <div class="dorm-img-wrap" style="background-image: url('${p.image || 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=600&q=80'}')">
               <span class="dorm-status-badge">${p.type || 'Dormitory'}</span>
               <button class="dorm-fav-btn" onclick="event.stopPropagation(); handleProtectedAction('save')"><i class="fa-regular fa-heart"></i></button>
@@ -983,7 +1118,7 @@
               <div>
                 <div class="dorm-top-info">
                   <div class="dorm-name">${p.name}</div>
-                  <div class="dorm-rating"><i class="fa-solid fa-star"></i> 4.0</div>
+                  <div class="dorm-rating"><i class="fa-solid fa-star"></i> ${Number(p.reviewCount) > 0 ? Number(p.rating).toFixed(1) : 'New'}</div>
                 </div>
                 <div class="dorm-location">${p.address}</div>
               </div>
@@ -1015,12 +1150,13 @@
       applyFilters();
     }
 
-    function openDetailView(index) {
-      const p = allProperties[index];
+    function openDetailView(id) {
+      const p = allProperties.find(x => Number(x.id) === Number(id));
       if (!p) return;
       activeProperty = p;
 
       document.getElementById('detPropName').textContent = p.name;
+      document.getElementById('detPropRating').textContent = Number(p.reviewCount) > 0 ? `${Number(p.rating).toFixed(1)} (${p.reviewCount})` : 'New';
       document.getElementById('detPropType').textContent = p.type || 'Dormitory';
       document.getElementById('detPropLocation').textContent = p.address || 'Minglanilla, Cebu';
       document.getElementById('detPropDesc').textContent = p.desc || 'No description provided.';
@@ -1089,6 +1225,7 @@
       document.getElementById('browseViewContainer').style.display = 'none';
       document.getElementById('tab-dorm-detail').classList.add('active');
       window.scrollTo(0, 0);
+      initReviewsSection(p);
     }
 
     function selectRoomCard(el, roomName) {
@@ -1127,6 +1264,332 @@
       } else if (actionType === 'save') {
         alert('Dorm added to your saved list!');
       }
+      // 'review' needs nothing more here: being signed in is all the check it requires
+    }
+
+
+    /* ══════════ REVIEWS & RECOMMENDATIONS ══════════ */
+    const RV_LABELS = ['', 'Poor', 'Fair', 'Good', 'Very good', 'Excellent'];
+    const RV_COLORS = [['#fde4d3', '#9a3412'], ['#fbd5e0', '#9d174d'], ['#dbeafe', '#1e40af'], ['#dcfce7', '#166534'], ['#ede9fe', '#5b21b6'], ['#fef3c7', '#92400e']];
+    let rvState = { propId: null, reviews: [], summary: null, filter: 0, sort: 'newest', shown: 5, myRating: 0 };
+
+    const escHtml = v => String(v == null ? '' : v).replace(/[&<>"']/g,
+      c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+    function dfToast(msg) {
+      const el = document.getElementById('dfToast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(dfToast._t);
+      dfToast._t = setTimeout(() => el.classList.remove('show'), 2400);
+    }
+    function ratingLabel(p) { return p && Number(p.reviewCount) > 0 ? Number(p.rating).toFixed(1) : 'New'; }
+    function dfSessionUser() { try { return JSON.parse(localStorage.getItem('df_user') || 'null'); } catch (e) { return null; } }
+    // Guests get the same Sign In / Sign Up popup used for booking and messaging
+    function requireSignIn() {
+      const u = dfSessionUser();
+      if (u && u.email) return true;
+      handleProtectedAction('review');
+      return false;
+    }
+    function starsHtml(n) {
+      let out = '';
+      for (let i = 1; i <= 5; i++) out += `<span class="${i <= Math.round(n) ? 'on' : ''}">★</span>`;
+      return `<span class="rv-stars">${out}</span>`;
+    }
+    function timeAgo(ts) {
+      if (!ts) return '';
+      const d = new Date(String(ts).replace(' ', 'T') + 'Z');   // the server stores UTC
+      const sec = Math.max(0, (Date.now() - d.getTime()) / 1000);
+      const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'} ago`;
+      if (sec < 60) return 'Just now';
+      if (sec < 3600) return plural(Math.floor(sec / 60), 'min');
+      if (sec < 86400) return plural(Math.floor(sec / 3600), 'hour');
+      if (sec < 604800) return plural(Math.floor(sec / 86400), 'day');
+      if (sec < 2592000) return plural(Math.floor(sec / 604800), 'week');
+      if (sec < 31536000) return plural(Math.floor(sec / 2592000), 'month');
+      return plural(Math.floor(sec / 31536000), 'year');
+    }
+
+    function updateDetailRating(p) {
+      document.getElementById('detPropRating').textContent = Number(p.reviewCount) > 0 ? `${Number(p.rating).toFixed(1)} (${p.reviewCount})` : 'New';
+    }
+
+    function initReviewsSection(p) {
+      updateDetailRating(p);
+      rvState = { propId: p.id, reviews: [], summary: null, filter: 0, sort: 'newest', shown: 5, myRating: 0 };
+      document.getElementById('rvSort').value = 'newest';
+      document.getElementById('rvTabCount').textContent = '';
+      document.getElementById('rvCount').textContent = '0';
+      switchRvTab('reviews');
+      renderRecommendations(p);
+      loadReviews(p);
+    }
+
+    function switchRvTab(tab) {
+      document.getElementById('rvPaneReviews').style.display = tab === 'reviews' ? 'block' : 'none';
+      document.getElementById('rvPaneRecs').style.display = tab === 'recs' ? 'block' : 'none';
+      document.getElementById('rvTabReviews').classList.toggle('active', tab === 'reviews');
+      document.getElementById('rvTabRecs').classList.toggle('active', tab === 'recs');
+    }
+
+    async function loadReviews(p) {
+      const list = document.getElementById('rvList');
+      list.innerHTML = '<div class="rv-loading">Loading reviews…</div>';
+      document.getElementById('rvSummary').innerHTML = '';
+      document.getElementById('rvForm').innerHTML = '';
+      const u = dfSessionUser();
+      try {
+        const res = await fetch(`/api/properties/${p.id}/reviews?viewer_email=${encodeURIComponent(u && u.email ? u.email : '')}`);
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error('bad response');
+        if (rvState.propId !== p.id) return;            // another dorm was opened meanwhile
+        rvState.reviews = data.reviews;
+        rvState.summary = data.summary;
+      } catch (err) {
+        list.innerHTML = '<div class="rv-loading">Could not load reviews right now.</div>';
+        return;
+      }
+      renderRvSummary();
+      renderRvForm();
+      renderRvList();
+    }
+
+    function renderRvSummary() {
+      const s = rvState.summary;
+      const el = document.getElementById('rvSummary');
+      document.getElementById('rvTabCount').textContent = s.count ? `(${s.count})` : '';
+      document.getElementById('rvCount').textContent = s.count;
+
+      if (!s.count) {
+        el.innerHTML = `<div class="rv-summary empty"><div class="rv-score"><div class="n">–</div><div class="sub">No ratings yet</div></div><div>Be the first to rate this dorm and help other students decide.</div></div>`;
+        return;
+      }
+      let chips = `<button class="rv-chip ${rvState.filter === 0 ? 'active' : ''}" onclick="setRvFilter(0)">All</button>`;
+      for (let n = 5; n >= 1; n--) {
+        const c = s.distribution[String(n)] || 0;
+        chips += `<button class="rv-chip ${rvState.filter === n ? 'active' : ''} ${c === 0 ? 'zero' : ''}" onclick="setRvFilter(${n})">${n} ★ (${c})</button>`;
+      }
+      el.innerHTML = `
+        <div class="rv-summary">
+          <div class="rv-score">
+            <div class="n">${s.average.toFixed(1)}<span>/5</span></div>
+            ${starsHtml(s.average).replace('rv-stars', 'rv-stars big')}
+            <div class="sub">${s.count} review${s.count === 1 ? '' : 's'}</div>
+            <div class="rec"><i class="fa-regular fa-thumbs-up"></i> ${s.recommendPct}% recommend</div>
+          </div>
+          <div class="rv-chips">${chips}</div>
+        </div>`;
+    }
+
+    function setRvFilter(n) { rvState.filter = (rvState.filter === n ? 0 : n); rvState.shown = 5; renderRvSummary(); renderRvList(); }
+    function setRvSort(v) { rvState.sort = v; rvState.shown = 5; renderRvList(); }
+    function showMoreReviews() { rvState.shown += 5; renderRvList(); }
+
+    function renderRvList() {
+      const el = document.getElementById('rvList');
+      let list = rvState.reviews.slice();
+      if (rvState.filter) list = list.filter(r => r.rating === rvState.filter);
+      if (rvState.sort === 'highest') list.sort((a, b) => b.rating - a.rating || b.id - a.id);
+      else if (rvState.sort === 'lowest') list.sort((a, b) => a.rating - b.rating || b.id - a.id);
+
+      if (!list.length) {
+        el.innerHTML = `<div class="rv-none">${rvState.reviews.length ? 'No reviews with that rating.' : 'No reviews yet. Be the first to share your experience.'}</div>`;
+        return;
+      }
+      const visible = list.slice(0, rvState.shown);
+      el.innerHTML = visible.map(r => {
+        const name = r.name || 'Student';
+        const hash = [...name].reduce((h, ch) => h + ch.charCodeAt(0), 0);
+        const [bg, fg] = RV_COLORS[hash % RV_COLORS.length];
+        return `
+          <div class="rv-item">
+            <div class="rv-avatar" style="background:${bg}; color:${fg}">${escHtml(name.trim().charAt(0).toUpperCase())}</div>
+            <div class="rv-body">
+              <div class="rv-head">
+                <b>${escHtml(name)}${r.mine ? ' (you)' : ''}</b>
+                <span class="rv-time">${timeAgo(r.created_at)}</span>
+                ${r.booked ? '<span class="rv-tag"><i class="fa-solid fa-circle-check"></i> Booked here</span>' : ''}
+              </div>
+              ${starsHtml(r.rating)}
+              ${r.comment ? `<div class="rv-text">${escHtml(r.comment)}</div>` : ''}
+              <div class="rv-rec-tag ${r.recommend ? '' : 'no'}"><i class="fa-regular ${r.recommend ? 'fa-thumbs-up' : 'fa-thumbs-down'}"></i> ${r.recommend ? 'Recommends this dorm' : 'Does not recommend'}</div>
+              ${r.mine ? `<div class="rv-own"><button class="d" onclick="deleteMyReview()"><i class="fa-regular fa-trash-can"></i> Delete</button></div>` : ''}
+            </div>
+          </div>`;
+      }).join('') + (list.length > visible.length ? `<button class="rv-more" onclick="showMoreReviews()">Show more reviews (${list.length - visible.length})</button>` : '');
+    }
+
+    function renderRvForm() {
+      const box = document.getElementById('rvForm');
+      const p = activeProperty;
+      const u = dfSessionUser();
+      if (!p) { box.innerHTML = ''; return; }
+
+      const signedIn = !!(u && u.email);
+      if (signedIn && u.role === 'admin') { box.innerHTML = ''; return; }
+      if (signedIn && p.owner_email && p.owner_email.toLowerCase() === u.email.toLowerCase()) {
+        box.innerHTML = `<div class="rv-note"><i class="fa-regular fa-circle-user"></i><span>You cannot review your own property.</span></div>`;
+        return;
+      }
+      // Already reviewed -> no form. They can delete their review from the list, then post a new one.
+      if (signedIn && rvState.reviews.some(r => r.mine)) { box.innerHTML = ''; rvState.myRating = 0; return; }
+
+      // The form is visible to everyone; guests are asked to sign in / sign up as soon as they try to use it.
+      rvState.myRating = 0;
+      box.innerHTML = `
+        <div class="rv-form-card">
+          <div class="rv-form-title">Rate this dorm</div>
+          <div class="rv-star-row">
+            <div class="rv-star-input" id="rvStarInput" onmouseleave="paintRvStars(rvState.myRating)">
+              ${[1, 2, 3, 4, 5].map(v => `<button type="button" data-v="${v}" onmouseenter="paintRvStars(${v})" onclick="setRvRating(${v})" aria-label="${v} star${v === 1 ? '' : 's'}">★</button>`).join('')}
+            </div>
+            <span id="rvStarLabel"></span>
+          </div>
+          <textarea id="rvComment" maxlength="1000" onfocus="if (!requireSignIn()) this.blur()" placeholder="Share your experience: owner, cleanliness, noise, location, value for money…"></textarea>
+          <div class="rv-form-bottom">
+            <label class="rv-rec-check"><input type="checkbox" id="rvRecommend" checked onclick="if (!requireSignIn()) return false"> I recommend this dorm</label>
+            <div class="rv-form-actions">
+              <button type="button" class="rv-submit" id="rvSubmitBtn" onclick="submitReview()">Post review</button>
+            </div>
+          </div>
+        </div>`;
+      paintRvStars(0);
+    }
+
+    function paintRvStars(n) {
+      document.querySelectorAll('#rvStarInput button').forEach(b => b.classList.toggle('on', Number(b.dataset.v) <= n));
+      const lbl = document.getElementById('rvStarLabel');
+      if (lbl) lbl.textContent = n ? RV_LABELS[n] : 'Tap a star to rate';
+    }
+    function setRvRating(v) {
+      if (!requireSignIn()) return;
+      rvState.myRating = v;
+      paintRvStars(v);
+    }
+
+    function applySummaryToProperty(p, s) {
+      p.rating = s.average; p.reviewCount = s.count; p.recommendPct = s.recommendPct;
+      updateDetailRating(p);
+      applyFilters();                                  // refresh the rating shown on the dorm cards
+      renderRecommendations(p);
+    }
+
+    async function submitReview() {
+      if (!requireSignIn()) return;
+      const u = dfSessionUser();
+      const p = activeProperty;
+      if (!p) return;
+      if (!rvState.myRating) { dfToast('Please choose a star rating first.'); return; }
+
+      const btn = document.getElementById('rvSubmitBtn');
+      btn.disabled = true;
+      try {
+        const res = await fetch(`/api/properties/${p.id}/reviews`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_email: u.email,
+            rating: rvState.myRating,
+            comment: document.getElementById('rvComment').value,
+            recommend: document.getElementById('rvRecommend').checked
+          })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          applySummaryToProperty(p, data.summary);
+          await loadReviews(p);
+          dfToast(data.message);
+        } else {
+          dfToast(data.message || 'Could not save your review.');
+          btn.disabled = false;
+        }
+      } catch (err) {
+        dfToast('Could not connect to the server.');
+        btn.disabled = false;
+      }
+    }
+
+    async function deleteMyReview() {
+      const u = dfSessionUser();
+      const p = activeProperty;
+      const mine = rvState.reviews.find(r => r.mine);
+      if (!u || !p || !mine) return;
+      if (!confirm('Delete your review?')) return;
+      try {
+        const res = await fetch(`/api/reviews/${mine.id}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_email: u.email })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          applySummaryToProperty(p, data.summary);
+          await loadReviews(p);
+          dfToast('Your review was deleted.');
+        } else {
+          dfToast(data.message || 'Could not delete the review.');
+        }
+      } catch (err) {
+        dfToast('Could not connect to the server.');
+      }
+    }
+
+    // ── Recommendations: similar dorms, ranked by type, price, rating, availability and area ──
+    function renderRecommendations(base) {
+      const pane = document.getElementById('rvPaneRecs');
+      const peso = n => '₱' + Number(n).toLocaleString('en-PH');
+      const rentOf = p => parseFloat(String(p.rawRent || p.rent || '0').replace(/[^0-9.]/g, '')) || 0;
+      const baseRent = rentOf(base);
+      const baseType = (base.type || '').toLowerCase();
+      const baseArea = (base.barangay || '').toLowerCase();
+
+      const ranked = allProperties
+        .filter(o => Number(o.id) !== Number(base.id))
+        .map(o => {
+          let score = 0;
+          const why = [];
+          const rent = rentOf(o);
+          if (baseType && (o.type || '').toLowerCase() === baseType) { score += 2; why.push('Same type'); }
+          if (baseRent > 0 && rent > 0) {
+            const diff = Math.abs(rent - baseRent) / baseRent;
+            if (diff <= 0.2) { score += 2; why.push('Similar price'); }
+            else if (diff <= 0.4) { score += 1; }
+            if (rent < baseRent * 0.9) { score += 1; why.push(`${peso(baseRent - rent)} cheaper`); }
+          }
+          if (Number(o.reviewCount) > 0) {
+            score += (Number(o.rating) / 5) * 3;
+            if (Number(o.rating) >= 4.5) why.push('Top rated');
+            if (Number(o.recommendPct) >= 80 && Number(o.reviewCount) >= 2) why.push(`${o.recommendPct}% recommend`);
+          }
+          const avail = parseInt(o.availRooms) || 0;
+          if (avail > 0) { score += 1; why.push(`${avail} room${avail === 1 ? '' : 's'} free`); } else { score -= 2; }
+          if (baseArea && (o.barangay || '').toLowerCase() === baseArea) { score += 1; why.push('Same area'); }
+          return { o, score, why: why.slice(0, 3) };
+        })
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 4);
+
+      if (!ranked.length) {
+        pane.innerHTML = '<div class="rv-none">There are no other dorms to recommend yet.</div>';
+        return;
+      }
+      pane.innerHTML = `
+        <div class="rec-intro">Dorms you may also like, based on <b>${escHtml(base.name)}</b>.</div>
+        <div class="rec-grid">
+          ${ranked.map(({ o, why }) => `
+            <div class="rec-card" onclick="openDetailView(${Number(o.id)})">
+              <div class="rec-img" style="background-image: url('${escHtml(o.image || 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=600&q=80')}')"></div>
+              <div class="rec-body">
+                <div class="rec-top">
+                  <div class="rec-name">${escHtml(o.name)}</div>
+                  <div class="rec-rate"><i class="fa-solid fa-star"></i> ${ratingLabel(o)}${Number(o.reviewCount) > 0 ? ` (${o.reviewCount})` : ''}</div>
+                </div>
+                <div class="rec-loc">${escHtml(o.address || '')}</div>
+                <div class="rec-reasons">${why.map(w => `<span>${escHtml(w)}</span>`).join('')}</div>
+                <div class="rec-price">${escHtml(o.rent)} <small>/month</small></div>
+              </div>
+            </div>`).join('')}
+        </div>`;
     }
 
     function closeAuthModal() {

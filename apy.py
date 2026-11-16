@@ -118,6 +118,22 @@ def init_db():
         )
     ''')
     
+    # Reviews table (star rating + comment + recommend, one review per user per property)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS reviews (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            property_id INTEGER NOT NULL,
+            user_email TEXT NOT NULL,
+            user_name TEXT NOT NULL,
+            rating INTEGER NOT NULL,
+            comment TEXT,
+            recommend INTEGER DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(property_id, user_email)
+        )
+    ''')
+
     # Migration: add columns for the map pin and extra photos to older databases
     cursor.execute('PRAGMA table_info(properties)')
     existing_cols = [c[1] for c in cursor.fetchall()]
@@ -266,9 +282,14 @@ def get_properties():
         SELECT p.id, p.owner_email, u.fullname, p.name, p.type, p.address, p.barangay, 
                p.raw_rent, p.rent, p.total_rooms, p.avail_rooms, p.occupied, 
                p.description, p.rules, p.amenities, p.image, p.lat, p.lon, p.images,
-               p.status, p.review_note, p.created_at
+               p.status, p.review_note, p.created_at,
+               rv.avg_rating, rv.review_count, rv.rec_count
         FROM properties p
         LEFT JOIN users u ON p.owner_email = u.email
+        LEFT JOIN (
+            SELECT property_id, AVG(rating) AS avg_rating, COUNT(*) AS review_count, SUM(recommend) AS rec_count
+            FROM reviews GROUP BY property_id
+        ) rv ON rv.property_id = p.id
     '''
     
     if owner_email:
@@ -305,7 +326,10 @@ def get_properties():
             'images': json.loads(r[18]) if r[18] else ([r[15]] if r[15] else []),
             'status': r[19] or 'approved',
             'reviewNote': r[20] or '',
-            'createdAt': r[21]
+            'createdAt': r[21],
+            'rating': round(r[22], 1) if r[22] else 0,
+            'reviewCount': r[23] or 0,
+            'recommendPct': round(100 * (r[24] or 0) / r[23]) if r[23] else 0
         })
     return jsonify({'success': True, 'properties': props})
 
@@ -370,9 +394,179 @@ def delete_property(prop_id):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute('DELETE FROM properties WHERE id = ?', (prop_id,))
+    cursor.execute('DELETE FROM reviews WHERE property_id = ?', (prop_id,))
     conn.commit()
     conn.close()
     return jsonify({'success': True, 'message': 'Property deleted successfully!'})
+
+# ── REVIEWS & RATINGS ────────────────────────────────────────────────────
+def _review_summary(cursor, prop_ids):
+    """Average, count, star distribution and % who recommend for one or more properties."""
+    if not prop_ids:
+        return {'average': 0, 'count': 0, 'distribution': {str(i): 0 for i in range(1, 6)}, 'recommendPct': 0}
+    marks = ','.join('?' * len(prop_ids))
+    cursor.execute(f'SELECT rating, recommend FROM reviews WHERE property_id IN ({marks})', tuple(prop_ids))
+    rows = cursor.fetchall()
+    dist = {str(i): 0 for i in range(1, 6)}
+    for rating, _ in rows:
+        dist[str(rating)] += 1
+    count = len(rows)
+    return {
+        'average': round(sum(r[0] for r in rows) / count, 1) if count else 0,
+        'count': count,
+        'distribution': dist,
+        'recommendPct': round(100 * sum(1 for r in rows if r[1]) / count) if count else 0
+    }
+
+@app.route('/api/properties/<int:prop_id>/reviews', methods=['GET'])
+def get_property_reviews(prop_id):
+    """Anyone can read the reviews. viewer_email only marks which review is the viewer's own."""
+    viewer = request.args.get('viewer_email', '').strip().lower()
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT r.id, r.user_email, COALESCE(u.fullname, r.user_name), r.rating, r.comment, r.recommend,
+               r.created_at, r.updated_at,
+               EXISTS(SELECT 1 FROM bookings b WHERE b.property_id = r.property_id
+                      AND b.student_email = r.user_email AND b.status = 'approved')
+        FROM reviews r
+        LEFT JOIN users u ON u.email = r.user_email
+        WHERE r.property_id = ?
+        ORDER BY r.id DESC
+    ''', (prop_id,))
+    rows = cursor.fetchall()
+    summary = _review_summary(cursor, [prop_id])
+    conn.close()
+
+    reviews = [{
+        'id': r[0],
+        'name': r[2],
+        'rating': r[3],
+        'comment': r[4] or '',
+        'recommend': bool(r[5]),
+        'created_at': r[6],
+        'updated_at': r[7],
+        'booked': bool(r[8]),
+        'mine': bool(viewer) and r[1].strip().lower() == viewer   # reviewer emails are never sent to the browser
+    } for r in rows]
+    return jsonify({'success': True, 'reviews': reviews, 'summary': summary})
+
+@app.route('/api/properties/<int:prop_id>/reviews', methods=['POST'])
+def save_property_review(prop_id):
+    """Create or update the signed-in user's review for a property (one review per user)."""
+    data = request.json or {}
+    email = (data.get('user_email') or '').strip().lower()
+    comment = (data.get('comment') or '').strip()[:1000]
+    recommend = 1 if data.get('recommend', True) else 0
+    try:
+        rating = int(data.get('rating'))
+    except (TypeError, ValueError):
+        rating = 0
+
+    if not email:
+        return jsonify({'success': False, 'message': 'Please sign in to leave a review.'}), 401
+    if rating < 1 or rating > 5:
+        return jsonify({'success': False, 'message': 'Please choose a rating from 1 to 5 stars.'}), 400
+
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT fullname, role FROM users WHERE email = ?', (email,))
+    user = cursor.fetchone()
+    if not user:
+        conn.close()
+        return jsonify({'success': False, 'message': 'Please sign in to leave a review.'}), 401
+    if user[1] == 'admin':
+        conn.close()
+        return jsonify({'success': False, 'message': 'Admin accounts cannot post reviews.'}), 403
+
+    cursor.execute("SELECT owner_email FROM properties WHERE id = ? AND status = 'approved'", (prop_id,))
+    prop = cursor.fetchone()
+    if not prop:
+        conn.close()
+        return jsonify({'success': False, 'message': 'Property not found.'}), 404
+    if (prop[0] or '').strip().lower() == email:
+        conn.close()
+        return jsonify({'success': False, 'message': 'You cannot review your own property.'}), 403
+
+    cursor.execute('SELECT id FROM reviews WHERE property_id = ? AND user_email = ?', (prop_id, email))
+    existing = cursor.fetchone()
+    if existing:
+        cursor.execute('''
+            UPDATE reviews SET rating = ?, comment = ?, recommend = ?, user_name = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        ''', (rating, comment, recommend, user[0], existing[0]))
+        message = 'Your review was updated.'
+    else:
+        cursor.execute('''
+            INSERT INTO reviews (property_id, user_email, user_name, rating, comment, recommend)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (prop_id, email, user[0], rating, comment, recommend))
+        message = 'Thanks! Your review was posted.'
+
+    conn.commit()
+    summary = _review_summary(cursor, [prop_id])
+    conn.close()
+    return jsonify({'success': True, 'message': message, 'summary': summary})
+
+@app.route('/api/reviews/<int:review_id>', methods=['DELETE'])
+def delete_review(review_id):
+    """A user can delete their own review (an admin can delete any)."""
+    data = request.get_json(silent=True) or {}
+    email = (data.get('user_email') or '').strip().lower()
+
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute('SELECT user_email, property_id FROM reviews WHERE id = ?', (review_id,))
+    row = cursor.fetchone()
+    if not row:
+        conn.close()
+        return jsonify({'success': False, 'message': 'Review not found.'}), 404
+
+    cursor.execute('SELECT role FROM users WHERE email = ?', (email,))
+    u = cursor.fetchone()
+    if not email or not u or (row[0].strip().lower() != email and u[0] != 'admin'):
+        conn.close()
+        return jsonify({'success': False, 'message': 'You can only delete your own review.'}), 403
+
+    cursor.execute('DELETE FROM reviews WHERE id = ?', (review_id,))
+    conn.commit()
+    summary = _review_summary(cursor, [row[1]])
+    conn.close()
+    return jsonify({'success': True, 'message': 'Review deleted.', 'summary': summary})
+
+@app.route('/api/reviews', methods=['GET'])
+def get_owner_reviews():
+    """All reviews written about the properties of one owner (for the owner dashboard)."""
+    owner_email = request.args.get('owner_email', '').strip().lower()
+    if not owner_email:
+        return jsonify({'success': False, 'message': 'owner_email required'}), 400
+
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute('SELECT id FROM properties WHERE owner_email = ?', (owner_email,))
+    prop_ids = [r[0] for r in cursor.fetchall()]
+
+    reviews = []
+    if prop_ids:
+        marks = ','.join('?' * len(prop_ids))
+        cursor.execute(f'''
+            SELECT r.id, r.property_id, p.name, COALESCE(u.fullname, r.user_name), r.rating, r.comment,
+                   r.recommend, r.created_at
+            FROM reviews r
+            JOIN properties p ON p.id = r.property_id
+            LEFT JOIN users u ON u.email = r.user_email
+            WHERE r.property_id IN ({marks})
+            ORDER BY r.id DESC
+        ''', tuple(prop_ids))
+        reviews = [{
+            'id': r[0], 'property_id': r[1], 'property_name': r[2], 'name': r[3],
+            'rating': r[4], 'comment': r[5] or '', 'recommend': bool(r[6]), 'created_at': r[7]
+        } for r in cursor.fetchall()]
+
+    summary = _review_summary(cursor, prop_ids)
+    conn.close()
+    return jsonify({'success': True, 'reviews': reviews, 'summary': summary})
 
 # ── ADMIN APIs (need the token returned when the admin signs in) ──────────
 @app.route('/api/admin/properties', methods=['GET'])
@@ -496,14 +690,25 @@ def get_bookings():
     cursor = conn.cursor()
 
     if student_email:
+        # JOIN owner + property so the student can open the booking and see who the owner is
         cursor.execute('''
-            SELECT id, property_name, room_name, student_name, move_in_date, message, rent, status, created_at 
-            FROM bookings WHERE student_email = ? ORDER BY id DESC
+            SELECT b.id, b.property_name, b.room_name, b.student_name, b.move_in_date, b.message,
+                   b.rent, b.status, b.created_at,
+                   b.property_id, b.owner_email, uo.fullname, uo.phone, p.address, p.image
+            FROM bookings b
+            LEFT JOIN users uo ON uo.email = b.owner_email
+            LEFT JOIN properties p ON p.id = b.property_id
+            WHERE b.student_email = ? ORDER BY b.id DESC
         ''', (student_email,))
     elif owner_email:
+        # LEFT JOIN users so the owner can open the student's profile (phone / address / bio)
         cursor.execute('''
-            SELECT id, property_name, room_name, student_name, student_email, move_in_date, message, rent, status, created_at 
-            FROM bookings WHERE owner_email = ? ORDER BY id DESC
+            SELECT b.id, b.property_name, b.room_name, b.student_name, b.student_email, b.move_in_date,
+                   b.message, b.rent, b.status, b.created_at, b.property_id,
+                   u.phone, u.address, u.bio
+            FROM bookings b
+            LEFT JOIN users u ON u.email = b.student_email
+            WHERE b.owner_email = ? ORDER BY b.id DESC
         ''', (owner_email,))
     else:
         conn.close()
@@ -524,7 +729,13 @@ def get_bookings():
                 'message': r[5],
                 'rent': r[6],
                 'status': r[7],
-                'created_at': r[8]
+                'created_at': r[8],
+                'property_id': r[9],
+                'owner_email': r[10],
+                'owner_name': r[11] or 'Property Owner',
+                'owner_phone': r[12] or '',
+                'property_address': r[13] or '',
+                'property_image': r[14] or ''
             })
         else:
             bookings.append({
@@ -537,7 +748,11 @@ def get_bookings():
                 'message': r[6],
                 'rent': r[7],
                 'status': r[8],
-                'created_at': r[9]
+                'created_at': r[9],
+                'property_id': r[10],
+                'student_phone': r[11] or '',
+                'student_address': r[12] or '',
+                'student_bio': r[13] or ''
             })
 
     return jsonify({'success': True, 'bookings': bookings})
@@ -557,6 +772,38 @@ def update_booking_status(booking_id):
     conn.close()
 
     return jsonify({'success': True, 'message': f'Booking request {new_status}!'})
+
+@app.route('/api/bookings/<int:booking_id>/cancel', methods=['POST'])
+def cancel_booking(booking_id):
+    """A student cancels their own booking. Only allowed while it is still pending (not yet approved)."""
+    data = request.json or {}
+    student_email = (data.get('student_email') or '').strip().lower()
+    if not student_email:
+        return jsonify({'success': False, 'message': 'Student email required.'}), 400
+
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute('SELECT student_email, status FROM bookings WHERE id = ?', (booking_id,))
+    row = cursor.fetchone()
+
+    if not row:
+        conn.close()
+        return jsonify({'success': False, 'message': 'Booking not found.'}), 404
+    if row[0].strip().lower() != student_email:
+        conn.close()
+        return jsonify({'success': False, 'message': 'You can only cancel your own bookings.'}), 403
+    if row[1] != 'pending':
+        conn.close()
+        if row[1] == 'approved':
+            msg = 'This booking was already approved by the owner and can no longer be cancelled.'
+        else:
+            msg = f'This booking is already {row[1]} and cannot be cancelled.'
+        return jsonify({'success': False, 'message': msg}), 400
+
+    cursor.execute("UPDATE bookings SET status = 'cancelled' WHERE id = ?", (booking_id,))
+    conn.commit()
+    conn.close()
+    return jsonify({'success': True, 'message': 'Booking cancelled.'})
 
 # ── MESSAGING APIs ────────────────────────────────────────
 @app.route('/api/messages', methods=['POST'])

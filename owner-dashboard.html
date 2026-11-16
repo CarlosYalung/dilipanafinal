@@ -812,6 +812,95 @@
     }
     .modal-close-btn:hover { background: #e2e8f0; color: #0f172a; }
 
+    /* ── STUDENT / BOOKER LINKS + PROFILE MODAL ───────────── */
+    .orv-summary { display: flex; gap: 2rem; align-items: center; flex-wrap: wrap; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.4rem 1.6rem; margin-bottom: 1.25rem; }
+    .orv-score { text-align: center; min-width: 130px; }
+    .orv-score .n { font-size: 2.6rem; font-weight: 800; color: #0f172a; line-height: 1; }
+    .orv-score .n span { font-size: 1rem; font-weight: 600; color: #94a3b8; }
+    .orv-score .sub { font-size: 0.8rem; color: #64748b; margin-top: 6px; font-weight: 600; }
+    .orv-bars { flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 6px; }
+    .orv-bar { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; color: #475569; font-weight: 700; }
+    .orv-bar .track { flex: 1; height: 8px; background: #f1f5f9; border-radius: 6px; overflow: hidden; }
+    .orv-bar .fill { height: 100%; background: #f59e0b; border-radius: 6px; }
+    .orv-bar .c { width: 26px; text-align: right; color: #94a3b8; }
+    .orv-stars span { color: #e2e8f0; }
+    .orv-stars span.on { color: #f59e0b; }
+    .orv-item { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.1rem 1.25rem; margin-bottom: 0.85rem; display: flex; gap: 0.9rem; }
+    .orv-avatar { width: 40px; height: 40px; border-radius: 50%; background: #314c75; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; flex-shrink: 0; }
+    .orv-body { flex: 1; min-width: 0; }
+    .orv-head { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; margin-bottom: 3px; }
+    .orv-head b { color: #0f172a; font-size: 0.92rem; }
+    .orv-head .t { font-size: 0.76rem; color: #94a3b8; font-weight: 600; }
+    .orv-prop { display: inline-block; background: #eff6ff; color: #2563eb; font-size: 0.72rem; font-weight: 800; padding: 3px 9px; border-radius: 6px; margin-top: 2px; }
+    .orv-text { font-size: 0.88rem; color: #334155; line-height: 1.55; margin-top: 6px; white-space: pre-line; word-break: break-word; }
+    .orv-rec { font-size: 0.76rem; font-weight: 700; margin-top: 7px; color: #2563eb; }
+    .orv-rec.no { color: #94a3b8; }
+
+    .student-link {
+      background: none; border: none; padding: 0; cursor: pointer;
+      font: inherit; font-weight: 800; color: #2563eb;
+      text-decoration: none; text-align: left;
+      border-bottom: 1.5px dashed rgba(37, 99, 235, 0.45);
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .student-link:hover { color: #1d4ed8; border-bottom-style: solid; border-color: #1d4ed8; }
+    .booking-card { cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s; }
+    .booking-card:hover { border-color: #2563eb !important; box-shadow: 0 6px 18px rgba(37, 99, 235, 0.12); transform: translateY(-1px); }
+    .avatar-circle {
+      width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+      background: #314c75; color: #ffffff;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 0.9rem;
+    }
+    .avatar-circle.lg { width: 64px; height: 64px; font-size: 1.3rem; }
+    .status-pill {
+      display: inline-block; font-weight: 800; font-size: 0.75rem;
+      padding: 5px 12px; border-radius: 20px; text-transform: capitalize;
+    }
+    .status-pill.pending { background: #fef3c7; color: #b45309; }
+    .status-pill.approved { background: #d1fae5; color: #059669; }
+    .status-pill.rejected { background: #fee2e2; color: #dc2626; }
+    .profile-top { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; }
+    .profile-top h4 { font-size: 1.2rem; font-weight: 800; color: #0f172a; margin-bottom: 2px; }
+    .profile-top p { font-size: 0.85rem; color: #64748b; }
+    .profile-info-row {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 0.7rem 0; border-bottom: 1px solid #f1f5f9;
+      font-size: 0.88rem; color: #1e293b; word-break: break-word;
+    }
+    .profile-info-row i { width: 18px; color: #2563eb; margin-top: 3px; text-align: center; }
+    .profile-info-row .muted { color: #94a3b8; }
+    .profile-info-row a { color: #2563eb; text-decoration: none; font-weight: 600; }
+    .booking-info-box {
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px;
+      padding: 1rem 1.1rem; margin-top: 1.25rem;
+    }
+    .booking-info-box .bi-title {
+      font-size: 0.75rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+      color: #64748b; margin-bottom: 0.6rem;
+    }
+    .booking-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem 1rem; }
+    .booking-info-grid .k { font-size: 0.72rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+    .booking-info-grid .v { font-size: 0.9rem; font-weight: 700; color: #0f172a; word-break: break-word; }
+    .booking-msg-quote {
+      margin-top: 0.9rem; padding: 0.75rem 0.9rem; background: #ffffff;
+      border-left: 3px solid #2563eb; border-radius: 6px;
+      font-size: 0.85rem; color: #475569; font-style: italic; word-break: break-word;
+    }
+    .booker-row {
+      display: flex; align-items: center; gap: 0.85rem;
+      background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px;
+      padding: 0.8rem 1rem; margin-bottom: 0.6rem;
+    }
+    .booker-row .avatar-circle { width: 38px; height: 38px; font-size: 0.8rem; }
+    .booker-row .b-main { flex: 1; min-width: 0; }
+    .booker-row .b-sub { font-size: 0.78rem; color: #64748b; margin-top: 2px; }
+    .profile-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 1.5rem; }
+    .profile-actions button {
+      border: none; border-radius: 10px; padding: 0.7rem 1.2rem;
+      font-weight: 700; font-size: 0.88rem; cursor: pointer; font-family: inherit;
+    }
+
     .form-grid-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1246,10 +1335,12 @@
         </div>
         <p style="color: #64748b; margin-bottom: 1.75rem;">See what students are saying about your properties.</p>
 
-        <div class="empty-state-card">
-          <div class="empty-icon-circle"><i class="fa-regular fa-star"></i></div>
-          <h3 style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin-bottom: 6px;">0.0 Average Rating</h3>
-          <p style="font-size: 0.875rem; color: #64748b;">Total of 0 reviews across your active listings.</p>
+        <div id="ownerReviewsContainer">
+          <div class="empty-state-card">
+            <div class="empty-icon-circle"><i class="fa-regular fa-star"></i></div>
+            <h3 style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin-bottom: 6px;">0.0 Average Rating</h3>
+            <p style="font-size: 0.875rem; color: #64748b;">Total of 0 reviews across your active listings.</p>
+          </div>
         </div>
       </div>
 
@@ -1321,7 +1412,7 @@
                 <span class="badge-type" id="detailPropType">Apartment</span>
                 <span><i class="fa-solid fa-location-dot"></i> <span id="detailPropLocation">Minglanilla, Cebu</span></span>
                 <span><i class="fa-regular fa-user"></i> <span id="detailPropSlots">1 slot left</span></span>
-                <span style="color: #d97706; font-weight: 700;"><i class="fa-solid fa-star"></i> 4.0</span>
+                <span style="color: #d97706; font-weight: 700;"><i class="fa-solid fa-star"></i> <span id="detailPropRating">New</span></span>
               </div>
             </div>
 
@@ -1354,6 +1445,11 @@
             </div>
 
             <div>
+              <div class="detail-section-title"><i class="fa-regular fa-calendar-check"></i> Booked By <span id="detailBookersCount" style="font-size: 0.8rem; font-weight: 600; color: #64748b; margin-left: 6px;"></span></div>
+              <div id="detailBookersContainer"></div>
+            </div>
+
+            <div>
               <div class="detail-section-title">Property Owner</div>
               <div class="owner-contact-card">
                 <div class="owner-info-flex">
@@ -1383,6 +1479,17 @@
   </div>
 
   <!-- ── ADD / EDIT PROPERTY MODAL ────────────────────────── -->
+  <!-- STUDENT PROFILE (opens when the owner clicks a booker's name) -->
+  <div class="modal-backdrop" id="studentProfileModal" onclick="if(event.target===this) closeStudentProfile()">
+    <div class="modal-card" style="max-width: 520px;">
+      <div class="modal-header-row">
+        <h3>Student Profile</h3>
+        <button class="modal-close-btn" onclick="closeStudentProfile()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="studentProfileBody"></div>
+    </div>
+  </div>
+
   <div class="modal-backdrop" id="addPropertyModal">
     <div class="modal-card">
       <div class="modal-header-row">
@@ -1511,6 +1618,18 @@
       setTimeout(() => m.map.invalidateSize(), 80);
     }
     let customProperties = [];
+    let ownerBookings = [];
+    let currentDetailPropId = null;
+    let openProfileBookingId = null;
+
+    const escHtml = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+    const initialsOf = name => (String(name || '?').trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2)) || '?';
+    const statusPill = st => `<span class="status-pill ${escHtml(st)}">${escHtml(st)}</span>`;
+    const fmtDate = d => {
+      if (!d) return '—';
+      const dt = new Date(String(d).replace(' ', 'T'));
+      return isNaN(dt) ? escHtml(d) : dt.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    };
     let uploadedImagesList = [];
     let allUserMessages = [];
     let activeChatPartnerEmail = null;
@@ -1652,6 +1771,69 @@
       document.getElementById('stat-total-props').textContent = count;
     }
 
+    function ownerTimeAgo(ts) {
+      if (!ts) return '';
+      const sec = Math.max(0, (Date.now() - new Date(String(ts).replace(' ', 'T') + 'Z').getTime()) / 1000);
+      const pl = (n, w) => `${n} ${w}${n === 1 ? '' : 's'} ago`;
+      if (sec < 60) return 'Just now';
+      if (sec < 3600) return pl(Math.floor(sec / 60), 'min');
+      if (sec < 86400) return pl(Math.floor(sec / 3600), 'hour');
+      if (sec < 604800) return pl(Math.floor(sec / 86400), 'day');
+      if (sec < 2592000) return pl(Math.floor(sec / 604800), 'week');
+      if (sec < 31536000) return pl(Math.floor(sec / 2592000), 'month');
+      return pl(Math.floor(sec / 31536000), 'year');
+    }
+    const ownerStars = n => `<span class="orv-stars">${[1,2,3,4,5].map(i => `<span class="${i <= Math.round(n) ? 'on' : ''}">★</span>`).join('')}</span>`;
+
+    async function fetchOwnerReviews() {
+      const sessionUser = JSON.parse(localStorage.getItem('df_user') || '{}');
+      if (!sessionUser.email) return;
+      const box = document.getElementById('ownerReviewsContainer');
+      try {
+        const response = await fetch(`/api/reviews?owner_email=${encodeURIComponent(sessionUser.email)}`);
+        const data = await response.json();
+        if (!response.ok || !data.success) return;
+
+        const s = data.summary;
+        if (!s.count) {
+          box.innerHTML = `
+            <div class="empty-state-card">
+              <div class="empty-icon-circle"><i class="fa-regular fa-star"></i></div>
+              <h3 style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin-bottom: 6px;">0.0 Average Rating</h3>
+              <p style="font-size: 0.875rem; color: #64748b;">No reviews yet across your listings. Students can rate and review a property from its page.</p>
+            </div>`;
+          return;
+        }
+        const bars = [5, 4, 3, 2, 1].map(n => {
+          const c = s.distribution[String(n)] || 0;
+          return `<div class="orv-bar"><span>${n} ★</span><div class="track"><div class="fill" style="width:${Math.round(100 * c / s.count)}%"></div></div><span class="c">${c}</span></div>`;
+        }).join('');
+
+        box.innerHTML = `
+          <div class="orv-summary">
+            <div class="orv-score">
+              <div class="n">${s.average.toFixed(1)}<span>/5</span></div>
+              <div style="margin-top:6px; font-size:1.2rem;">${ownerStars(s.average)}</div>
+              <div class="sub">${s.count} review${s.count === 1 ? '' : 's'} · ${s.recommendPct}% recommend</div>
+            </div>
+            <div class="orv-bars">${bars}</div>
+          </div>
+          ${data.reviews.map(r => `
+            <div class="orv-item">
+              <div class="orv-avatar">${escHtml(initialsOf(r.name))}</div>
+              <div class="orv-body">
+                <div class="orv-head"><b>${escHtml(r.name)}</b><span class="t">${ownerTimeAgo(r.created_at)}</span></div>
+                ${ownerStars(r.rating)}
+                <div><span class="orv-prop">${escHtml(r.property_name)}</span></div>
+                ${r.comment ? `<div class="orv-text">${escHtml(r.comment)}</div>` : ''}
+                <div class="orv-rec ${r.recommend ? '' : 'no'}"><i class="fa-regular ${r.recommend ? 'fa-thumbs-up' : 'fa-thumbs-down'}"></i> ${r.recommend ? 'Recommends this property' : 'Does not recommend'}</div>
+              </div>
+            </div>`).join('')}`;
+      } catch (err) {
+        console.error('Failed to fetch reviews:', err);
+      }
+    }
+
     async function fetchOwnerBookings() {
       const sessionUser = JSON.parse(localStorage.getItem('df_user') || '{}');
       if (!sessionUser.email) return;
@@ -1669,6 +1851,8 @@
     }
 
     function renderOwnerBookings(bookings) {
+      ownerBookings = bookings;
+      renderPropertyBookers();
       const container = document.getElementById('ownerBookingsContainer');
       const pendingCount = bookings.filter(b => b.status === 'pending').length;
       const approvedCount = bookings.filter(b => b.status === 'approved').length;
@@ -1694,25 +1878,25 @@
         let actionButtons = '';
         if (b.status === 'pending') {
           actionButtons = `
-            <button onclick="respondBooking(${b.id}, 'approved')" style="background: #059669; color: #ffffff; border: none; padding: 0.55rem 1.1rem; border-radius: 8px; font-weight: 700; cursor: pointer; margin-right: 6px;">Approve</button>
-            <button onclick="respondBooking(${b.id}, 'rejected')" style="background: #dc2626; color: #ffffff; border: none; padding: 0.55rem 1.1rem; border-radius: 8px; font-weight: 700; cursor: pointer;">Reject</button>
+            <button onclick="event.stopPropagation(); respondBooking(${b.id}, 'approved')" style="background: #059669; color: #ffffff; border: none; padding: 0.55rem 1.1rem; border-radius: 8px; font-weight: 700; cursor: pointer; margin-right: 6px;">Approve</button>
+            <button onclick="event.stopPropagation(); respondBooking(${b.id}, 'rejected')" style="background: #dc2626; color: #ffffff; border: none; padding: 0.55rem 1.1rem; border-radius: 8px; font-weight: 700; cursor: pointer;">Reject</button>
           `;
         } else {
-          let statusColor = b.status === 'approved' ? '#059669' : '#dc2626';
-          let statusBg = b.status === 'approved' ? '#d1fae5' : '#fee2e2';
-          actionButtons = `
-            <span style="background: ${statusBg}; color: ${statusColor}; font-weight: 800; font-size: 0.8rem; padding: 6px 14px; border-radius: 20px; text-transform: capitalize;">
-              ${b.status}
-            </span>
-          `;
+          actionButtons = statusPill(b.status);
         }
 
         html += `
-          <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.25rem; display: flex; align-items: center; justify-content: space-between;">
-            <div>
-              <div style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 4px;">${b.student_name} (${b.student_email})</div>
-              <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 6px;">Property: <strong>${b.property_name}</strong> | Room: <strong>${b.room_name}</strong> | Move-in: ${b.move_in_date}</div>
-              ${b.message ? `<div style="font-size: 0.82rem; color: #475569; font-style: italic;">"${b.message}"</div>` : ''}
+          <div class="booking-card" onclick="openStudentProfile(${b.id})" title="Click to view student profile" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 1rem; min-width: 0; flex: 1;">
+              <div class="avatar-circle">${escHtml(initialsOf(b.student_name))}</div>
+              <div style="min-width: 0;">
+                <div style="font-size: 1.05rem; margin-bottom: 4px;">
+                  <button class="student-link" onclick="event.stopPropagation(); openStudentProfile(${b.id})" title="View student profile">${escHtml(b.student_name)} (${escHtml(b.student_email)})</button>
+                </div>
+                <div style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 6px;">Booked ${fmtDate(b.created_at)}</div>
+                <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 6px;">Property: <strong>${escHtml(b.property_name)}</strong> | Room: <strong>${escHtml(b.room_name)}</strong> | Move-in: ${escHtml(b.move_in_date)}</div>
+                ${b.message ? `<div style="font-size: 0.82rem; color: #475569; font-style: italic;">"${escHtml(b.message)}"</div>` : ''}
+              </div>
             </div>
             <div>${actionButtons}</div>
           </div>
@@ -1722,6 +1906,96 @@
       html += `</div>`;
       container.innerHTML = html;
     }
+
+    // ── Who booked this property (shown on the property detail page) ──
+    function renderPropertyBookers() {
+      const box = document.getElementById('detailBookersContainer');
+      const countEl = document.getElementById('detailBookersCount');
+      if (!box || currentDetailPropId == null) return;
+
+      const list = ownerBookings.filter(b => String(b.property_id) === String(currentDetailPropId));
+      countEl.textContent = list.length ? `(${list.length})` : '';
+
+      if (list.length === 0) {
+        box.innerHTML = `<div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 1.1rem; color: #64748b; font-size: 0.88rem; text-align: center;">No one has booked this property yet.</div>`;
+        return;
+      }
+      box.innerHTML = list.map(b => `
+        <div class="booker-row">
+          <div class="avatar-circle">${escHtml(initialsOf(b.student_name))}</div>
+          <div class="b-main">
+            <button class="student-link" onclick="openStudentProfile(${b.id})">${escHtml(b.student_name)}</button>
+            <div class="b-sub">${escHtml(b.room_name)} · Move-in ${escHtml(b.move_in_date)}</div>
+          </div>
+          ${statusPill(b.status)}
+        </div>
+      `).join('');
+    }
+
+    // ── Student profile modal ──
+    function openStudentProfile(bookingId) {
+      const b = ownerBookings.find(x => x.id === bookingId);
+      if (!b) return;
+      openProfileBookingId = bookingId;
+
+      const row = (icon, val, extra) => `
+        <div class="profile-info-row"><i class="${icon}"></i>
+          <span>${val ? (extra || escHtml(val)) : '<span class="muted">Not provided</span>'}</span>
+        </div>`;
+
+      const actions = b.status === 'pending' ? `
+          <button onclick="respondBooking(${b.id}, 'approved')" style="background: #059669; color: #ffffff;"><i class="fa-solid fa-check"></i> Approve</button>
+          <button onclick="respondBooking(${b.id}, 'rejected')" style="background: #dc2626; color: #ffffff;"><i class="fa-solid fa-xmark"></i> Reject</button>` : '';
+
+      document.getElementById('studentProfileBody').innerHTML = `
+        <div class="profile-top">
+          <div class="avatar-circle lg">${escHtml(initialsOf(b.student_name))}</div>
+          <div>
+            <h4>${escHtml(b.student_name)}</h4>
+            <p>Student</p>
+          </div>
+        </div>
+
+        ${row('fa-regular fa-envelope', b.student_email, `<a href="mailto:${escHtml(b.student_email)}">${escHtml(b.student_email)}</a>`)}
+        ${row('fa-solid fa-phone', b.student_phone, `<a href="tel:${escHtml(b.student_phone)}">${escHtml(b.student_phone)}</a>`)}
+        ${row('fa-solid fa-location-dot', b.student_address)}
+        ${row('fa-regular fa-address-card', b.student_bio)}
+
+        <div class="booking-info-box">
+          <div class="bi-title">Booking details</div>
+          <div class="booking-info-grid">
+            <div><div class="k">Property</div><div class="v">${escHtml(b.property_name)}</div></div>
+            <div><div class="k">Room</div><div class="v">${escHtml(b.room_name)}</div></div>
+            <div><div class="k">Monthly rent</div><div class="v">${escHtml(b.rent)}</div></div>
+            <div><div class="k">Move-in date</div><div class="v">${escHtml(b.move_in_date)}</div></div>
+            <div><div class="k">Requested on</div><div class="v">${fmtDate(b.created_at)}</div></div>
+            <div><div class="k">Status</div><div class="v">${statusPill(b.status)}</div></div>
+          </div>
+          ${b.message ? `<div class="booking-msg-quote">"${escHtml(b.message)}"</div>` : ''}
+        </div>
+
+        <div class="profile-actions">
+          ${actions}
+          <button onclick="messageStudent(${b.id})" style="background: #eff6ff; color: #2563eb;"><i class="fa-regular fa-message"></i> Message student</button>
+        </div>
+      `;
+      document.getElementById('studentProfileModal').classList.add('open');
+    }
+
+    function closeStudentProfile() {
+      document.getElementById('studentProfileModal').classList.remove('open');
+      openProfileBookingId = null;
+    }
+
+    function messageStudent(bookingId) {
+      const b = ownerBookings.find(x => x.id === bookingId);
+      if (!b) return;
+      closeStudentProfile();
+      switchTab('messages');
+      selectConversation(b.student_email, escHtml(b.student_name), b.property_id, escHtml(b.property_name));
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeStudentProfile(); });
 
     async function respondBooking(bookingId, status) {
       try {
@@ -1733,6 +2007,7 @@
         const data = await response.json();
 
         if (response.ok && data.success) {
+          closeStudentProfile();
           alert(`Booking request has been ${status}.`);
           fetchOwnerBookings();
         } else {
@@ -1866,11 +2141,14 @@
 
     function openPropertyDetail(index) {
       const p = customProperties[index];
+      currentDetailPropId = p.id;
+      renderPropertyBookers();
 
       document.getElementById('detailPropName').textContent = p.name;
       document.getElementById('detailPropType').textContent = p.type || 'Apartment';
       document.getElementById('detailPropLocation').textContent = p.address || 'Minglanilla, Cebu';
       document.getElementById('detailPropSlots').textContent = `${p.availRooms || 1} slot left`;
+      document.getElementById('detailPropRating').textContent = Number(p.reviewCount) > 0 ? `${Number(p.rating).toFixed(1)} (${p.reviewCount})` : 'New';
       document.getElementById('detailPropSlotsBadge').textContent = `${p.availRooms || 1} slot left`;
       document.getElementById('detailPropDesc').textContent = p.desc || 'No description provided.';
       document.getElementById('detailPropRules').textContent = p.rules || 'No specific rules.';
@@ -2145,6 +2423,8 @@
         fetchOwnerBookings();
       } else if (tabId === 'messages') {
         fetchUserMessages();
+      } else if (tabId === 'reviews') {
+        fetchOwnerReviews();
       }
     }
 
@@ -2199,6 +2479,7 @@
     fetchOwnerProperties();
     fetchOwnerBookings();
     fetchUserMessages();
+    setInterval(fetchOwnerBookings, 30000); // pick up new bookings without a page reload
   </script>
 </body>
 </html>
