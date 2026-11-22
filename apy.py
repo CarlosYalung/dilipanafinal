@@ -141,6 +141,11 @@ def init_db():
         if col not in existing_cols:
             cursor.execute(f'ALTER TABLE properties ADD COLUMN {col} {ddl}')
 
+    # Migration: per-amenity monthly prices, stored as JSON like {"Laundry": 150}. Amenities that are
+    # not listed in it are free.
+    if 'amenity_prices' not in existing_cols:
+        cursor.execute('ALTER TABLE properties ADD COLUMN amenity_prices TEXT')
+
     # Migration: admin approval. Listings that already existed are treated as approved
     # so they don't disappear; every new listing starts as 'pending'.
     if 'status' not in existing_cols:
@@ -149,6 +154,23 @@ def init_db():
     for col, ddl in (('review_note', 'TEXT'), ('created_at', 'TEXT'), ('reviewed_at', 'TEXT')):
         if col not in existing_cols:
             cursor.execute(f'ALTER TABLE properties ADD COLUMN {col} {ddl}')
+
+    # Migration: simple availability status (available / reserved / taken) replaces room counts.
+    if 'availability' not in existing_cols:
+        cursor.execute("ALTER TABLE properties ADD COLUMN availability TEXT DEFAULT 'available'")
+        cursor.execute("UPDATE properties SET availability = CASE WHEN CAST(avail_rooms AS INTEGER) <= 0 THEN 'taken' ELSE 'available' END")
+
+    # Migration: when the owner approved a booking (starts the 2-day reservation hold).
+    cursor.execute('PRAGMA table_info(bookings)')
+    booking_cols = [c[1] for c in cursor.fetchall()]
+    if 'approved_at' not in booking_cols:
+        cursor.execute('ALTER TABLE bookings ADD COLUMN approved_at TEXT')
+        cursor.execute("UPDATE bookings SET approved_at = created_at WHERE status = 'approved'")
+
+    # Migration: lets an owner remove finished (rejected / cancelled / expired) requests from their list
+    # without deleting the student's own record of the booking.
+    if 'owner_hidden' not in booking_cols:
+        cursor.execute('ALTER TABLE bookings ADD COLUMN owner_hidden INTEGER DEFAULT 0')
 
     # Seed / refresh the admin account in the database
     admin_hash = generate_password_hash(ADMIN_PASSWORD)
@@ -272,8 +294,62 @@ def update_profile():
         return jsonify({'success': False, 'message': str(e)}), 500
 
 # ── PROPERTY APIs ──────────────────────────────────────────
+def _clean_price(value):
+    """A monthly price must be a whole number between 0 and 1,000,000 (0 = free)."""
+    try:
+        return max(0, min(int(float(value)), 1000000))
+    except (TypeError, ValueError):
+        return 0
+
+def _amenity_prices(raw_json, amenities_csv):
+    """{'Laundry': 150, ...} for the PAID amenities of a property. Anything not in the dict is free."""
+    try:
+        stored = json.loads(raw_json) if raw_json else {}
+    except ValueError:
+        stored = {}
+    if not isinstance(stored, dict):
+        return {}
+    names = [n for n in (amenities_csv or '').split(',') if n]
+    return {n: _clean_price(stored[n]) for n in names if n in stored and _clean_price(stored[n]) > 0}
+
+RESERVATION_HOLD_DAYS = 2
+
+def _set_availability(cursor, property_id, availability):
+    """Keep availability and the legacy room columns in sync."""
+    avail_rooms = '1' if availability == 'available' else '0'
+    occupied = '0/1' if availability == 'available' else '1/1'
+    cursor.execute(
+        'UPDATE properties SET availability = ?, total_rooms = ?, avail_rooms = ?, occupied = ? WHERE id = ?',
+        (availability, '1', avail_rooms, occupied, property_id))
+
+def _release_if_no_active_hold(cursor, property_id):
+    """Back to Available when a Reserved property no longer has an approved booking holding it."""
+    cursor.execute("SELECT COUNT(*) FROM bookings WHERE property_id = ? AND status = 'approved'", (property_id,))
+    if cursor.fetchone()[0] == 0:
+        cursor.execute("SELECT availability FROM properties WHERE id = ?", (property_id,))
+        row = cursor.fetchone()
+        if row and row[0] == 'reserved':
+            _set_availability(cursor, property_id, 'available')
+
+def expire_stale_reservations():
+    """An approved booking that is not marked as moved in by 2 days after its move-in date
+    expires, and the property goes back to Available."""
+    from datetime import datetime
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, property_id, approved_at, move_in_date FROM bookings WHERE status = 'approved'")
+    now = datetime.now()
+    for booking_id, property_id, approved_at, move_in_date in cursor.fetchall():
+        expires = _expires_at(approved_at, move_in_date)
+        if expires and expires <= now:
+            cursor.execute("UPDATE bookings SET status = 'expired' WHERE id = ?", (booking_id,))
+            _release_if_no_active_hold(cursor, property_id)
+    conn.commit()
+    conn.close()
+
 @app.route('/api/properties', methods=['GET'])
 def get_properties():
+    expire_stale_reservations()
     owner_email = request.args.get('email', '').strip().lower()
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
@@ -283,7 +359,7 @@ def get_properties():
                p.raw_rent, p.rent, p.total_rooms, p.avail_rooms, p.occupied, 
                p.description, p.rules, p.amenities, p.image, p.lat, p.lon, p.images,
                p.status, p.review_note, p.created_at,
-               rv.avg_rating, rv.review_count, rv.rec_count
+               rv.avg_rating, rv.review_count, rv.rec_count, p.amenity_prices, p.availability
         FROM properties p
         LEFT JOIN users u ON p.owner_email = u.email
         LEFT JOIN (
@@ -329,7 +405,9 @@ def get_properties():
             'createdAt': r[21],
             'rating': round(r[22], 1) if r[22] else 0,
             'reviewCount': r[23] or 0,
-            'recommendPct': round(100 * (r[24] or 0) / r[23]) if r[23] else 0
+            'recommendPct': round(100 * (r[24] or 0) / r[23]) if r[23] else 0,
+            'amenityPrices': _amenity_prices(r[25], r[14]),
+            'availability': r[26] or 'available'
         })
     return jsonify({'success': True, 'properties': props})
 
@@ -349,12 +427,21 @@ def save_property():
     barangay = data.get('barangay') or 'Minglanilla'
     raw_rent = str(data.get('rawRent') or '').strip()
     rent = data.get('rent') or ''
-    total_rooms = str(data.get('totalRooms') or '10')
-    avail_rooms = str(data.get('availRooms') or '5')
-    occupied = data.get('occupied') or '0/' + total_rooms
+    availability = (data.get('availability') or 'available').strip().lower()
+    if availability not in ('available', 'reserved', 'taken'):
+        availability = 'available'
+    # Room counts were replaced by an availability status. The old columns are still filled in
+    # (1 unit: free or not) so other pages that read them keep working.
+    total_rooms = '1'
+    avail_rooms = '1' if availability == 'available' else '0'
+    occupied = '0/1' if availability == 'available' else '1/1'
     desc = data.get('desc') or ''
     rules = data.get('rules') or ''
-    amenities = ','.join(data.get('amenities') or [])
+    amenity_list = data.get('amenities') or []
+    amenities = ','.join(amenity_list)
+    # Owner decides per amenity: free (no entry) or a monthly price
+    raw_prices = data.get('amenityPrices') if isinstance(data.get('amenityPrices'), dict) else {}
+    amenity_prices_json = json.dumps({n: _clean_price(raw_prices.get(n)) for n in amenity_list if _clean_price(raw_prices.get(n)) > 0})
     images_list = data.get('images') or []
     image = data.get('image') or (images_list[0] if images_list else '')
     images_json = json.dumps(images_list)
@@ -364,23 +451,26 @@ def save_property():
     if not name or not raw_rent:
         return jsonify({'success': False, 'message': 'Property name and monthly rent are required.'}), 400
 
+    if len([i for i in images_list if i]) < 3:
+        return jsonify({'success': False, 'message': 'Please upload at least 3 photos of the property.'}), 400
+
     try:
         conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
 
         if prop_id:
             cursor.execute('''
-                UPDATE properties SET name=?, type=?, address=?, barangay=?, raw_rent=?, rent=?, total_rooms=?, avail_rooms=?, occupied=?, description=?, rules=?, amenities=?, image=?, lat=?, lon=?, images=?,
+                UPDATE properties SET name=?, type=?, address=?, barangay=?, raw_rent=?, rent=?, total_rooms=?, avail_rooms=?, occupied=?, availability=?, description=?, rules=?, amenities=?, amenity_prices=?, image=?, lat=?, lon=?, images=?,
                     status = CASE WHEN status = 'rejected' THEN 'pending' ELSE status END,
                     review_note = CASE WHEN status = 'rejected' THEN NULL ELSE review_note END
                 WHERE id=? AND owner_email=?
-            ''', (name, ptype, address, barangay, raw_rent, rent, total_rooms, avail_rooms, occupied, desc, rules, amenities, image, lat, lon, images_json, prop_id, owner_email))
+            ''', (name, ptype, address, barangay, raw_rent, rent, total_rooms, avail_rooms, occupied, availability, desc, rules, amenities, amenity_prices_json, image, lat, lon, images_json, prop_id, owner_email))
             message = 'Property updated successfully!'
         else:
             cursor.execute('''
-                INSERT INTO properties (owner_email, name, type, address, barangay, raw_rent, rent, total_rooms, avail_rooms, occupied, description, rules, amenities, image, lat, lon, images, status, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', datetime('now'))
-            ''', (owner_email, name, ptype, address, barangay, raw_rent, rent, total_rooms, avail_rooms, occupied, desc, rules, amenities, image, lat, lon, images_json))
+                INSERT INTO properties (owner_email, name, type, address, barangay, raw_rent, rent, total_rooms, avail_rooms, occupied, availability, description, rules, amenities, amenity_prices, image, lat, lon, images, status, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', datetime('now'))
+            ''', (owner_email, name, ptype, address, barangay, raw_rent, rent, total_rooms, avail_rooms, occupied, availability, desc, rules, amenities, amenity_prices_json, image, lat, lon, images_json))
             message = 'Listing submitted! It will appear publicly once the admin approves it.'
 
         conn.commit()
@@ -670,8 +760,15 @@ def create_booking():
     if not property_id or not student_email or not owner_email or not move_in_date:
         return jsonify({'success': False, 'message': 'Missing required booking details.'}), 400
 
+    expire_stale_reservations()
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
+    cursor.execute('SELECT availability FROM properties WHERE id = ?', (property_id,))
+    prop_row = cursor.fetchone()
+    if prop_row and (prop_row[0] or 'available') != 'available':
+        conn.close()
+        label = 'reserved' if prop_row[0] == 'reserved' else 'already taken'
+        return jsonify({'success': False, 'message': f'Sorry, this property is currently {label}.'}), 400
     cursor.execute('''
         INSERT INTO bookings (property_id, property_name, room_name, student_name, student_email, owner_email, move_in_date, message, rent, status)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
@@ -681,8 +778,33 @@ def create_booking():
 
     return jsonify({'success': True, 'message': 'Booking request submitted successfully!'})
 
+def _expires_at(approved_at, move_in_date=None):
+    """The reservation is held until 2 days after the student's move-in date
+    (move in on 12-02 -> expires 12-04). If the move-in date is missing or already earlier than
+    the approval, it falls back to 2 days after approval so it never expires instantly."""
+    from datetime import datetime, timedelta, timezone
+    candidates = []
+    if move_in_date:
+        try:
+            candidates.append(datetime.strptime(str(move_in_date)[:10], '%Y-%m-%d') + timedelta(days=RESERVATION_HOLD_DAYS))
+        except ValueError:
+            pass
+    if approved_at:
+        try:
+            utc = datetime.strptime(str(approved_at)[:19], '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc)
+            local = utc.astimezone().replace(tzinfo=None)   # approved_at is stored in UTC
+            candidates.append(local + timedelta(days=RESERVATION_HOLD_DAYS))
+        except ValueError:
+            pass
+    return max(candidates) if candidates else None
+
+def _expires_at_str(approved_at, move_in_date=None):
+    dt = _expires_at(approved_at, move_in_date)
+    return dt.strftime('%Y-%m-%d %H:%M:%S') if dt else None
+
 @app.route('/api/bookings', methods=['GET'])
 def get_bookings():
+    expire_stale_reservations()
     student_email = request.args.get('student_email', '').strip().lower()
     owner_email = request.args.get('owner_email', '').strip().lower()
 
@@ -694,7 +816,7 @@ def get_bookings():
         cursor.execute('''
             SELECT b.id, b.property_name, b.room_name, b.student_name, b.move_in_date, b.message,
                    b.rent, b.status, b.created_at,
-                   b.property_id, b.owner_email, uo.fullname, uo.phone, p.address, p.image
+                   b.property_id, b.owner_email, uo.fullname, uo.phone, p.address, p.image, b.approved_at
             FROM bookings b
             LEFT JOIN users uo ON uo.email = b.owner_email
             LEFT JOIN properties p ON p.id = b.property_id
@@ -705,10 +827,10 @@ def get_bookings():
         cursor.execute('''
             SELECT b.id, b.property_name, b.room_name, b.student_name, b.student_email, b.move_in_date,
                    b.message, b.rent, b.status, b.created_at, b.property_id,
-                   u.phone, u.address, u.bio
+                   u.phone, u.address, u.bio, b.approved_at
             FROM bookings b
             LEFT JOIN users u ON u.email = b.student_email
-            WHERE b.owner_email = ? ORDER BY b.id DESC
+            WHERE b.owner_email = ? AND COALESCE(b.owner_hidden, 0) = 0 ORDER BY b.id DESC
         ''', (owner_email,))
     else:
         conn.close()
@@ -735,7 +857,9 @@ def get_bookings():
                 'owner_name': r[11] or 'Property Owner',
                 'owner_phone': r[12] or '',
                 'property_address': r[13] or '',
-                'property_image': r[14] or ''
+                'property_image': r[14] or '',
+                'approved_at': r[15],
+                'expires_at': _expires_at_str(r[15], r[4])
             })
         else:
             bookings.append({
@@ -752,7 +876,9 @@ def get_bookings():
                 'property_id': r[10],
                 'student_phone': r[11] or '',
                 'student_address': r[12] or '',
-                'student_bio': r[13] or ''
+                'student_bio': r[13] or '',
+                'approved_at': r[14],
+                'expires_at': _expires_at_str(r[14], r[5])
             })
 
     return jsonify({'success': True, 'bookings': bookings})
@@ -762,16 +888,78 @@ def update_booking_status(booking_id):
     data = request.json
     new_status = data.get('status')
 
-    if new_status not in ['approved', 'rejected']:
+    # approved  -> property becomes Reserved for 2 days
+    # confirmed -> student arrived / moved in: property becomes Taken
+    # rejected  -> request declined (frees the property if it was being held)
+    if new_status not in ['approved', 'rejected', 'confirmed']:
         return jsonify({'success': False, 'message': 'Invalid status.'}), 400
+
+    expire_stale_reservations()
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute('SELECT property_id, status FROM bookings WHERE id = ?', (booking_id,))
+    row = cursor.fetchone()
+    if not row:
+        conn.close()
+        return jsonify({'success': False, 'message': 'Booking not found.'}), 404
+    property_id, old_status = row
+
+    if new_status == 'approved':
+        if old_status != 'pending':
+            conn.close()
+            return jsonify({'success': False, 'message': f'This request is already {old_status}.'}), 400
+        cursor.execute('SELECT availability FROM properties WHERE id = ?', (property_id,))
+        prop_row = cursor.fetchone()
+        if prop_row and (prop_row[0] or 'available') != 'available':
+            conn.close()
+            return jsonify({'success': False, 'message': f'This property is already {prop_row[0]}, so it cannot be reserved again.'}), 400
+        cursor.execute("UPDATE bookings SET status = 'approved', approved_at = datetime('now') WHERE id = ?", (booking_id,))
+        _set_availability(cursor, property_id, 'reserved')
+        message = 'Booking approved! The property is now reserved for 2 days.'
+    elif new_status == 'confirmed':
+        if old_status != 'approved':
+            conn.close()
+            return jsonify({'success': False, 'message': 'Only an approved booking can be marked as moved in.'}), 400
+        cursor.execute("UPDATE bookings SET status = 'confirmed' WHERE id = ?", (booking_id,))
+        _set_availability(cursor, property_id, 'taken')
+        message = 'Marked as moved in. The property is now taken.'
+    else:
+        cursor.execute("UPDATE bookings SET status = 'rejected' WHERE id = ?", (booking_id,))
+        if old_status == 'approved':
+            _release_if_no_active_hold(cursor, property_id)
+        message = 'Booking request rejected.'
+
+    conn.commit()
+    conn.close()
+    return jsonify({'success': True, 'message': message})
+
+@app.route('/api/bookings/<int:booking_id>/remove', methods=['POST'])
+def owner_remove_booking(booking_id):
+    """Owner removes a finished request (rejected / cancelled / expired) from their list.
+    The student still sees it in their own bookings."""
+    data = request.json or {}
+    owner_email = (data.get('owner_email') or '').strip().lower()
+    if not owner_email:
+        return jsonify({'success': False, 'message': 'Owner email required.'}), 400
 
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    cursor.execute('UPDATE bookings SET status = ? WHERE id = ?', (new_status, booking_id))
+    cursor.execute('SELECT owner_email, status FROM bookings WHERE id = ?', (booking_id,))
+    row = cursor.fetchone()
+    if not row:
+        conn.close()
+        return jsonify({'success': False, 'message': 'Booking not found.'}), 404
+    if (row[0] or '').strip().lower() != owner_email:
+        conn.close()
+        return jsonify({'success': False, 'message': 'You can only remove requests for your own properties.'}), 403
+    if row[1] not in ('rejected', 'cancelled', 'expired'):
+        conn.close()
+        return jsonify({'success': False, 'message': 'Only rejected, cancelled or expired requests can be removed.'}), 400
+
+    cursor.execute('UPDATE bookings SET owner_hidden = 1 WHERE id = ?', (booking_id,))
     conn.commit()
     conn.close()
-
-    return jsonify({'success': True, 'message': f'Booking request {new_status}!'})
+    return jsonify({'success': True, 'message': 'Request removed.'})
 
 @app.route('/api/bookings/<int:booking_id>/cancel', methods=['POST'])
 def cancel_booking(booking_id):
@@ -863,6 +1051,7 @@ def get_messages():
 
 if __name__ == '__main__':
     init_db()
+    expire_stale_reservations()
     webbrowser.open_new('http://127.0.0.1:5000/')
     print('Starting Dorm Finder database server...')
     app.run(host='127.0.0.1', port=5000, debug=True)

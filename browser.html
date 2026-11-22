@@ -356,6 +356,19 @@
       font-size: 0.82rem;
       color: #64748b;
     }
+    /* ── AMENITY PRICES (free / paid) ─────────────────────── */
+    .am-tag { margin-left: auto; font-size: 0.68rem; font-weight: 800; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+    .am-tag.free { background: #dcfce7; color: #15803d; }
+    .am-tag.paid { background: #fef3c7; color: #b45309; }
+    .price-breakdown { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 0.9rem 1rem; margin: 0 0 1.1rem; }
+    .price-breakdown .pb-title { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #64748b; margin-bottom: 0.5rem; }
+    .price-breakdown .pb-row { display: flex; justify-content: space-between; gap: 10px; font-size: 0.85rem; color: #334155; padding: 3px 0; }
+    .price-breakdown .pb-row b { font-weight: 800; color: #0f172a; }
+    .price-breakdown .pb-row.total { border-top: 1px dashed #cbd5e1; margin-top: 6px; padding-top: 8px; font-size: 0.95rem; }
+    .price-breakdown .pb-row.total b { color: #2563eb; font-size: 1.05rem; }
+    .price-breakdown .pb-free { font-size: 0.76rem; color: #15803d; font-weight: 700; margin-top: 6px; }
+    .dorm-total { font-size: 0.68rem; font-weight: 700; color: #2563eb; margin-top: 2px; text-align: right; }
+
     .dorm-price { font-size: 1rem; font-weight: 800; color: #0f172a; }
     .dorm-price span { font-size: 0.75rem; font-weight: 500; color: #64748b; }
 
@@ -408,6 +421,13 @@
       background: #fef3c7; color: #d97706;
       font-size: 0.78rem; font-weight: 800;
       padding: 4px 10px; border-radius: 6px;
+    }
+    .detail-slots-badge.available { background: #dcfce7; color: #15803d; }
+    .detail-slots-badge.reserved { background: #fef3c7; color: #d97706; }
+    .detail-slots-badge.taken { background: #fee2e2; color: #dc2626; }
+    .owner-notice-box {
+      background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px;
+      padding: 1rem; text-align: center; font-size: 0.82rem; color: #92400e; font-weight: 600; line-height: 1.5;
     }
     .room-card-option.taken { opacity: 0.5; cursor: not-allowed; background: #f8fafc; }
     .room-status.taken { color: #dc2626; font-size: 0.7rem; font-weight: 700; margin-top: 4px; }
@@ -621,6 +641,24 @@
       .listings-grid { grid-template-columns: 1fr; }
       .detail-layout-grid { grid-template-columns: 1fr; }
     }
+  
+    /* ===== Photo viewer (lightbox) ===== */
+    .clickable-photo { cursor: zoom-in; transition: filter .2s; }
+    .clickable-photo:hover { filter: brightness(.92); }
+    #dfLightbox { position: fixed; inset: 0; background: rgba(8,12,24,.94); z-index: 99999; display: none; align-items: center; justify-content: center; flex-direction: column; }
+    #dfLightbox.open { display: flex; }
+    #dfLightbox .lb-stage { position: relative; width: 100%; flex: 1; display: flex; align-items: center; justify-content: center; padding: 56px 72px 8px; min-height: 0; }
+    #dfLightbox .lb-img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,.5); }
+    #dfLightbox .lb-btn { position: absolute; background: rgba(255,255,255,.14); color: #fff; border: none; width: 44px; height: 44px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .2s; }
+    #dfLightbox .lb-btn:hover { background: rgba(255,255,255,.28); }
+    #dfLightbox .lb-close { top: 14px; right: 18px; }
+    #dfLightbox .lb-prev { left: 16px; top: 50%; transform: translateY(-50%); }
+    #dfLightbox .lb-next { right: 16px; top: 50%; transform: translateY(-50%); }
+    #dfLightbox .lb-counter { position: absolute; top: 22px; left: 24px; color: #fff; font-weight: 700; font-size: .9rem; }
+    #dfLightbox .lb-strip { display: flex; gap: 8px; padding: 12px 16px 18px; overflow-x: auto; max-width: 100%; }
+    #dfLightbox .lb-thumb { width: 72px; height: 54px; border-radius: 8px; background-size: cover; background-position: center; cursor: pointer; opacity: .55; border: 2px solid transparent; flex: 0 0 auto; }
+    #dfLightbox .lb-thumb.active { opacity: 1; border-color: #fff; }
+    @media (max-width: 700px) { #dfLightbox .lb-stage { padding: 56px 12px 8px; } #dfLightbox .lb-prev { left: 6px; } #dfLightbox .lb-next { right: 6px; } }
   </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <style>
@@ -844,6 +882,8 @@
         <div class="filter-group">
           <div class="filter-group-title">Amenities</div>
           <label class="checkbox-label"><input type="checkbox" value="WiFi" class="amenity-chk" onchange="applyFilters()"> WiFi</label>
+          <label class="checkbox-label"><input type="checkbox" value="Water" class="amenity-chk" onchange="applyFilters()"> Water</label>
+          <label class="checkbox-label"><input type="checkbox" value="Electricity" class="amenity-chk" onchange="applyFilters()"> Electricity</label>
           <label class="checkbox-label"><input type="checkbox" value="AC" class="amenity-chk" onchange="applyFilters()"> Air Conditioning</label>
           <label class="checkbox-label"><input type="checkbox" value="CCTV" class="amenity-chk" onchange="applyFilters()"> CCTV Security</label>
           <label class="checkbox-label"><input type="checkbox" value="Laundry" class="amenity-chk" onchange="applyFilters()"> Laundry</label>
@@ -888,7 +928,7 @@
           <div class="detail-badges-row">
             <span class="badge-type" id="detPropType">Dormitory</span>
             <span><i class="fa-solid fa-location-dot"></i> <span id="detPropLocation">Minglanilla, Cebu</span></span>
-            <span><i class="fa-regular fa-user"></i> <span id="detPropSlots">1 slot left</span></span>
+            <span><i class="fa-regular fa-circle-check"></i> <span id="detPropSlots">Available</span></span>
             <span style="color: #d97706; font-weight: 700;"><i class="fa-solid fa-star"></i> <span id="detPropRating">New</span></span>
           </div>
         </div>
@@ -961,6 +1001,14 @@
           <span class="detail-slots-badge" id="detPropSlotsBadge">1 slot left</span>
         </div>
 
+        <div id="detPriceBreakdown"></div>
+
+        <div class="owner-notice-box" id="detOwnerNotice" style="display:none;">
+          <i class="fa-solid fa-triangle-exclamation"></i> <span id="detOwnerNoticeTitle">You're signed in as a Property Owner.</span><br/>
+          <span style="font-size: 0.78rem; font-weight: 500; color: #b45309;">Only students can submit booking requests or contact owners.</span>
+        </div>
+
+        <div id="detBookingForm">
         <label style="font-size:0.82rem; font-weight:800; color:#0f172a; display:block; margin-bottom:8px;">SELECT A ROOM</label>
         <div class="rooms-selector-grid" id="detRoomsGrid"></div>
 
@@ -976,6 +1024,7 @@
 
         <button class="btn-submit-booking" onclick="handleProtectedAction('booking')">Submit Booking Request</button>
         <button class="btn-contact-owner" onclick="handleProtectedAction('message')">Message Owner</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1027,6 +1076,38 @@
       m.map.setView([lat, lon], 16);
       setTimeout(() => m.map.invalidateSize(), 80);
     }
+    /* ══════════ AMENITY PRICES (each amenity is free or has a monthly price) ══════════ */
+    function dfEsc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+    function dfPeso(n) { return '₱' + Math.round(Number(n) || 0).toLocaleString('en-PH'); }
+    function dfRent(p) { return parseFloat(String(p.rawRent || p.rent || '0').replace(/[^0-9.]/g, '')) || 0; }
+    function dfAmenityPrice(p, name) { const v = p && p.amenityPrices ? Number(p.amenityPrices[name]) : 0; return v > 0 ? v : 0; }
+    function dfAmenityFees(p) { return (p.amenities || []).reduce((sum, a) => sum + dfAmenityPrice(p, a), 0); }
+    function dfTotalMonthly(p) { return dfRent(p) + dfAmenityFees(p); }
+    function dfAmenityPill(p, name) {
+      const price = dfAmenityPrice(p, name);
+      return `<div class="detail-amenity-pill"><i class="fa-solid fa-check" style="color:#2563eb"></i> ${dfEsc(name)} ` +
+        (price ? `<span class="am-tag paid">+${dfPeso(price)}/mo</span>` : '<span class="am-tag free">Free</span>') + '</div>';
+    }
+    // Shows rent + every paid amenity = total per month (nothing is shown if all amenities are free)
+    function dfPriceBreakdown(p) {
+      const names = p.amenities || [];
+      const paid = names.filter(a => dfAmenityPrice(p, a) > 0);
+      if (!paid.length) return '';
+      const free = names.filter(a => dfAmenityPrice(p, a) === 0);
+      return `<div class="price-breakdown">
+        <div class="pb-title">Monthly cost</div>
+        <div class="pb-row"><span>Room rent</span><b>${dfPeso(dfRent(p))}</b></div>
+        ${paid.map(a => `<div class="pb-row"><span>${dfEsc(a)}</span><b>+${dfPeso(dfAmenityPrice(p, a))}</b></div>`).join('')}
+        <div class="pb-row total"><span>Total per month</span><b>${dfPeso(dfTotalMonthly(p))}</b></div>
+        ${free.length ? `<div class="pb-free"><i class="fa-solid fa-check"></i> Free: ${free.map(dfEsc).join(', ')}</div>` : ''}
+      </div>`;
+    }
+    function dfPriceHeader(p) {
+      return dfAmenityFees(p) > 0
+        ? `${dfPeso(dfTotalMonthly(p))}<span>/month total</span>`
+        : `${p.rent}<span>/month</span>`;
+    }
+
     let allProperties = [];
     let activeProperty = null;
     let selectedRoom = null;
@@ -1124,7 +1205,7 @@
               </div>
               <div class="dorm-footer-info">
                 <span><i class="fa-solid fa-location-dot"></i> Minglanilla</span>
-                <div class="dorm-price">${p.rent}<span>/mo</span></div>
+                <div class="dorm-price">${p.rent}<span>/mo</span>${dfAmenityFees(p) > 0 ? `<div class="dorm-total">${dfPeso(dfTotalMonthly(p))} total with amenities</div>` : ''}</div>
               </div>
             </div>
           </div>
@@ -1161,13 +1242,34 @@
       document.getElementById('detPropLocation').textContent = p.address || 'Minglanilla, Cebu';
       document.getElementById('detPropDesc').textContent = p.desc || 'No description provided.';
       document.getElementById('detPropRules').textContent = p.rules || 'No specific rules.';
-      document.getElementById('detPropPrice').innerHTML = `${p.rent}<span>/month</span>`;
+      document.getElementById('detPropPrice').innerHTML = dfPriceHeader(p);
+      document.getElementById('detPriceBreakdown').innerHTML = dfPriceBreakdown(p);
 
       const totalRoomsCount = parseInt(p.totalRooms) || 1;
       const availRoomsCount = Math.min(parseInt(p.availRooms) || 0, totalRoomsCount);
-      const slotsText = availRoomsCount > 0 ? `${availRoomsCount} slot${availRoomsCount === 1 ? '' : 's'} left` : 'Fully booked';
+      const slotsText = { available: 'Available', reserved: 'Reserved', taken: 'Taken' }[p.availability || (availRoomsCount > 0 ? 'available' : 'taken')] || 'Available';
       document.getElementById('detPropSlots').textContent = slotsText;
       document.getElementById('detPropSlotsBadge').textContent = slotsText;
+      const availKey = slotsText.toLowerCase();
+      document.getElementById('detPropSlotsBadge').className = 'detail-slots-badge ' + availKey;
+
+      // Owners and admins can't book or message: show a notice instead of the booking form
+      const viewer = JSON.parse(localStorage.getItem('df_user') || 'null');
+      const isStaff = !!(viewer && (viewer.role === 'owner' || viewer.role === 'admin'));
+      document.getElementById('detBookingForm').style.display = isStaff ? 'none' : '';
+      const ownerNotice = document.getElementById('detOwnerNotice');
+      ownerNotice.style.display = isStaff ? '' : 'none';
+      document.getElementById('detOwnerNoticeTitle').textContent = viewer && viewer.role === 'admin'
+        ? "You're signed in as an Admin." : "You're signed in as a Property Owner.";
+      // Reserved / taken: students can't send a new request right now
+      const bookBtn = document.querySelector('#detBookingForm .btn-submit-booking');
+      if (bookBtn) {
+        const blocked = availKey !== 'available';
+        bookBtn.disabled = blocked;
+        bookBtn.style.opacity = blocked ? '0.6' : '';
+        bookBtn.style.cursor = blocked ? 'not-allowed' : '';
+        bookBtn.textContent = blocked ? `Currently ${availKey}` : 'Submit Booking Request';
+      }
 
       // Pinned location (same logic as the owner dashboard)
       const lat = parseFloat(p.lat) || 10.2480;
@@ -1184,27 +1286,16 @@
       // Photo gallery (same layout as the owner dashboard)
       const fallbackImg = 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=600&q=80';
       const imgs = (p.images && p.images.length > 0) ? p.images : [p.image || fallbackImg];
-      document.getElementById('detailGalleryContainer').innerHTML = `
-        <div class="detail-main-img" style="background-image: url('${imgs[0]}')"></div>
-        <div class="detail-side-imgs">
-          <div class="detail-sub-img" style="background-image: url('${imgs[1] || imgs[0]}')"></div>
-          <div class="detail-sub-img" style="background-image: url('${imgs[2] || imgs[0]}')">
-            <div class="detail-more-overlay">
-              <i class="fa-regular fa-image" style="font-size: 1.1rem; margin-bottom: 2px;"></i>
-              View all ${imgs.length} photo${imgs.length === 1 ? '' : 's'}
-            </div>
-          </div>
-        </div>
-      `;
+      document.getElementById('detailGalleryContainer').innerHTML = dfBuildGallery(imgs);
 
       const listAm = (p.amenities && p.amenities.length > 0) ? p.amenities : ['WiFi', 'AC', 'Kitchen'];
-      document.getElementById('detAmenitiesContainer').innerHTML = listAm.map(am =>
-        `<div class="detail-amenity-pill"><i class="fa-solid fa-check" style="color:#2563eb"></i> ${am}</div>`
-      ).join('');
+      document.getElementById('detAmenitiesContainer').innerHTML = listAm.map(am => dfAmenityPill(p, am)).join('');
 
       // Rooms: total / available come from the owner's listing (same as student dashboard)
       let roomsHtml = '';
       selectedRoom = null;
+      const availState = p.availability || (availRoomsCount > 0 ? 'available' : 'taken');
+      const unavailLabel = availState === 'reserved' ? 'Reserved' : 'Taken';
       for (let i = 1; i <= totalRoomsCount; i++) {
         const roomName = `Room ${100 + i}`;
         const isAvailable = i <= availRoomsCount;
@@ -1216,7 +1307,7 @@
           <div class="${cls}" ${clickAttr}>
             <div class="room-title">${roomName}</div>
             <div class="room-price">${p.rent}/mo</div>
-            <div class="room-status ${isAvailable ? 'avail' : 'taken'}">• ${isAvailable ? 'Available' : 'Taken'}</div>
+            <div class="room-status ${isAvailable ? 'avail' : 'taken'}">• ${isAvailable ? 'Available' : unavailLabel}</div>
           </div>
         `;
       }
@@ -1244,6 +1335,10 @@
       const sessionUser = JSON.parse(localStorage.getItem('df_user') || 'null');
       if (!sessionUser || !sessionUser.email) {
         document.getElementById('authModal').classList.add('open');
+        return;
+      }
+      if (sessionUser.role === 'owner' || sessionUser.role === 'admin') {
+        alert("You're signed in as a " + (sessionUser.role === 'admin' ? 'Admin' : 'Property Owner') + '. Only students can submit booking requests or contact owners.');
         return;
       }
 
@@ -1594,6 +1689,68 @@
 
     function closeAuthModal() {
       document.getElementById('authModal').classList.remove('open');
+    }
+  </script>
+
+  <!-- Photo viewer -->
+  <div id="dfLightbox" onclick="if(event.target===this||event.target.classList.contains('lb-stage'))dfCloseLightbox()">
+    <div class="lb-stage">
+      <span class="lb-counter" id="dfLbCounter"></span>
+      <button class="lb-btn lb-close" onclick="dfCloseLightbox()" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      <button class="lb-btn lb-prev" onclick="dfLbStep(-1)" aria-label="Previous"><i class="fa-solid fa-chevron-left"></i></button>
+      <img class="lb-img" id="dfLbImg" alt="Property photo">
+      <button class="lb-btn lb-next" onclick="dfLbStep(1)" aria-label="Next"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+    <div class="lb-strip" id="dfLbStrip"></div>
+  </div>
+  <script>
+    window.__dfGallery = [];
+    let __dfLbIndex = 0;
+    function dfOpenLightbox(startIndex) {
+      if (!window.__dfGallery.length) return;
+      __dfLbIndex = startIndex || 0;
+      document.getElementById('dfLbStrip').innerHTML = window.__dfGallery.map((src, i) =>
+        `<div class="lb-thumb" data-i="${i}" style="background-image:url('${src}')"></div>`).join('');
+      document.querySelectorAll('#dfLbStrip .lb-thumb').forEach(t =>
+        t.addEventListener('click', () => dfLbShow(parseInt(t.dataset.i))));
+      document.getElementById('dfLightbox').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      dfLbShow(__dfLbIndex);
+    }
+    function dfLbShow(i) {
+      const n = window.__dfGallery.length;
+      __dfLbIndex = (i + n) % n;
+      document.getElementById('dfLbImg').src = window.__dfGallery[__dfLbIndex];
+      document.getElementById('dfLbCounter').textContent = `${__dfLbIndex + 1} / ${n}`;
+      document.querySelectorAll('#dfLbStrip .lb-thumb').forEach((t, k) => t.classList.toggle('active', k === __dfLbIndex));
+    }
+    function dfLbStep(d) { dfLbShow(__dfLbIndex + d); }
+    function dfCloseLightbox() {
+      document.getElementById('dfLightbox').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', e => {
+      if (!document.getElementById('dfLightbox').classList.contains('open')) return;
+      if (e.key === 'Escape') dfCloseLightbox();
+      if (e.key === 'ArrowLeft') dfLbStep(-1);
+      if (e.key === 'ArrowRight') dfLbStep(1);
+    });
+    // Builds the 1 main + 2 side photo layout and makes every photo open the viewer
+    function dfBuildGallery(imgs) {
+      const list = (imgs || []).filter(Boolean);
+      window.__dfGallery = list;
+      const a = list[0], b = list[1] || list[0], c = list[2] || list[0];
+      return `
+        <div class="detail-main-img clickable-photo" style="background-image:url('${a}')" onclick="dfOpenLightbox(0)"></div>
+        <div class="detail-side-imgs">
+          <div class="detail-sub-img clickable-photo" style="background-image:url('${b}')" onclick="dfOpenLightbox(${list[1] ? 1 : 0})"></div>
+          <div class="detail-sub-img clickable-photo" style="background-image:url('${c}')" onclick="dfOpenLightbox(${list[2] ? 2 : 0})">
+            <div style="position:absolute;inset:0;background:rgba(15,23,42,.55);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;border-radius:14px;">
+              <i class="fa-regular fa-image" style="font-size:1.1rem;margin-bottom:2px;"></i>
+              View all ${list.length} photo${list.length === 1 ? '' : 's'}
+            </div>
+          </div>
+        </div>`;
     }
   </script>
 </body>

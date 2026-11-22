@@ -315,7 +315,7 @@
     /* Stats Grid */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
       gap: 1.25rem;
       margin-bottom: 2.5rem;
     }
@@ -328,7 +328,19 @@
       display: flex;
       align-items: center;
       gap: 1rem;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s, border-color .15s;
     }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      border-color: #93b4e8;
+      box-shadow: 0 8px 20px rgba(27, 45, 71, 0.08);
+    }
+
+    .stat-card:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+
+    .stat-icon-box.blue { background: #dbeafe; color: #2563eb; }
 
     .stat-icon-box {
       width: 44px; height: 44px;
@@ -425,7 +437,12 @@
       font-size: 0.72rem;
       font-weight: 700;
     }
-    .prop-status-badge.full { background: rgba(59, 130, 246, 0.9); }
+    .detail-slots-badge.available { background: #dcfce7; color: #15803d; }
+    .detail-slots-badge.reserved { background: #fef3c7; color: #d97706; }
+    .detail-slots-badge.taken { background: #fee2e2; color: #dc2626; }
+    .prop-status-badge.full { background: rgba(220, 38, 38, 0.9); }
+    .prop-status-badge.reserved { background: rgba(245, 158, 11, 0.95); }
+    .prop-status-badge.available { background: rgba(22, 163, 74, 0.92); }
     .prop-status-badge.pending { background: rgba(245, 158, 11, 0.95); }
     .prop-status-badge.rejected { background: rgba(220, 38, 38, 0.9); }
     .prop-review-note {
@@ -835,6 +852,23 @@
     .orv-text { font-size: 0.88rem; color: #334155; line-height: 1.55; margin-top: 6px; white-space: pre-line; word-break: break-word; }
     .orv-rec { font-size: 0.76rem; font-weight: 700; margin-top: 7px; color: #2563eb; }
     .orv-rec.no { color: #94a3b8; }
+    .prop-rating { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; font-size: 0.8rem; color: #64748b; font-weight: 600; cursor: pointer; }
+    .prop-rating i { color: #f59e0b; }
+    .prop-rating b { color: #0f172a; }
+    .prop-rating:hover span, .prop-rating:hover b { text-decoration: underline; }
+    .orv-props { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+    .orv-pcard { background: #ffffff; border: 2px solid #e2e8f0; border-radius: 14px; padding: 10px; display: flex; gap: 10px; align-items: center; cursor: pointer; text-align: left; font-family: inherit; transition: border-color .15s, box-shadow .15s, transform .15s; }
+    .orv-pcard:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(27,45,71,.08); }
+    .orv-pcard.active { border-color: #2563eb; background: #f5f9ff; }
+    .orv-pthumb { width: 56px; height: 56px; border-radius: 10px; background-size: cover; background-position: center; background-color: #e2e8f0; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #475569; font-size: 1.2rem; }
+    .orv-pinfo { min-width: 0; }
+    .orv-pinfo .nm { font-size: 0.88rem; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .orv-pinfo .rt { font-size: 0.78rem; color: #64748b; font-weight: 600; margin-top: 3px; display: flex; align-items: center; gap: 5px; }
+    .orv-pinfo .rt b { color: #0f172a; }
+    .orv-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 0.9rem; }
+    .orv-toolbar h3 { font-size: 1rem; font-weight: 800; color: #0f172a; }
+    .orv-toolbar select { border: 1px solid #cbd5e1; border-radius: 10px; padding: 7px 10px; font-size: 0.82rem; font-weight: 600; font-family: inherit; color: #334155; background: #fff; }
+    .orv-empty { background: #fff; border: 1px dashed #cbd5e1; border-radius: 14px; padding: 2rem; text-align: center; color: #64748b; font-size: 0.9rem; }
 
     .student-link {
       background: none; border: none; padding: 0; cursor: pointer;
@@ -860,6 +894,8 @@
     .status-pill.pending { background: #fef3c7; color: #b45309; }
     .status-pill.approved { background: #d1fae5; color: #059669; }
     .status-pill.rejected { background: #fee2e2; color: #dc2626; }
+    .status-pill.confirmed { background: #dbeafe; color: #1d4ed8; }
+    .status-pill.expired { background: #e2e8f0; color: #475569; }
     .profile-top { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; }
     .profile-top h4 { font-size: 1.2rem; font-weight: 800; color: #0f172a; margin-bottom: 2px; }
     .profile-top p { font-size: 0.85rem; color: #64748b; }
@@ -947,6 +983,34 @@
       gap: 10px;
       margin-bottom: 1.25rem;
     }
+
+    .amenities-grid.amenities-pricing { display: flex; flex-direction: column; gap: 8px; margin-bottom: 0.75rem; }
+    .amenity-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+      border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.6rem 0.9rem; background: #ffffff;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .amenity-row.checked { border-color: #2563eb; background: #f8fbff; }
+    .amenity-fee { display: none; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .fee-toggle { display: inline-flex; background: #f1f5f9; border-radius: 8px; padding: 2px; }
+    .fee-toggle button { border: none; background: transparent; padding: 5px 14px; border-radius: 6px; font: 700 0.75rem 'Plus Jakarta Sans', sans-serif; color: #64748b; cursor: pointer; }
+    .fee-toggle button.active[data-mode="free"] { background: #dcfce7; color: #15803d; }
+    .fee-toggle button.active[data-mode="paid"] { background: #fef3c7; color: #b45309; }
+    .fee-input { display: none; align-items: center; gap: 5px; font-size: 0.8rem; font-weight: 700; color: #475569; }
+    .amenity-row .fee-input input { width: 92px; padding: 6px 9px; border: 1px solid #cbd5e1; border-radius: 8px; font: 600 0.85rem 'Plus Jakarta Sans', sans-serif; color: #1e293b; outline: none; }
+    .amenity-row .fee-input input:focus { border-color: #2563eb; }
+    .amenity-total { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 0.8rem 1rem; font-size: 0.85rem; color: #1e3a8a; margin-bottom: 1.25rem; line-height: 1.5; }
+    .amenity-total b { font-weight: 800; }
+    .am-tag { margin-left: auto; font-size: 0.68rem; font-weight: 800; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+    .am-tag.free { background: #dcfce7; color: #15803d; }
+    .am-tag.paid { background: #fef3c7; color: #b45309; }
+    .price-breakdown { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 0.9rem 1rem; margin: 1rem 0; }
+    .price-breakdown .pb-free { font-size: 0.76rem; color: #15803d; font-weight: 700; margin-top: 6px; }
+    .price-breakdown .pb-title { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #64748b; margin-bottom: 0.5rem; }
+    .price-breakdown .pb-row { display: flex; justify-content: space-between; gap: 10px; font-size: 0.85rem; color: #334155; padding: 3px 0; }
+    .price-breakdown .pb-row b { font-weight: 800; color: #0f172a; }
+    .price-breakdown .pb-row.total { border-top: 1px dashed #cbd5e1; margin-top: 6px; padding-top: 8px; font-size: 0.95rem; }
+    .price-breakdown .pb-row.total b { color: #2563eb; font-size: 1.05rem; }
 
     .amenity-checkbox {
       display: flex;
@@ -1096,6 +1160,24 @@
       .detail-layout-grid { grid-template-columns: 1fr; }
       .detail-photo-gallery { grid-template-columns: 1fr; }
     }
+  
+    /* ===== Photo viewer (lightbox) ===== */
+    .clickable-photo { cursor: zoom-in; transition: filter .2s; }
+    .clickable-photo:hover { filter: brightness(.92); }
+    #dfLightbox { position: fixed; inset: 0; background: rgba(8,12,24,.94); z-index: 99999; display: none; align-items: center; justify-content: center; flex-direction: column; }
+    #dfLightbox.open { display: flex; }
+    #dfLightbox .lb-stage { position: relative; width: 100%; flex: 1; display: flex; align-items: center; justify-content: center; padding: 56px 72px 8px; min-height: 0; }
+    #dfLightbox .lb-img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,.5); }
+    #dfLightbox .lb-btn { position: absolute; background: rgba(255,255,255,.14); color: #fff; border: none; width: 44px; height: 44px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .2s; }
+    #dfLightbox .lb-btn:hover { background: rgba(255,255,255,.28); }
+    #dfLightbox .lb-close { top: 14px; right: 18px; }
+    #dfLightbox .lb-prev { left: 16px; top: 50%; transform: translateY(-50%); }
+    #dfLightbox .lb-next { right: 16px; top: 50%; transform: translateY(-50%); }
+    #dfLightbox .lb-counter { position: absolute; top: 22px; left: 24px; color: #fff; font-weight: 700; font-size: .9rem; }
+    #dfLightbox .lb-strip { display: flex; gap: 8px; padding: 12px 16px 18px; overflow-x: auto; max-width: 100%; }
+    #dfLightbox .lb-thumb { width: 72px; height: 54px; border-radius: 8px; background-size: cover; background-position: center; cursor: pointer; opacity: .55; border: 2px solid transparent; flex: 0 0 auto; }
+    #dfLightbox .lb-thumb.active { opacity: 1; border-color: #fff; }
+    @media (max-width: 700px) { #dfLightbox .lb-stage { padding: 56px 12px 8px; } #dfLightbox .lb-prev { left: 6px; } #dfLightbox .lb-next { right: 6px; } }
   </style>
   <style>
     /* ── Leaflet map + pin (same look as the homepage map) ── */
@@ -1206,7 +1288,7 @@
 
         <!-- Stats Grid -->
         <div class="stats-grid">
-          <div class="stat-card">
+          <div class="stat-card" role="button" tabindex="0" onclick="goToTab('properties')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goToTab('properties')}">
             <div class="stat-icon-box">
               <i class="fa-solid fa-house-chimney"></i>
             </div>
@@ -1216,7 +1298,7 @@
             </div>
           </div>
 
-          <div class="stat-card">
+          <div class="stat-card" role="button" tabindex="0" onclick="goToTab('requests')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goToTab('requests')}">
             <div class="stat-icon-box yellow">
               <i class="fa-regular fa-clock"></i>
             </div>
@@ -1226,7 +1308,7 @@
             </div>
           </div>
 
-          <div class="stat-card">
+          <div class="stat-card" role="button" tabindex="0" onclick="goToTab('requests')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goToTab('requests')}">
             <div class="stat-icon-box green">
               <i class="fa-solid fa-check"></i>
             </div>
@@ -1236,13 +1318,23 @@
             </div>
           </div>
 
-          <div class="stat-card">
+          <div class="stat-card" role="button" tabindex="0" onclick="goToTab('properties')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goToTab('properties')}">
             <div class="stat-icon-box">
               <i class="fa-regular fa-building"></i>
             </div>
             <div class="stat-info">
               <div class="stat-value" id="stat-total-props">0</div>
-              <div class="stat-label">Total Property List</div>
+              <div class="stat-label">My Properties</div>
+            </div>
+          </div>
+
+          <div class="stat-card" role="button" tabindex="0" onclick="goToTab('messages')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goToTab('messages')}">
+            <div class="stat-icon-box blue">
+              <i class="fa-regular fa-message"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-messages">0</div>
+              <div class="stat-label">Messages</div>
             </div>
           </div>
         </div>
@@ -1333,7 +1425,7 @@
             <h1>Reviews & Ratings</h1>
           </div>
         </div>
-        <p style="color: #64748b; margin-bottom: 1.75rem;">See what students are saying about your properties.</p>
+        <p style="color: #64748b; margin-bottom: 1.75rem;">Pick a property to see its rating and what students are saying about it.</p>
 
         <div id="ownerReviewsContainer">
           <div class="empty-state-card">
@@ -1445,11 +1537,6 @@
             </div>
 
             <div>
-              <div class="detail-section-title"><i class="fa-regular fa-calendar-check"></i> Booked By <span id="detailBookersCount" style="font-size: 0.8rem; font-weight: 600; color: #64748b; margin-left: 6px;"></span></div>
-              <div id="detailBookersContainer"></div>
-            </div>
-
-            <div>
               <div class="detail-section-title">Property Owner</div>
               <div class="owner-contact-card">
                 <div class="owner-info-flex">
@@ -1465,7 +1552,9 @@
 
           <div class="detail-right-col">
             <div class="detail-price-display" id="detailPropPrice">₱1,500<span>/month</span></div>
-            <div class="detail-slots-badge" id="detailPropSlotsBadge">1 slot left</div>
+            <div class="detail-slots-badge" id="detailPropSlotsBadge">Available</div>
+
+            <div id="detailPriceBreakdown"></div>
 
             <div class="owner-notice-box">
               <i class="fa-solid fa-triangle-exclamation"></i> You're signed in as a Property Owner.<br/>
@@ -1529,15 +1618,13 @@
         <input type="hidden" id="propLon" value="123.7850"/>
       </div>
 
-      <div class="form-grid-2">
-        <div class="modal-form-group">
-          <label>Total Rooms</label>
-          <input type="number" id="newPropTotalRooms" placeholder="10"/>
-        </div>
-        <div class="modal-form-group">
-          <label>Available Rooms</label>
-          <input type="number" id="newPropAvailRooms" placeholder="5"/>
-        </div>
+      <div class="modal-form-group">
+        <label>Availability</label>
+        <select id="newPropAvailability">
+          <option value="available">Available</option>
+          <option value="reserved">Reserved</option>
+          <option value="taken">Taken</option>
+        </select>
       </div>
 
       <div class="modal-form-group">
@@ -1546,17 +1633,110 @@
       </div>
 
       <div class="modal-form-group">
-        <label>Amenities</label>
-        <div class="amenities-grid">
-          <label class="amenity-checkbox"><input type="checkbox" value="WiFi"/> WiFi</label>
-          <label class="amenity-checkbox"><input type="checkbox" value="AC"/> AC</label>
-          <label class="amenity-checkbox"><input type="checkbox" value="CCTV"/> CCTV</label>
-          <label class="amenity-checkbox"><input type="checkbox" value="Laundry"/> Laundry</label>
-          <label class="amenity-checkbox"><input type="checkbox" value="Kitchen"/> Kitchen</label>
-          <label class="amenity-checkbox"><input type="checkbox" value="Parking"/> Parking</label>
-          <label class="amenity-checkbox"><input type="checkbox" value="Study Area"/> Study Area</label>
-          <label class="amenity-checkbox"><input type="checkbox" value="Gym"/> Gym</label>
+        <label>Amenities <span style="font-weight:500; color:#64748b;">&mdash; tick what you offer, then choose Free or Paid</span></label>
+        <div class="amenities-grid amenities-pricing" id="amenitiesPricing">
+          <div class="amenity-row" data-name="WiFi" data-mode="free">
+            <label class="amenity-checkbox"><input type="checkbox" value="WiFi"/> WiFi</label>
+            <div class="amenity-fee">
+              <div class="fee-toggle">
+                <button type="button" data-mode="free" class="active">Free</button>
+                <button type="button" data-mode="paid">Paid</button>
+              </div>
+              <div class="fee-input"><span>₱</span><input type="number" min="1" step="1" placeholder="0"/><span>/month</span></div>
+            </div>
+          </div>
+          <div class="amenity-row" data-name="Water" data-mode="free">
+            <label class="amenity-checkbox"><input type="checkbox" value="Water"/> Water</label>
+            <div class="amenity-fee">
+              <div class="fee-toggle">
+                <button type="button" data-mode="free" class="active">Free</button>
+                <button type="button" data-mode="paid">Paid</button>
+              </div>
+              <div class="fee-input"><span>₱</span><input type="number" min="1" step="1" placeholder="0"/><span>/month</span></div>
+            </div>
+          </div>
+          <div class="amenity-row" data-name="Electricity" data-mode="free">
+            <label class="amenity-checkbox"><input type="checkbox" value="Electricity"/> Electricity</label>
+            <div class="amenity-fee">
+              <div class="fee-toggle">
+                <button type="button" data-mode="free" class="active">Free</button>
+                <button type="button" data-mode="paid">Paid</button>
+              </div>
+              <div class="fee-input"><span>₱</span><input type="number" min="1" step="1" placeholder="0"/><span>/month</span></div>
+            </div>
+          </div>
+          <div class="amenity-row" data-name="AC" data-mode="free">
+            <label class="amenity-checkbox"><input type="checkbox" value="AC"/> AC</label>
+            <div class="amenity-fee">
+              <div class="fee-toggle">
+                <button type="button" data-mode="free" class="active">Free</button>
+                <button type="button" data-mode="paid">Paid</button>
+              </div>
+              <div class="fee-input"><span>₱</span><input type="number" min="1" step="1" placeholder="0"/><span>/month</span></div>
+            </div>
+          </div>
+          <div class="amenity-row" data-name="CCTV" data-mode="free">
+            <label class="amenity-checkbox"><input type="checkbox" value="CCTV"/> CCTV</label>
+            <div class="amenity-fee">
+              <div class="fee-toggle">
+                <button type="button" data-mode="free" class="active">Free</button>
+                <button type="button" data-mode="paid">Paid</button>
+              </div>
+              <div class="fee-input"><span>₱</span><input type="number" min="1" step="1" placeholder="0"/><span>/month</span></div>
+            </div>
+          </div>
+          <div class="amenity-row" data-name="Laundry" data-mode="free">
+            <label class="amenity-checkbox"><input type="checkbox" value="Laundry"/> Laundry</label>
+            <div class="amenity-fee">
+              <div class="fee-toggle">
+                <button type="button" data-mode="free" class="active">Free</button>
+                <button type="button" data-mode="paid">Paid</button>
+              </div>
+              <div class="fee-input"><span>₱</span><input type="number" min="1" step="1" placeholder="0"/><span>/month</span></div>
+            </div>
+          </div>
+          <div class="amenity-row" data-name="Kitchen" data-mode="free">
+            <label class="amenity-checkbox"><input type="checkbox" value="Kitchen"/> Kitchen</label>
+            <div class="amenity-fee">
+              <div class="fee-toggle">
+                <button type="button" data-mode="free" class="active">Free</button>
+                <button type="button" data-mode="paid">Paid</button>
+              </div>
+              <div class="fee-input"><span>₱</span><input type="number" min="1" step="1" placeholder="0"/><span>/month</span></div>
+            </div>
+          </div>
+          <div class="amenity-row" data-name="Parking" data-mode="free">
+            <label class="amenity-checkbox"><input type="checkbox" value="Parking"/> Parking</label>
+            <div class="amenity-fee">
+              <div class="fee-toggle">
+                <button type="button" data-mode="free" class="active">Free</button>
+                <button type="button" data-mode="paid">Paid</button>
+              </div>
+              <div class="fee-input"><span>₱</span><input type="number" min="1" step="1" placeholder="0"/><span>/month</span></div>
+            </div>
+          </div>
+          <div class="amenity-row" data-name="Study Area" data-mode="free">
+            <label class="amenity-checkbox"><input type="checkbox" value="Study Area"/> Study Area</label>
+            <div class="amenity-fee">
+              <div class="fee-toggle">
+                <button type="button" data-mode="free" class="active">Free</button>
+                <button type="button" data-mode="paid">Paid</button>
+              </div>
+              <div class="fee-input"><span>₱</span><input type="number" min="1" step="1" placeholder="0"/><span>/month</span></div>
+            </div>
+          </div>
+          <div class="amenity-row" data-name="Gym" data-mode="free">
+            <label class="amenity-checkbox"><input type="checkbox" value="Gym"/> Gym</label>
+            <div class="amenity-fee">
+              <div class="fee-toggle">
+                <button type="button" data-mode="free" class="active">Free</button>
+                <button type="button" data-mode="paid">Paid</button>
+              </div>
+              <div class="fee-input"><span>₱</span><input type="number" min="1" step="1" placeholder="0"/><span>/month</span></div>
+            </div>
+          </div>
         </div>
+        <div class="amenity-total" id="amenityTotalPreview"></div>
       </div>
 
       <div class="modal-form-group">
@@ -1565,10 +1745,10 @@
       </div>
 
       <div class="modal-form-group">
-        <label>Property Photos (optional, up to 5)</label>
+        <label>Property Photos (minimum 3, up to 5) *</label>
         <div class="photo-upload-box" onclick="triggerPhotoUpload()">
           <i class="fa-regular fa-image"></i>
-          <p id="uploadCounterText">0/5 photos — click to add more</p>
+          <p id="uploadCounterText">0/5 photos — add at least 3</p>
           <span>JPG, PNG or WEBP — max 5 MB each</span>
           <input type="file" id="multiPropImageFiles" accept="image/*" multiple style="display: none;" onchange="handleMultipleImages(event)"/>
         </div>
@@ -1729,10 +1909,11 @@
         let html = '';
         const dfEsc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
         customProperties.forEach((p, index) => {
-          const isFull = p.occupied.split('/')[0] === p.occupied.split('/')[1];
+          const avail = p.availability || 'available';
+          const availLabel = { available: 'Available', reserved: 'Reserved', taken: 'Taken' }[avail] || 'Available';
           const status = p.status || 'approved';
-          let badgeCls = isFull ? 'full' : '';
-          let badgeTxt = isFull ? 'Full' : 'Active';
+          let badgeCls = avail === 'taken' ? 'full' : avail;
+          let badgeTxt = availLabel;
           let reviewHtml = '';
           if (status === 'pending') {
             badgeCls = 'pending'; badgeTxt = 'Pending approval';
@@ -1751,10 +1932,14 @@
                 <div>
                   <div class="prop-name" onclick="openPropertyDetail(${index})">${p.name}</div>
                   <div class="prop-address">${p.address}</div>
+                  <div class="prop-rating" onclick="event.stopPropagation(); openPropertyReviews('${p.id}')" title="See reviews for this property">
+                    <i class="fa-solid fa-star"></i>
+                    ${Number(p.reviewCount) > 0 ? `<b>${Number(p.rating).toFixed(1)}</b> <span>(${p.reviewCount} review${Number(p.reviewCount) === 1 ? '' : 's'})</span>` : '<span>No reviews yet</span>'}
+                  </div>
                 </div>
                 ${reviewHtml}
                 <div class="prop-footer">
-                  <span>${p.occupied} occupied</span>
+                  <span>${availLabel}</span>
                   <div class="prop-price">${p.rent}<span>/mo</span></div>
                   <button class="btn-manage-prop" onclick="openEditPropertyModal(${index})">Manage</button>
                 </div>
@@ -1785,31 +1970,88 @@
     }
     const ownerStars = n => `<span class="orv-stars">${[1,2,3,4,5].map(i => `<span class="${i <= Math.round(n) ? 'on' : ''}">★</span>`).join('')}</span>`;
 
+    let ownerReviewsList = [];
+    let ownerReviewFilter = 'all';
+    let ownerReviewSort = 'newest';
+
     async function fetchOwnerReviews() {
       const sessionUser = JSON.parse(localStorage.getItem('df_user') || '{}');
       if (!sessionUser.email) return;
-      const box = document.getElementById('ownerReviewsContainer');
       try {
         const response = await fetch(`/api/reviews?owner_email=${encodeURIComponent(sessionUser.email)}`);
         const data = await response.json();
         if (!response.ok || !data.success) return;
+        ownerReviewsList = data.reviews || [];
+        renderOwnerReviews();
+      } catch (err) {
+        console.error('Failed to fetch reviews:', err);
+      }
+    }
 
-        const s = data.summary;
-        if (!s.count) {
-          box.innerHTML = `
-            <div class="empty-state-card">
-              <div class="empty-icon-circle"><i class="fa-regular fa-star"></i></div>
-              <h3 style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin-bottom: 6px;">0.0 Average Rating</h3>
-              <p style="font-size: 0.875rem; color: #64748b;">No reviews yet across your listings. Students can rate and review a property from its page.</p>
-            </div>`;
-          return;
-        }
+    function ownerReviewStats(list) {
+      const count = list.length;
+      const dist = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
+      let sum = 0, rec = 0;
+      list.forEach(r => { dist[r.rating] = (dist[r.rating] || 0) + 1; sum += Number(r.rating) || 0; if (r.recommend) rec++; });
+      return { count, dist, average: count ? sum / count : 0, recommendPct: count ? Math.round(100 * rec / count) : 0 };
+    }
+
+    function openPropertyReviews(id) {
+      ownerReviewFilter = String(id);
+      goToTab('reviews');
+    }
+
+    function setOwnerReviewFilter(id) { ownerReviewFilter = String(id); renderOwnerReviews(); }
+    function setOwnerReviewSort(v) { ownerReviewSort = v; renderOwnerReviews(); }
+
+    function renderOwnerReviews() {
+      const box = document.getElementById('ownerReviewsContainer');
+
+      // Every property of the owner (even without reviews) + any that only appear in reviews
+      const props = customProperties.map(p => ({ id: String(p.id), name: p.name, image: p.image }));
+      ownerReviewsList.forEach(r => {
+        if (!props.some(p => p.id === String(r.property_id))) props.push({ id: String(r.property_id), name: r.property_name, image: '' });
+      });
+      if (ownerReviewFilter !== 'all' && !props.some(p => p.id === ownerReviewFilter)) ownerReviewFilter = 'all';
+
+      const allStats = ownerReviewStats(ownerReviewsList);
+      const cards = [`
+        <button class="orv-pcard ${ownerReviewFilter === 'all' ? 'active' : ''}" onclick="setOwnerReviewFilter('all')">
+          <div class="orv-pthumb"><i class="fa-solid fa-layer-group"></i></div>
+          <div class="orv-pinfo">
+            <div class="nm">All properties</div>
+            <div class="rt">${ownerStars(allStats.average)} <b>${allStats.count ? allStats.average.toFixed(1) : '–'}</b> (${allStats.count})</div>
+          </div>
+        </button>`];
+
+      props.forEach(p => {
+        const st = ownerReviewStats(ownerReviewsList.filter(r => String(r.property_id) === p.id));
+        const thumb = p.image ? `style="background-image:url('${p.image}')"` : '';
+        cards.push(`
+          <button class="orv-pcard ${ownerReviewFilter === p.id ? 'active' : ''}" onclick="setOwnerReviewFilter('${p.id}')">
+            <div class="orv-pthumb" ${thumb}>${p.image ? '' : '<i class="fa-solid fa-house-chimney"></i>'}</div>
+            <div class="orv-pinfo">
+              <div class="nm">${escHtml(p.name)}</div>
+              <div class="rt">${st.count ? `${ownerStars(st.average)} <b>${st.average.toFixed(1)}</b> (${st.count})` : 'No reviews yet'}</div>
+            </div>
+          </button>`);
+      });
+
+      const shown = ownerReviewFilter === 'all' ? ownerReviewsList.slice() : ownerReviewsList.filter(r => String(r.property_id) === ownerReviewFilter);
+      if (ownerReviewSort === 'highest') shown.sort((x, y) => y.rating - x.rating || y.id - x.id);
+      else if (ownerReviewSort === 'lowest') shown.sort((x, y) => x.rating - y.rating || y.id - x.id);
+      else shown.sort((x, y) => y.id - x.id);
+
+      const s = ownerReviewStats(shown);
+      const selName = ownerReviewFilter === 'all' ? 'All properties' : (props.find(p => p.id === ownerReviewFilter) || {}).name;
+
+      let summaryHtml = '';
+      if (s.count) {
         const bars = [5, 4, 3, 2, 1].map(n => {
-          const c = s.distribution[String(n)] || 0;
+          const c = s.dist[n] || 0;
           return `<div class="orv-bar"><span>${n} ★</span><div class="track"><div class="fill" style="width:${Math.round(100 * c / s.count)}%"></div></div><span class="c">${c}</span></div>`;
         }).join('');
-
-        box.innerHTML = `
+        summaryHtml = `
           <div class="orv-summary">
             <div class="orv-score">
               <div class="n">${s.average.toFixed(1)}<span>/5</span></div>
@@ -1817,22 +2059,117 @@
               <div class="sub">${s.count} review${s.count === 1 ? '' : 's'} · ${s.recommendPct}% recommend</div>
             </div>
             <div class="orv-bars">${bars}</div>
+          </div>`;
+      }
+
+      const listHtml = shown.length ? shown.map(r => `
+        <div class="orv-item">
+          <div class="orv-avatar">${escHtml(initialsOf(r.name))}</div>
+          <div class="orv-body">
+            <div class="orv-head"><b>${escHtml(r.name)}</b><span class="t">${ownerTimeAgo(r.created_at)}</span></div>
+            ${ownerStars(r.rating)}
+            ${ownerReviewFilter === 'all' ? `<div><span class="orv-prop">${escHtml(r.property_name)}</span></div>` : ''}
+            ${r.comment ? `<div class="orv-text">${escHtml(r.comment)}</div>` : ''}
+            <div class="orv-rec ${r.recommend ? '' : 'no'}"><i class="fa-regular ${r.recommend ? 'fa-thumbs-up' : 'fa-thumbs-down'}"></i> ${r.recommend ? 'Recommends this property' : 'Does not recommend'}</div>
           </div>
-          ${data.reviews.map(r => `
-            <div class="orv-item">
-              <div class="orv-avatar">${escHtml(initialsOf(r.name))}</div>
-              <div class="orv-body">
-                <div class="orv-head"><b>${escHtml(r.name)}</b><span class="t">${ownerTimeAgo(r.created_at)}</span></div>
-                ${ownerStars(r.rating)}
-                <div><span class="orv-prop">${escHtml(r.property_name)}</span></div>
-                ${r.comment ? `<div class="orv-text">${escHtml(r.comment)}</div>` : ''}
-                <div class="orv-rec ${r.recommend ? '' : 'no'}"><i class="fa-regular ${r.recommend ? 'fa-thumbs-up' : 'fa-thumbs-down'}"></i> ${r.recommend ? 'Recommends this property' : 'Does not recommend'}</div>
-              </div>
-            </div>`).join('')}`;
-      } catch (err) {
-        console.error('Failed to fetch reviews:', err);
+        </div>`).join('')
+        : `<div class="orv-empty"><i class="fa-regular fa-star" style="font-size:1.4rem; display:block; margin-bottom:8px;"></i>No reviews yet for <b>${escHtml(selName || 'this property')}</b>. Students can rate and review a property from its page.</div>`;
+
+      box.innerHTML = `
+        <div class="orv-props">${cards.join('')}</div>
+        ${summaryHtml}
+        <div class="orv-toolbar">
+          <h3>${escHtml(selName || '')} · ${s.count} review${s.count === 1 ? '' : 's'}</h3>
+          <select onchange="setOwnerReviewSort(this.value)">
+            <option value="newest" ${ownerReviewSort === 'newest' ? 'selected' : ''}>Newest first</option>
+            <option value="highest" ${ownerReviewSort === 'highest' ? 'selected' : ''}>Highest rating</option>
+            <option value="lowest" ${ownerReviewSort === 'lowest' ? 'selected' : ''}>Lowest rating</option>
+          </select>
+        </div>
+        ${listHtml}`;
+    }
+
+    /* ══════════ AMENITY PRICING (free or paid per month) ══════════ */
+    function amenityRows() { return Array.from(document.querySelectorAll('#amenitiesPricing .amenity-row')); }
+    function refreshAmenityRow(row) {
+      const cb = row.querySelector('input[type="checkbox"]');
+      const paid = row.dataset.mode === 'paid';
+      row.classList.toggle('checked', cb.checked);
+      row.querySelector('.amenity-fee').style.display = cb.checked ? 'flex' : 'none';
+      row.querySelectorAll('.fee-toggle button').forEach(b => b.classList.toggle('active', b.dataset.mode === (paid ? 'paid' : 'free')));
+      row.querySelector('.fee-input').style.display = (cb.checked && paid) ? 'flex' : 'none';
+    }
+    function resetAmenityPricing() {
+      amenityRows().forEach(row => {
+        row.querySelector('input[type="checkbox"]').checked = false;
+        row.dataset.mode = 'free';
+        row.querySelector('.fee-input input').value = '';
+        refreshAmenityRow(row);
+      });
+      updateAmenityTotal();
+    }
+    function fillAmenityPricing(p) {
+      amenityRows().forEach(row => {
+        const name = row.dataset.name;
+        const price = p.amenityPrices && Number(p.amenityPrices[name]) > 0 ? Number(p.amenityPrices[name]) : 0;
+        row.querySelector('input[type="checkbox"]').checked = !!(p.amenities && p.amenities.includes(name));
+        row.dataset.mode = price > 0 ? 'paid' : 'free';
+        row.querySelector('.fee-input input').value = price > 0 ? price : '';
+        refreshAmenityRow(row);
+      });
+      updateAmenityTotal();
+    }
+    // Returns what the owner picked: names, {name: price} for the paid ones, and an error text if a paid amenity has no price
+    function collectAmenityPricing() {
+      const selectedAmenities = [];
+      const amenityPrices = {};
+      let error = '';
+      amenityRows().forEach(row => {
+        if (!row.querySelector('input[type="checkbox"]').checked) return;
+        const name = row.dataset.name;
+        selectedAmenities.push(name);
+        if (row.dataset.mode === 'paid') {
+          const price = parseInt(row.querySelector('.fee-input input').value);
+          if (!(price > 0)) { if (!error) error = `Enter a monthly price for ${name}, or mark it as Free.`; }
+          else amenityPrices[name] = price;
+        }
+      });
+      return { selectedAmenities, amenityPrices, error };
+    }
+    function updateAmenityTotal() {
+      const box = document.getElementById('amenityTotalPreview');
+      if (!box) return;
+      const rent = parseFloat(document.getElementById('newPropRent').value) || 0;
+      let fees = 0, freeCount = 0, paidCount = 0;
+      amenityRows().forEach(row => {
+        if (!row.querySelector('input[type="checkbox"]').checked) return;
+        const price = row.dataset.mode === 'paid' ? (parseInt(row.querySelector('.fee-input input').value) || 0) : 0;
+        if (price > 0) { fees += price; paidCount++; } else { freeCount++; }
+      });
+      const peso = n => '₱' + Math.round(n).toLocaleString('en-PH');
+      if (!paidCount) {
+        box.innerHTML = `Students will pay <b>${peso(rent)}/month</b>${freeCount ? ` &mdash; all ${freeCount} selected amenit${freeCount === 1 ? 'y is' : 'ies are'} free.` : '.'}`;
+      } else {
+        box.innerHTML = `Students will see a total of <b>${peso(rent + fees)}/month</b> &mdash; ${peso(rent)} rent + ${peso(fees)} for ${paidCount} paid amenit${paidCount === 1 ? 'y' : 'ies'}${freeCount ? `, ${freeCount} free` : ''}.`;
       }
     }
+    // one set of listeners for the whole amenity list (and the rent box, because the total depends on it)
+    document.addEventListener('change', e => {
+      const row = e.target.closest && e.target.closest('#amenitiesPricing .amenity-row');
+      if (row && e.target.type === 'checkbox') { refreshAmenityRow(row); updateAmenityTotal(); }
+    });
+    document.addEventListener('click', e => {
+      const btn = e.target.closest && e.target.closest('#amenitiesPricing .fee-toggle button');
+      if (!btn) return;
+      const row = btn.closest('.amenity-row');
+      row.dataset.mode = btn.dataset.mode;
+      refreshAmenityRow(row);
+      if (btn.dataset.mode === 'paid') row.querySelector('.fee-input input').focus();
+      updateAmenityTotal();
+    });
+    document.addEventListener('input', e => {
+      if (e.target.id === 'newPropRent' || (e.target.closest && e.target.closest('#amenitiesPricing .fee-input'))) updateAmenityTotal();
+    });
 
     async function fetchOwnerBookings() {
       const sessionUser = JSON.parse(localStorage.getItem('df_user') || '{}');
@@ -1852,7 +2189,6 @@
 
     function renderOwnerBookings(bookings) {
       ownerBookings = bookings;
-      renderPropertyBookers();
       const container = document.getElementById('ownerBookingsContainer');
       const pendingCount = bookings.filter(b => b.status === 'pending').length;
       const approvedCount = bookings.filter(b => b.status === 'approved').length;
@@ -1881,6 +2217,18 @@
             <button onclick="event.stopPropagation(); respondBooking(${b.id}, 'approved')" style="background: #059669; color: #ffffff; border: none; padding: 0.55rem 1.1rem; border-radius: 8px; font-weight: 700; cursor: pointer; margin-right: 6px;">Approve</button>
             <button onclick="event.stopPropagation(); respondBooking(${b.id}, 'rejected')" style="background: #dc2626; color: #ffffff; border: none; padding: 0.55rem 1.1rem; border-radius: 8px; font-weight: 700; cursor: pointer;">Reject</button>
           `;
+        } else if (b.status === 'approved') {
+          actionButtons = `
+            ${statusPill(b.status)}
+            <div style="font-size: 0.72rem; color: #64748b; margin: 6px 0;">Reserved until ${fmtDate(b.expires_at)}</div>
+            <button onclick="event.stopPropagation(); respondBooking(${b.id}, 'confirmed')" style="background: #2563eb; color: #ffffff; border: none; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 700; cursor: pointer; margin-right: 6px;">Mark as moved in</button>
+            <button onclick="event.stopPropagation(); respondBooking(${b.id}, 'rejected')" style="background: #fee2e2; color: #dc2626; border: none; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 700; cursor: pointer;">Release</button>
+          `;
+        } else if (['rejected', 'cancelled', 'expired'].includes(b.status)) {
+          actionButtons = `
+            ${statusPill(b.status)}
+            <button onclick="event.stopPropagation(); removeBooking(${b.id})" title="Remove from this list" style="background: #f1f5f9; color: #475569; border: none; padding: 0.4rem 0.8rem; border-radius: 8px; font-weight: 700; cursor: pointer; margin-left: 8px;"><i class="fa-regular fa-trash-can"></i> Remove</button>
+          `;
         } else {
           actionButtons = statusPill(b.status);
         }
@@ -1907,31 +2255,6 @@
       container.innerHTML = html;
     }
 
-    // ── Who booked this property (shown on the property detail page) ──
-    function renderPropertyBookers() {
-      const box = document.getElementById('detailBookersContainer');
-      const countEl = document.getElementById('detailBookersCount');
-      if (!box || currentDetailPropId == null) return;
-
-      const list = ownerBookings.filter(b => String(b.property_id) === String(currentDetailPropId));
-      countEl.textContent = list.length ? `(${list.length})` : '';
-
-      if (list.length === 0) {
-        box.innerHTML = `<div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 1.1rem; color: #64748b; font-size: 0.88rem; text-align: center;">No one has booked this property yet.</div>`;
-        return;
-      }
-      box.innerHTML = list.map(b => `
-        <div class="booker-row">
-          <div class="avatar-circle">${escHtml(initialsOf(b.student_name))}</div>
-          <div class="b-main">
-            <button class="student-link" onclick="openStudentProfile(${b.id})">${escHtml(b.student_name)}</button>
-            <div class="b-sub">${escHtml(b.room_name)} · Move-in ${escHtml(b.move_in_date)}</div>
-          </div>
-          ${statusPill(b.status)}
-        </div>
-      `).join('');
-    }
-
     // ── Student profile modal ──
     function openStudentProfile(bookingId) {
       const b = ownerBookings.find(x => x.id === bookingId);
@@ -1943,7 +2266,9 @@
           <span>${val ? (extra || escHtml(val)) : '<span class="muted">Not provided</span>'}</span>
         </div>`;
 
-      const actions = b.status === 'pending' ? `
+      const actions = b.status === 'approved' ? `
+          <button onclick="respondBooking(${b.id}, 'confirmed')" style="background: #2563eb; color: #ffffff;"><i class="fa-solid fa-key"></i> Mark as moved in</button>
+          <button onclick="respondBooking(${b.id}, 'rejected')" style="background: #fee2e2; color: #dc2626;"><i class="fa-solid fa-rotate-left"></i> Release</button>` : b.status === 'pending' ? `
           <button onclick="respondBooking(${b.id}, 'approved')" style="background: #059669; color: #ffffff;"><i class="fa-solid fa-check"></i> Approve</button>
           <button onclick="respondBooking(${b.id}, 'rejected')" style="background: #dc2626; color: #ffffff;"><i class="fa-solid fa-xmark"></i> Reject</button>` : '';
 
@@ -1997,6 +2322,26 @@
 
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeStudentProfile(); });
 
+    async function removeBooking(bookingId) {
+      if (!confirm('Remove this request from your list?')) return;
+      const sessionUser = JSON.parse(localStorage.getItem('df_user') || '{}');
+      try {
+        const response = await fetch(`/api/bookings/${bookingId}/remove`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ owner_email: sessionUser.email })
+        });
+        const data = await response.json();
+        if (response.ok && data.success) {
+          fetchOwnerBookings();
+        } else {
+          alert(data.message || 'Could not remove this request.');
+        }
+      } catch (err) {
+        alert('Could not connect to the server.');
+      }
+    }
+
     async function respondBooking(bookingId, status) {
       try {
         const response = await fetch(`/api/bookings/${bookingId}/status`, {
@@ -2008,8 +2353,9 @@
 
         if (response.ok && data.success) {
           closeStudentProfile();
-          alert(`Booking request has been ${status}.`);
+          alert(data.message || `Booking request has been ${status}.`);
           fetchOwnerBookings();
+          if (typeof fetchOwnerProperties === 'function') fetchOwnerProperties();
         } else {
           alert(data.message || 'Failed to update booking status.');
         }
@@ -2053,6 +2399,7 @@
 
       const threads = Object.values(threadsMap);
       document.getElementById('badge-messages').textContent = threads.length;
+      document.getElementById('stat-messages').textContent = threads.length;
 
       if (threads.length === 0) {
         container.innerHTML = `<div style="padding: 1.5rem; color: #64748b; text-align: center; font-size: 0.85rem;">No conversations yet.</div>`;
@@ -2142,17 +2489,17 @@
     function openPropertyDetail(index) {
       const p = customProperties[index];
       currentDetailPropId = p.id;
-      renderPropertyBookers();
 
       document.getElementById('detailPropName').textContent = p.name;
       document.getElementById('detailPropType').textContent = p.type || 'Apartment';
       document.getElementById('detailPropLocation').textContent = p.address || 'Minglanilla, Cebu';
-      document.getElementById('detailPropSlots').textContent = `${p.availRooms || 1} slot left`;
+      const detailAvail = { available: 'Available', reserved: 'Reserved', taken: 'Taken' }[p.availability || 'available'] || 'Available';
+      document.getElementById('detailPropSlots').textContent = detailAvail;
       document.getElementById('detailPropRating').textContent = Number(p.reviewCount) > 0 ? `${Number(p.rating).toFixed(1)} (${p.reviewCount})` : 'New';
-      document.getElementById('detailPropSlotsBadge').textContent = `${p.availRooms || 1} slot left`;
+      document.getElementById('detailPropSlotsBadge').textContent = detailAvail;
+      document.getElementById('detailPropSlotsBadge').className = 'detail-slots-badge ' + detailAvail.toLowerCase();
       document.getElementById('detailPropDesc').textContent = p.desc || 'No description provided.';
       document.getElementById('detailPropRules').textContent = p.rules || 'No specific rules.';
-      document.getElementById('detailPropPrice').innerHTML = `${p.rent}<span>/month</span>`;
 
       const lat = p.lat || 10.2480;
       const lon = p.lon || 123.7850;
@@ -2160,44 +2507,34 @@
       document.getElementById('mapExternalLink').href = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=15/${lat}/${lon}`;
 
       const imgs = p.images && p.images.length > 0 ? p.images : [p.image];
-      let galleryHtml = `<div class="detail-main-img" style="background-image: url('${imgs[0]}')"></div>`;
-      
-      galleryHtml += `<div class="detail-side-imgs">`;
-      if (imgs[1]) {
-        galleryHtml += `<div class="detail-sub-img" style="background-image: url('${imgs[1]}')"></div>`;
-      } else {
-        galleryHtml += `<div class="detail-sub-img" style="background-image: url('${imgs[0]}')"></div>`;
-      }
-
-      if (imgs[2]) {
-        galleryHtml += `
-          <div class="detail-sub-img" style="background-image: url('${imgs[2]}')">
-            <div class="detail-more-overlay">
-              <i class="fa-regular fa-image" style="font-size: 1.1rem; margin-bottom: 2px;"></i>
-              View all ${imgs.length} photos
-            </div>
-          </div>
-        `;
-      } else {
-        galleryHtml += `
-          <div class="detail-sub-img" style="background-image: url('${imgs[0]}')">
-            <div class="detail-more-overlay">
-              <i class="fa-regular fa-image" style="font-size: 1.1rem; margin-bottom: 2px;"></i>
-              View all ${imgs.length} photos
-            </div>
-          </div>
-        `;
-      }
-      galleryHtml += `</div>`;
-      document.getElementById('detailGalleryContainer').innerHTML = galleryHtml;
+      document.getElementById('detailGalleryContainer').innerHTML = dfBuildGallery(imgs);
 
       const amContainer = document.getElementById('detailAmenitiesContainer');
       let amHtml = '';
       const listAm = p.amenities && p.amenities.length > 0 ? p.amenities : ['WiFi', 'AC', 'Kitchen'];
       listAm.forEach(am => {
-        amHtml += `<div class="detail-amenity-pill"><i class="fa-solid fa-check" style="color: #2563eb;"></i> ${am}</div>`;
+        const price = p.amenityPrices && Number(p.amenityPrices[am]) > 0 ? Number(p.amenityPrices[am]) : 0;
+        amHtml += `<div class="detail-amenity-pill"><i class="fa-solid fa-check" style="color: #2563eb;"></i> ${escHtml(am)} ` +
+          (price ? `<span class="am-tag paid">+₱${price.toLocaleString('en-PH')}/mo</span>` : '<span class="am-tag free">Free</span>') + '</div>';
       });
       amContainer.innerHTML = amHtml;
+
+      // what students will see as the total
+      const paidList = listAm.filter(am => p.amenityPrices && Number(p.amenityPrices[am]) > 0);
+      const rentNum = parseFloat(String(p.rawRent || p.rent || '0').replace(/[^0-9.]/g, '')) || 0;
+      const feeSum = paidList.reduce((sum, am) => sum + Number(p.amenityPrices[am]), 0);
+      const freeList = listAm.filter(am => !(p.amenityPrices && Number(p.amenityPrices[am]) > 0));
+      document.getElementById('detailPropPrice').innerHTML = paidList.length
+        ? `₱${(rentNum + feeSum).toLocaleString('en-PH')}<span>/month total</span>`
+        : `${p.rent}<span>/month</span>`;
+      document.getElementById('detailPriceBreakdown').innerHTML = paidList.length ? `
+        <div class="price-breakdown">
+          <div class="pb-title">Monthly cost</div>
+          <div class="pb-row"><span>Room rent</span><b>₱${rentNum.toLocaleString('en-PH')}</b></div>
+          ${paidList.map(am => `<div class="pb-row"><span>${escHtml(am)}</span><b>+₱${Number(p.amenityPrices[am]).toLocaleString('en-PH')}</b></div>`).join('')}
+          <div class="pb-row total"><span>Total per month</span><b>₱${(rentNum + feeSum).toLocaleString('en-PH')}</b></div>
+          ${freeList.length ? `<div class="pb-free"><i class="fa-solid fa-check"></i> Free: ${freeList.map(escHtml).join(', ')}</div>` : ''}
+        </div>` : '';
 
       const ownerName = document.getElementById('nav-username').textContent;
       document.getElementById('detailOwnerName').textContent = ownerName;
@@ -2239,14 +2576,16 @@
       const container = document.getElementById('photoThumbsContainer');
       const counterText = document.getElementById('uploadCounterText');
       
-      counterText.textContent = `${uploadedImagesList.length}/5 photos — click to add more`;
+      const n = uploadedImagesList.length;
+      counterText.textContent = n < 3 ? `${n}/5 photos — add ${3 - n} more (minimum 3)` : `${n}/5 photos — click to add more`;
+      counterText.style.color = n < 3 ? '#dc2626' : '#0f172a';
 
       let html = '';
       uploadedImagesList.forEach((imgSrc, idx) => {
         html += `
-          <div class="photo-thumb-item" style="background-image: url('${imgSrc}')">
+          <div class="photo-thumb-item clickable-photo" style="background-image: url('${imgSrc}')" onclick="window.__dfGallery=[...uploadedImagesList]; dfOpenLightbox(${idx})">
             ${idx === 0 ? '<div class="thumb-cover-badge">COVER</div>' : ''}
-            <div class="thumb-remove-btn" onclick="removeImage(${idx})"><i class="fa-solid fa-xmark"></i></div>
+            <div class="thumb-remove-btn" onclick="event.stopPropagation(); removeImage(${idx})"><i class="fa-solid fa-xmark"></i></div>
           </div>
         `;
       });
@@ -2262,11 +2601,10 @@
       document.getElementById('newPropName').value = '';
       document.getElementById('newPropType').value = 'Apartment';
       document.getElementById('newPropRent').value = '';
-      document.getElementById('newPropTotalRooms').value = '';
-      document.getElementById('newPropAvailRooms').value = '';
+      document.getElementById('newPropAvailability').value = 'available';
       document.getElementById('newPropDesc').value = '';
       document.getElementById('newPropRules').value = '';
-      document.querySelectorAll('.amenities-grid input[type="checkbox"]').forEach(cb => cb.checked = false);
+      resetAmenityPricing();
 
       uploadedImagesList = [];
       renderThumbnails();
@@ -2284,8 +2622,7 @@
       document.getElementById('newPropName').value = p.name || '';
       document.getElementById('newPropType').value = p.type || 'Apartment';
       document.getElementById('newPropRent').value = p.rawRent || '';
-      document.getElementById('newPropTotalRooms').value = p.totalRooms || '10';
-      document.getElementById('newPropAvailRooms').value = p.availRooms || '5';
+      document.getElementById('newPropAvailability').value = p.availability || 'available';
       document.getElementById('newPropDesc').value = p.desc || '';
       document.getElementById('newPropRules').value = p.rules || '';
 
@@ -2293,9 +2630,7 @@
       const lon = p.lon || 123.7850;
       updateSelectedCoords(lat, lon);
 
-      document.querySelectorAll('.amenities-grid input[type="checkbox"]').forEach(cb => {
-        cb.checked = p.amenities && p.amenities.includes(cb.value);
-      });
+      fillAmenityPricing(p);
 
       uploadedImagesList = p.images ? [...p.images] : [p.image];
       renderThumbnails();
@@ -2324,22 +2659,23 @@
       const rentVal = document.getElementById('newPropRent').value.trim();
       const lat = parseFloat(document.getElementById('propLat').value);
       const lon = parseFloat(document.getElementById('propLon').value);
-      const totalRooms = document.getElementById('newPropTotalRooms').value.trim() || '10';
-      const availRooms = document.getElementById('newPropAvailRooms').value.trim() || '5';
+      const availability = document.getElementById('newPropAvailability').value;
       const desc = document.getElementById('newPropDesc').value.trim();
       const rules = document.getElementById('newPropRules').value.trim();
 
-      const selectedAmenities = [];
-      document.querySelectorAll('.amenities-grid input[type="checkbox"]:checked').forEach(cb => {
-        selectedAmenities.push(cb.value);
-      });
+      const { selectedAmenities, amenityPrices, error: amenityError } = collectAmenityPricing();
+      if (amenityError) { alert(amenityError); return; }
 
       if (!name || !rentVal) {
         alert('Please fill out the required property name and monthly rent fields.');
         return;
       }
 
-      const occupiedCount = parseInt(totalRooms) - parseInt(availRooms);
+      if (uploadedImagesList.length < 3) {
+        alert(`Please upload at least 3 photos of your property. You have added ${uploadedImagesList.length}.`);
+        return;
+      }
+
       const propertyPayload = {
         id: propId,
         owner_email: ownerEmail,
@@ -2350,13 +2686,12 @@
         lon: lon,
         rawRent: rentVal,
         rent: `₱${parseInt(rentVal).toLocaleString()}`,
-        totalRooms,
-        availRooms,
-        occupied: `${Math.max(0, occupiedCount)}/${totalRooms}`,
+        availability,
         desc,
         rules,
         amenities: selectedAmenities,
-        image: uploadedImagesList.length > 0 ? uploadedImagesList[0] : 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=600&q=80',
+        amenityPrices,
+        image: uploadedImagesList[0],
         images: uploadedImagesList
       };
 
@@ -2402,6 +2737,12 @@
           }
         }
       }
+    }
+
+    // Overview cards: jump to the matching sidebar tab
+    function goToTab(tabId) {
+      const navBtn = document.querySelector(`.sidebar-nav .nav-item[onclick*="'${tabId}'"]`);
+      switchTab(tabId, navBtn);
     }
 
     function switchTab(tabId, el) {
@@ -2480,6 +2821,68 @@
     fetchOwnerBookings();
     fetchUserMessages();
     setInterval(fetchOwnerBookings, 30000); // pick up new bookings without a page reload
+  </script>
+
+  <!-- Photo viewer -->
+  <div id="dfLightbox" onclick="if(event.target===this||event.target.classList.contains('lb-stage'))dfCloseLightbox()">
+    <div class="lb-stage">
+      <span class="lb-counter" id="dfLbCounter"></span>
+      <button class="lb-btn lb-close" onclick="dfCloseLightbox()" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      <button class="lb-btn lb-prev" onclick="dfLbStep(-1)" aria-label="Previous"><i class="fa-solid fa-chevron-left"></i></button>
+      <img class="lb-img" id="dfLbImg" alt="Property photo">
+      <button class="lb-btn lb-next" onclick="dfLbStep(1)" aria-label="Next"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+    <div class="lb-strip" id="dfLbStrip"></div>
+  </div>
+  <script>
+    window.__dfGallery = [];
+    let __dfLbIndex = 0;
+    function dfOpenLightbox(startIndex) {
+      if (!window.__dfGallery.length) return;
+      __dfLbIndex = startIndex || 0;
+      document.getElementById('dfLbStrip').innerHTML = window.__dfGallery.map((src, i) =>
+        `<div class="lb-thumb" data-i="${i}" style="background-image:url('${src}')"></div>`).join('');
+      document.querySelectorAll('#dfLbStrip .lb-thumb').forEach(t =>
+        t.addEventListener('click', () => dfLbShow(parseInt(t.dataset.i))));
+      document.getElementById('dfLightbox').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      dfLbShow(__dfLbIndex);
+    }
+    function dfLbShow(i) {
+      const n = window.__dfGallery.length;
+      __dfLbIndex = (i + n) % n;
+      document.getElementById('dfLbImg').src = window.__dfGallery[__dfLbIndex];
+      document.getElementById('dfLbCounter').textContent = `${__dfLbIndex + 1} / ${n}`;
+      document.querySelectorAll('#dfLbStrip .lb-thumb').forEach((t, k) => t.classList.toggle('active', k === __dfLbIndex));
+    }
+    function dfLbStep(d) { dfLbShow(__dfLbIndex + d); }
+    function dfCloseLightbox() {
+      document.getElementById('dfLightbox').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', e => {
+      if (!document.getElementById('dfLightbox').classList.contains('open')) return;
+      if (e.key === 'Escape') dfCloseLightbox();
+      if (e.key === 'ArrowLeft') dfLbStep(-1);
+      if (e.key === 'ArrowRight') dfLbStep(1);
+    });
+    // Builds the 1 main + 2 side photo layout and makes every photo open the viewer
+    function dfBuildGallery(imgs) {
+      const list = (imgs || []).filter(Boolean);
+      window.__dfGallery = list;
+      const a = list[0], b = list[1] || list[0], c = list[2] || list[0];
+      return `
+        <div class="detail-main-img clickable-photo" style="background-image:url('${a}')" onclick="dfOpenLightbox(0)"></div>
+        <div class="detail-side-imgs">
+          <div class="detail-sub-img clickable-photo" style="background-image:url('${b}')" onclick="dfOpenLightbox(${list[1] ? 1 : 0})"></div>
+          <div class="detail-sub-img clickable-photo" style="background-image:url('${c}')" onclick="dfOpenLightbox(${list[2] ? 2 : 0})">
+            <div style="position:absolute;inset:0;background:rgba(15,23,42,.55);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;border-radius:14px;">
+              <i class="fa-regular fa-image" style="font-size:1.1rem;margin-bottom:2px;"></i>
+              View all ${list.length} photo${list.length === 1 ? '' : 's'}
+            </div>
+          </div>
+        </div>`;
+    }
   </script>
 </body>
 </html>

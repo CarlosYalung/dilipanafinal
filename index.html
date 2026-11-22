@@ -304,6 +304,9 @@
     .dp-text { font-size: 0.88rem; line-height: 1.6; color: #334155; font-weight: 500; white-space: pre-line; word-break: break-word; }
     .dp-chips { display: flex; flex-wrap: wrap; gap: 8px; }
     .dp-chip { padding: 6px 12px; border: 1px solid #e2e8f0; border-radius: 100px; font-size: 0.8rem; font-weight: 600; color: #1e293b; }
+    .dp-chip .t { margin-left: 4px; font-size: 0.7rem; font-weight: 800; }
+    .dp-chip .t.free { color: #15803d; }
+    .dp-chip .t.paid { color: #b45309; }
     .dp-rules { background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 12px 14px; font-size: 0.85rem; color: #78350f; white-space: pre-line; word-break: break-word; }
     .dp-room {
       display: flex; align-items: center; justify-content: space-between;
@@ -1512,6 +1515,10 @@
       const slotsText = avail > 0 ? `${avail} slot${avail === 1 ? '' : 's'} left` : 'Fully booked';
       const slotsCls = avail === 0 ? 'none' : (avail <= 2 ? 'low' : '');
       const amenities = (p.amenities && p.amenities.length) ? p.amenities : [];
+      const priceOf = a => { const v = p.amenityPrices ? Number(p.amenityPrices[a]) : 0; return v > 0 ? v : 0; };
+      const peso = n => '₱' + Math.round(n).toLocaleString('en-PH');
+      const rentNum = parseFloat(String(p.rawRent || p.rent || '0').replace(/[^0-9.]/g, '')) || 0;
+      const fees = amenities.reduce((sum, a) => sum + priceOf(a), 0);
       const ownerName = p.owner_name || 'Property Owner';
 
       let rooms = '';
@@ -1529,7 +1536,7 @@
           <img id="dpImg" src="${esc(imgs[0])}" alt="${esc(p.name)}">
           <button class="dp-close" data-act="close" aria-label="Close">${ICON.close}</button>
           <button class="dp-seephotos" data-act="photos">${ICON.photos} ${imgs.length > 1 ? `See photos (<span id="dpPhotoCount">1/${imgs.length}</span>)` : '1 photo'}</button>
-          <div class="dp-price"><b>${esc(p.rent)}</b><small>per month</small></div>
+          <div class="dp-price"><b>${fees ? peso(rentNum + fees) : esc(p.rent)}</b><small>${fees ? 'per month total' : 'per month'}</small></div>
         </div>
 
         <div class="dp-head">
@@ -1558,6 +1565,7 @@
 
         <div class="dp-pane active" data-pane="overview">
           <div class="dp-row">${ICON.pin}<span>${esc(p.address || 'Minglanilla, Cebu')}</span></div>
+          ${fees ? `<div class="dp-row">${ICON.cross}<span><b>${peso(rentNum + fees)}/month total</b> <span style="color:#64748b">(${esc(p.rent)} rent + ${peso(fees)} amenities)</span></span></div>` : ''}
           <div class="dp-row">${ICON.door}<span>${avail} of ${total} room${total === 1 ? '' : 's'} available</span></div>
           <div class="dp-row">${ICON.user}<span>${esc(ownerName)} <span style="color:#64748b">· Property Owner</span></span></div>
           ${p.owner_email ? `<div class="dp-row">${ICON.mail}<a href="mailto:${esc(p.owner_email)}">${esc(p.owner_email)}</a></div>` : ''}
@@ -1574,7 +1582,7 @@
           <div class="dp-text">${esc(p.desc || 'No description provided.')}</div>
           <div class="dp-label">Amenities</div>
           ${amenities.length
-            ? `<div class="dp-chips">${amenities.map(a => `<span class="dp-chip">✓ ${esc(a)}</span>`).join('')}</div>`
+            ? `<div class="dp-chips">${amenities.map(a => `<span class="dp-chip">✓ ${esc(a)}${priceOf(a) ? `<span class="t paid">+${peso(priceOf(a))}/mo</span>` : '<span class="t free">Free</span>'}</span>`).join('')}</div>`
             : '<div class="dp-text">No amenities listed.</div>'}
           <div class="dp-label">House rules</div>
           <div class="dp-rules">${esc(p.rules || 'No specific rules.')}</div>
